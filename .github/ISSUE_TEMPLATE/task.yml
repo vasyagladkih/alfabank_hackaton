@@ -8,11 +8,11 @@ body:
       label: "Роль"
       description: "Выбери исполнителя / трек задачи"
       options:
-        - "Product / UX"
-        - "Risk / Scoring"
-        - "QA / Synthetic Data"
-        - "Backend"
-        - "Frontend"
+      - "Product / System"
+      - "Risk / Scoring"
+      - "Data / Delivery"
+      - "Backend"
+      - "Frontend"
     validations:
       required: true
 
