@@ -1,6 +1,6 @@
-name: "Трек: Data / Delivery"
+name: "Data / Delivery"
 description: "Задачи по синтетическим профилям (ФНС, БКИ), Postman и README"
-title: "[DATA]: "
+title: "[TASK]: "
 labels: ["domain:data"]
 body:
   - type: textarea

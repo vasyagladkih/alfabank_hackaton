@@ -1,6 +1,6 @@
-name: "Трек: Frontend"
+name: "Frontend"
 description: "Задачи по верстке кабинета, панели андеррайтера и связке с API"
-title: "[FRONTEND]: "
+title: "[TASK]: "
 labels: ["domain:frontend"]
 body:
   - type: textarea

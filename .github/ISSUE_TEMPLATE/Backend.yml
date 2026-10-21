@@ -1,6 +1,6 @@
-name: "Трек: Backend"
+name: "Backend"
 description: "Задачи по Spring Boot, БД, мокам интеграций, безопасности и Docker"
-title: "[BACKEND]: "
+title: "[TASK]: "
 labels: ["domain:backend"]
 body:
   - type: textarea
