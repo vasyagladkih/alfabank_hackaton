@@ -1,0 +1,13 @@
+name: "Трек: Backend"
+description: "Задачи по Spring Boot, БД, мокам интеграций, безопасности и Docker"
+title: "[BACKEND]: "
+labels: ["domain:backend"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Описание задачи"
+      description: "Что конкретно нужно реализовать в серверной части"
+      placeholder: "Опиши эндпоинты, таблицы БД, параллельную обработку или правила скоринга в коде..."
+    validations:
+      required: true

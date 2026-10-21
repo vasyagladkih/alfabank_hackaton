@@ -1,0 +1,12 @@
+name: "Трек: Risk / Scoring"
+description: "Задачи по скорингу, стоп-факторам и андеррайтингу"
+title: "[RISK]: "
+labels: ["domain:risk"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Описание задачи"
+      description: "Что конкретно нужно сделать в домене рисков"
+    validations:
+      required: true

@@ -1,0 +1,12 @@
+name: "Трек: Product / System"
+description: "Задачи по клиентскому пути, каталогу кредитов и квизу"
+title: "[PRODUCT]: "
+labels: ["domain:product"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Описание задачи"
+      description: "Что конкретно нужно сделать в домене продукта"
+    validations:
+      required: true

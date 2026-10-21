@@ -1,0 +1,13 @@
+name: "Трек: Frontend"
+description: "Задачи по верстке кабинета, панели андеррайтера и связке с API"
+title: "[FRONTEND]: "
+labels: ["domain:frontend"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Описание задачи"
+      description: "Что конкретно нужно сделать в клиентском интерфейсе"
+      placeholder: "Опиши экран, компонент, переключатель демо-ролей или интеграцию с эндпоинтом..."
+    validations:
+      required: true

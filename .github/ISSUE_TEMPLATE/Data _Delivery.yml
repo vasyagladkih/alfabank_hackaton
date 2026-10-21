@@ -1,0 +1,13 @@
+name: "Трек: Data / Delivery"
+description: "Задачи по синтетическим профилям (ФНС, БКИ), Postman и README"
+title: "[DATA]: "
+labels: ["domain:data"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Описание задачи"
+      description: "Что конкретно нужно подготовить по тестовым данным и документации"
+      placeholder: "Опиши состав JSON-профилей, тестовые сценарии или документацию сдачи..."
+    validations:
+      required: true
