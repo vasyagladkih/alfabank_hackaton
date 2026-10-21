@@ -1,0 +1,26 @@
+name: "Задача команды"
+description: "Создать тикет с указанием роли и описания"
+title: "[TASK]: "
+body:
+  - type: dropdown
+    id: role
+    attributes:
+      label: "Роль"
+      description: "Выбери исполнителя / трек задачи"
+      options:
+        - "Product / UX"
+        - "Risk / Scoring"
+        - "QA / Synthetic Data"
+        - "Backend"
+        - "Frontend"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Описание задачи"
+      description: "Что конкретно нужно сделать"
+      placeholder: "Опиши суть задачи, требования или результаты..."
+    validations:
+      required: true
