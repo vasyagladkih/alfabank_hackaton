@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { App } from './App';
-import { clientSession, deferred, employeeSession, jsonResponse, storeSession } from './test/fixtures';
+import { application, clientSession, deferred, employeeSession, jsonResponse, storeSession } from './test/fixtures';
 
 function NavigationProbe() {
   const navigate = useNavigate();
@@ -44,6 +44,29 @@ describe('role routes and session lifecycle', () => {
     expect(await screen.findByRole('heading', { name: heading })).toBeVisible();
     expect(localStorage.getItem('auth_token')).toBe(session.token);
     await waitFor(() => expect(fetch).toHaveBeenCalled());
+  });
+
+  it.each(['APPROVED', 'REJECTED'] as const)('keeps %s banners when restored pending applications finish', async (status) => {
+    storeSession();
+    const pending = [application, { ...application, id: 43 }];
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      const item = pending.find(({ id }) => url.endsWith(`/applications/${id}`));
+      return item
+        ? jsonResponse({ ...item, status, rejectionReason: status === 'REJECTED' ? 'Высокая долговая нагрузка' : null })
+        : jsonResponse([...pending, { ...application, id: 41, status: 'APPROVED' }]);
+    }));
+    renderApp('/client');
+    await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(2));
+    expect(screen.getByText('Заявка №42 в обработке', { exact: true })).toBeVisible();
+    expect(screen.getByText('Заявка №43 в обработке', { exact: true })).toBeVisible();
+    await waitFor(() => {
+      const banners = screen.getAllByRole('alert');
+      expect(banners).toHaveLength(2);
+      for (const banner of banners) {
+        expect(banner).toHaveTextContent(status === 'APPROVED' ? 'Одобрено' : 'Отклонено');
+        if (status === 'REJECTED') expect(banner).toHaveTextContent('Высокая долговая нагрузка');
+      }
+    }, { timeout: 4000 });
   });
 
   it.each([
