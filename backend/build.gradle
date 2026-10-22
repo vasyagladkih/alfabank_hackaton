@@ -32,20 +32,24 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+def specCandidate = [
+	"$rootDir/../docs/openapi.yaml",
+	"$rootDir/docs/openapi.yaml"
+].find { file(it).exists() }
+
 openApiGenerate {
 	generatorName = "spring"
-	inputSpec = "$rootDir/../../docs/openapi.yaml"
+	inputSpec = specCandidate ?: "$rootDir/../docs/openapi.yaml"
 	outputDir = "$projectDir/build/generated"
 	apiPackage = "ru.alfahackaton.api"
 	modelPackage = "ru.alfahackaton.dto"
 	configOptions = [
 		interfaceOnly: "true",
-		useSpringBoot4: "true",
-		useRecords: "true",
+		useSpringBoot3: "true",
 		useTags: "true",
 		skipDefaultInterface: "true",
-		useSpringController: "false",
-		openApiNullable: "false"
+		openApiNullable: "false",
+		apiUtil: "false"
 	]
 }
 

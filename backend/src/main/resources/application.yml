@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: alfahackaton
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:alfadb}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+jwt:
+  secret: "alfa-hackaton-2026-super-secret-key-with-minimum-256-bits-length-security"
+  expiration-ms: 86400000
+
+server:
+  port: 8080
