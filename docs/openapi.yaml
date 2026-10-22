@@ -1,0 +1,391 @@
+openapi: 3.0.3
+info:
+  title: Умный кредитный кабинет ММБ — API
+  description: >
+    Контракт API цифрового кредитного конвейера малого и микробизнеса (Альфа-Банк).
+    Используется для кодогенерации DTO и интерфейсов в бэкенде (Java/Spring Boot)
+    и фронтенде (TypeScript).
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер разработки
+
+tags:
+  - name: auth
+    description: Демо-аутентификация и получение JWT
+  - name: client-applications
+    description: Операции клиента по кредитным заявкам (роль CLIENT)
+  - name: employee-applications
+    description: Операции сотрудника банка / андеррайтера (роль EMPLOYEE)
+
+paths:
+  /api/v1/auth/demo-login:
+    post:
+      tags:
+        - auth
+      summary: Демо-вход под выбранной тестовой ролью
+      description: >
+        Позволяет переключиться между ролями (хороший клиент, плохой клиент, сотрудник банка)
+        и получить подписанный JWT токен для последующих запросов.
+      operationId: demoLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemoLoginRequest'
+      responses:
+        '200':
+          description: Успешная авторизация, токен сгенерирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemoLoginResponse'
+        '400':
+          description: Некорректный код пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/client/applications:
+    post:
+      tags:
+        - client-applications
+      summary: Создание и отправка новой заявки на кредит
+      description: >
+        Клиент отправляет параметры заявки. Бэкенд сохраняет заявку в статусе PROCESSING,
+        асинхронно инициирует скоринг и мгновенно возвращает ID созданной заявки.
+      operationId: createApplication
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationRequest'
+      responses:
+        '201':
+          description: Заявка успешно принята в обработку
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+        '400':
+          description: Ошибка валидации параметров заявки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован (отсутствует или невалиден JWT)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Доступ запрещен (требуется роль CLIENT)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - client-applications
+      summary: Получение списка всех заявок текущего клиента
+      description: Возвращает историю и текущие статусы заявок авторизованного клиента.
+      operationId: getClientApplications
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Список заявок клиента
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/client/applications/{id}:
+    get:
+      tags:
+        - client-applications
+      summary: Получение текущего статуса конкретной заявки клиента (для polling)
+      description: Используется фронтендом клиента для циклического опроса статуса обработки заявки.
+      operationId: getApplicationById
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор кредитной заявки
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      responses:
+        '200':
+          description: Актуальная информация и статус заявки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Попытка доступа к чужой заявке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка с указанным ID не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/employee/applications:
+    get:
+      tags:
+        - employee-applications
+      summary: Список заявок в обработке для сотрудника банка
+      description: Возвращает реестр заявок. По умолчанию отображает заявки в статусе PROCESSING.
+      operationId: getEmployeeApplications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Фильтр по статусу заявки
+          schema:
+            $ref: '#/components/schemas/ApplicationStatus'
+      responses:
+        '200':
+          description: Список заявок для мониторинга андеррайтером
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApplicationResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Доступ запрещен (требуется роль EMPLOYEE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Передайте JWT токен в формате "Bearer <token>"
+
+  schemas:
+    UserCode:
+      type: string
+      description: Предопределенный код тестового пользователя для демо-входа
+      enum:
+        - client_good
+        - client_bad
+        - bank_employee
+      example: client_good
+
+    UserRole:
+      type: string
+      description: Роль пользователя в системе для RBAC
+      enum:
+        - CLIENT
+        - EMPLOYEE
+      example: CLIENT
+
+    DemoLoginRequest:
+      type: object
+      required:
+        - userCode
+      properties:
+        userCode:
+          $ref: '#/components/schemas/UserCode'
+
+    UserProfile:
+      type: object
+      required:
+        - id
+        - username
+        - role
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 101
+        username:
+          type: string
+          example: client_good
+        role:
+          $ref: '#/components/schemas/UserRole'
+        companyName:
+          type: string
+          example: ООО "Ромашка"
+        inn:
+          type: string
+          example: "7701234567"
+
+    DemoLoginResponse:
+      type: object
+      required:
+        - token
+        - user
+      properties:
+        token:
+          type: string
+          description: Подписанный JWT токен для заголовка Authorization
+          example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMDEiLCJyb2xlIjoiUk9MRV9DTElFTlQifQ...
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    LoanPurpose:
+      type: string
+      description: Цель привлечения кредитного финансирования
+      enum:
+        - WORKING_CAPITAL       # Пополнение оборотных средств
+        - EQUIPMENT             # Приобретение оборудования и транспорта
+        - BUSINESS_EXPANSION    # Масштабирование бизнеса / аренда / маркетинг
+        - REFINANCING           # Рефинансирование задолженности
+      example: WORKING_CAPITAL
+
+    ApplicationStatus:
+      type: string
+      description: Статус заявки в кредитном конвейере
+      enum:
+        - PROCESSING            # В обработке (скоринг в фоновом режиме)
+        - APPROVED              # Одобрено
+        - REJECTED              # Отклонено (с указанием причины)
+      example: PROCESSING
+
+    CreateApplicationRequest:
+      type: object
+      required:
+        - amount
+        - termMonths
+        - purpose
+      properties:
+        amount:
+          type: integer
+          format: int64
+          minimum: 100000
+          maximum: 50000000
+          description: Запрашиваемая сумма кредита в рублях
+          example: 1500000
+        termMonths:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 60
+          description: Срок кредита в месяцах
+          example: 12
+        purpose:
+          $ref: '#/components/schemas/LoanPurpose'
+
+    ApplicationResponse:
+      type: object
+      required:
+        - id
+        - amount
+        - termMonths
+        - purpose
+        - status
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор заявки
+          example: 42
+        companyName:
+          type: string
+          description: Наименование компании-заемщика
+          example: ООО "Ромашка"
+        inn:
+          type: string
+          description: ИНН компании-заемщика
+          example: "7701234567"
+        amount:
+          type: integer
+          format: int64
+          description: Запрашиваемая сумма в рублях
+          example: 1500000
+        termMonths:
+          type: integer
+          format: int32
+          description: Срок кредита в месяцах
+          example: 12
+        purpose:
+          $ref: '#/components/schemas/LoanPurpose'
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        rejectionReason:
+          type: string
+          nullable: true
+          description: Причина отказа (заполняется при status == REJECTED)
+          example: "Превышен показатель предельной долговой нагрузки (ПДН > 80%)"
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время подачи заявки
+          example: "2026-10-22T14:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Дата и время последнего изменения статуса
+          example: "2026-10-22T14:30:05Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - timestamp
+      properties:
+        code:
+          type: string
+          description: Машиночитаемый код ошибки
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Описание ошибки для разработчика/пользователя
+          example: Некорректные параметры кредитной заявки
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-10-22T14:30:00Z"
