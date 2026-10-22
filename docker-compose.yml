@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: alfabank_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: alfadb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d alfadb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: alfabank_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: alfadb
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: alfa-hackaton-2026-super-secret-key-with-minimum-256-bits-length-security
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
