@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@alfalab/core-components-button';
 import { Typography } from '@alfalab/core-components-typography';
 import { useAuth } from '../auth/AuthProvider';
@@ -12,8 +12,14 @@ import { useClientApplications } from '../features/applications/useClientApplica
 export function ClientPage() {
   const { api } = useAuth();
   const { applications, loading, error, pollIssues, refresh, update, retryPolling } = useClientApplications(api);
-  const [createdId, setCreatedId] = useState<number | null>(null);
-  const active = applications.filter((item) => item.status === 'PROCESSING' || item.id === createdId);
+  const [trackedIds, setTrackedIds] = useState<Set<number>>(() => new Set());
+  useEffect(() => {
+    setTrackedIds((current) => {
+      const pending = applications.filter((item) => item.status === 'PROCESSING' && !current.has(item.id));
+      return pending.length > 0 ? new Set([...current, ...pending.map((item) => item.id)]) : current;
+    });
+  }, [applications]);
+  const active = applications.filter((item) => item.status === 'PROCESSING' || trackedIds.has(item.id));
 
   return <>
     <IdentityBar />
@@ -25,7 +31,10 @@ export function ClientPage() {
     <div className="result-list">{active.map((application) => <ApplicationResult key={application.id} application={application} issue={pollIssues[application.id]} retry={() => retryPolling(application.id)} />)}</div>
     <div className="client-grid">
       <section className="panel form-panel">
-        <ApplicationForm onCreated={(application) => { update(application); setCreatedId(application.id); }} />
+        <ApplicationForm onCreated={(application) => {
+          update(application);
+          setTrackedIds((current) => new Set([...current, application.id]));
+        }} />
       </section>
       <aside className="credit-aside" aria-label="Условия и этапы заявки">
         <div className="credit-limit">
