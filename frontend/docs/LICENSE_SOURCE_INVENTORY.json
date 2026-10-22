@@ -1,0 +1,4013 @@
+{
+  "audit_date_utc": "2026-10-22",
+  "lock_file": "frontend/package-lock.json",
+  "lock_sha256": "92870e196a3259294f83186f5bcd0bd7d761e646cc3692b8f50745912dcbf697",
+  "scope": "Non-root package-lock entries where dev and devOptional are not true; includes the installed production dependency closure, not a claim about final bundle inclusion.",
+  "package_count": 90,
+  "declared_license_counts": {
+    "MIT": 85,
+    "Apache-2.0": 3,
+    "BSD-3-Clause": 1,
+    "0BSD": 1
+  },
+  "license_and_notice_text_group_count": 44,
+  "source_count": 64,
+  "packages": [
+    {
+      "name": "@alfalab/core-components-backdrop",
+      "version": "5.0.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-backdrop",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-backdrop/5.0.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-backdrop/-/core-components-backdrop-5.0.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-base-modal",
+      "version": "7.2.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-base-modal",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-base-modal/7.2.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-base-modal/-/core-components-base-modal-7.2.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-bottom-sheet",
+      "version": "8.1.16",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-bottom-sheet",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-bottom-sheet/8.1.16",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-bottom-sheet/-/core-components-bottom-sheet-8.1.16.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-button",
+      "version": "13.2.4",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-button",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-button/13.2.4",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-button/-/core-components-button-13.2.4.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-checkbox",
+      "version": "6.3.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-checkbox",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-checkbox/6.3.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-checkbox/-/core-components-checkbox-6.3.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-config",
+      "version": "1.1.0",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-config",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-config/1.1.0",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-config/-/core-components-config-1.1.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-form-control",
+      "version": "14.0.11",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-form-control",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-form-control/14.0.11",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-form-control/-/core-components-form-control-14.0.11.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-global-store",
+      "version": "4.0.1",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-global-store",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-global-store/4.0.1",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-global-store/-/core-components-global-store-4.0.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-icon-button",
+      "version": "8.0.12",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-icon-button",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-icon-button/8.0.12",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-icon-button/-/core-components-icon-button-8.0.12.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-indicator",
+      "version": "4.0.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-indicator",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-indicator/4.0.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-indicator/-/core-components-indicator-4.0.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-input",
+      "version": "17.2.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-input",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-input/17.2.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-input/-/core-components-input-17.2.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-modal",
+      "version": "11.0.19",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-modal",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-modal/11.0.19",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-modal/-/core-components-modal-11.0.19.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-mq",
+      "version": "6.0.9",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-mq",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-mq/6.0.9",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-mq/-/core-components-mq-6.0.9.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-navigation-bar-private",
+      "version": "2.0.16",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-navigation-bar-private",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-navigation-bar-private/2.0.16",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-navigation-bar-private/-/core-components-navigation-bar-private-2.0.16.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-pagination",
+      "version": "4.0.12",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-pagination",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-pagination/4.0.12",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-pagination/-/core-components-pagination-4.0.12.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-plate",
+      "version": "9.0.12",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-plate",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-plate/9.0.12",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-plate/-/core-components-plate-9.0.12.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-popover",
+      "version": "8.1.4",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-popover",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-popover/8.1.4",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-popover/-/core-components-popover-8.1.4.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-portal",
+      "version": "5.0.6",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-portal",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-portal/5.0.6",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-portal/-/core-components-portal-5.0.6.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-scrollbar-private",
+      "version": "0.0.1",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-scrollbar-private",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-scrollbar-private/0.0.1",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-scrollbar-private/-/core-components-scrollbar-private-0.0.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-select",
+      "version": "19.2.11",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-select",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-select/19.2.11",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-select/-/core-components-select-19.2.11.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-shared",
+      "version": "2.3.0",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-shared",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-shared/2.3.0",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-shared/-/core-components-shared-2.3.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-skeleton",
+      "version": "7.0.5",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-skeleton",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-skeleton/7.0.5",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-skeleton/-/core-components-skeleton-7.0.5.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-spinner",
+      "version": "6.0.9",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-spinner",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-spinner/6.0.9",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-spinner/-/core-components-spinner-6.0.9.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-stack",
+      "version": "7.0.1",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-stack",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-stack/7.0.1",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-stack/-/core-components-stack-7.0.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-stack-context",
+      "version": "1.0.1",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-stack-context",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-stack-context/1.0.1",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-stack-context/-/core-components-stack-context-1.0.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-status",
+      "version": "5.1.1",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-status",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-status/5.1.1",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-status/-/core-components-status-5.1.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-status-badge",
+      "version": "3.0.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-status-badge",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-status-badge/3.0.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-status-badge/-/core-components-status-badge-3.0.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-table",
+      "version": "4.0.30",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-table",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-table/4.0.30",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-table/-/core-components-table-4.0.30.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-tag",
+      "version": "10.3.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-tag",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-tag/10.3.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-tag/-/core-components-tag-10.3.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-themes",
+      "version": "15.2.1",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-themes",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-themes/15.2.1",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-themes/-/core-components-themes-15.2.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-types",
+      "version": "2.1.0",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-types",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-types/2.1.0",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-types/-/core-components-types-2.1.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/core-components-typography",
+      "version": "6.0.13",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/core-components-typography",
+      "repository": null,
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S001"
+      ],
+      "license_and_notice_ids": [
+        "L001"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "official-core-repository-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/core-components-typography/6.0.13",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/core-components-typography/-/core-components-typography-6.0.13.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/data",
+      "version": "1.10.2",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/data",
+      "repository": null,
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@alfalab/data/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S002"
+      ],
+      "license_and_notice_ids": [
+        "L002"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/data/1.10.2",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/data/-/data-1.10.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/hooks",
+      "version": "1.18.1",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/hooks",
+      "repository": null,
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@alfalab/hooks/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S003"
+      ],
+      "license_and_notice_ids": [
+        "L002"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/hooks/1.18.1",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/hooks/-/hooks-1.18.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/icons-glyph",
+      "version": "2.293.3",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/icons-glyph",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/core-ds/ui-primitives.git",
+        "directory": "packages/glyph"
+      },
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S004",
+        "S005"
+      ],
+      "license_and_notice_ids": [
+        "L003"
+      ],
+      "notes": [
+        "Installed and matching upstream package.json declare MIT. The complete official master tree at 440b15a6a0481e440ce739150d15968a42cf502e contains no LICENSE, LICENCE, COPYING, COPYRIGHT, or NOTICE file. No copyright-holder statement was found in the inspected package or upstream manifest/README. No holder attribution has been invented."
+      ],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "mit-declared-upstream-copyright-notice-not-published",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/icons-glyph/2.293.3",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/icons-glyph/-/icons-glyph-2.293.3.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@alfalab/utils",
+      "version": "1.22.0",
+      "license": "MIT",
+      "path": "node_modules/@alfalab/utils",
+      "repository": null,
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@alfalab/utils/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S006"
+      ],
+      "license_and_notice_ids": [
+        "L002"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@alfalab/utils/1.22.0",
+      "tarball_url": "https://registry.npmjs.org/@alfalab/utils/-/utils-1.22.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@babel/runtime",
+      "version": "7.29.10",
+      "license": "MIT",
+      "path": "node_modules/@babel/runtime",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/babel/babel.git",
+        "directory": "packages/babel-runtime"
+      },
+      "homepage": "https://babel.dev/docs/en/next/babel-runtime",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@babel/runtime/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S007"
+      ],
+      "license_and_notice_ids": [
+        "L004"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@babel/runtime/7.29.10",
+      "tarball_url": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.29.10.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@juggle/resize-observer",
+      "version": "3.4.0",
+      "license": "Apache-2.0",
+      "path": "node_modules/@juggle/resize-observer",
+      "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/juggle/resize-observer.git"
+      },
+      "homepage": "https://juggle.studio/resize-observer/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@juggle/resize-observer/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S008"
+      ],
+      "license_and_notice_ids": [
+        "L005"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "Apache-2.0"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@juggle/resize-observer/3.4.0",
+      "tarball_url": "https://registry.npmjs.org/@juggle/resize-observer/-/resize-observer-3.4.0.tgz",
+      "installed_manifest_license": "Apache-2.0"
+    },
+    {
+      "name": "@maskito/core",
+      "version": "1.9.0",
+      "license": "Apache-2.0",
+      "path": "node_modules/@maskito/core",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/taiga-family/maskito.git"
+      },
+      "homepage": "https://maskito.dev",
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S009"
+      ],
+      "license_and_notice_ids": [
+        "L006"
+      ],
+      "notes": [
+        "Release commit from npm gitHead; upstream LICENSE includes Copyright 2019 Tinkoff Bank."
+      ],
+      "observed_source_licenses": [
+        "Apache-2.0"
+      ],
+      "status": "upstream-release-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@maskito/core/1.9.0",
+      "tarball_url": "https://registry.npmjs.org/@maskito/core/-/core-1.9.0.tgz",
+      "installed_manifest_license": "Apache-2.0"
+    },
+    {
+      "name": "@popperjs/core",
+      "version": "2.11.8",
+      "license": "MIT",
+      "path": "node_modules/@popperjs/core",
+      "repository": "github:popperjs/popper-core",
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@popperjs/core/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S010"
+      ],
+      "license_and_notice_ids": [
+        "L007"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@popperjs/core/2.11.8",
+      "tarball_url": "https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@reach/observe-rect",
+      "version": "1.2.0",
+      "license": "MIT",
+      "path": "node_modules/@reach/observe-rect",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/reach/observe-rect",
+        "directory": "packages/auto-id"
+      },
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S011",
+        "S012"
+      ],
+      "license_and_notice_ids": [
+        "L008",
+        "L003"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-readme-notice-plus-canonical-mit-terms",
+      "registry_metadata_url": "https://registry.npmjs.org/@reach/observe-rect/1.2.0",
+      "tarball_url": "https://registry.npmjs.org/@reach/observe-rect/-/observe-rect-1.2.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@remix-run/router",
+      "version": "1.23.4",
+      "license": "MIT",
+      "path": "node_modules/@remix-run/router",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/remix-run/react-router",
+        "directory": "packages/router"
+      },
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@remix-run/router/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S013"
+      ],
+      "license_and_notice_ids": [
+        "L009"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@remix-run/router/1.23.4",
+      "tarball_url": "https://registry.npmjs.org/@remix-run/router/-/router-1.23.4.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@types/prop-types",
+      "version": "15.7.15",
+      "license": "MIT",
+      "path": "node_modules/@types/prop-types",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/prop-types"
+      },
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/prop-types",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@types/prop-types/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S014"
+      ],
+      "license_and_notice_ids": [
+        "L010"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@types/prop-types/15.7.15",
+      "tarball_url": "https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@types/react",
+      "version": "17.0.90",
+      "license": "MIT",
+      "path": "node_modules/@types/react",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/react"
+      },
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@types/react/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S015"
+      ],
+      "license_and_notice_ids": [
+        "L010"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@types/react/17.0.90",
+      "tarball_url": "https://registry.npmjs.org/@types/react/-/react-17.0.90.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@types/react-transition-group",
+      "version": "4.4.12",
+      "license": "MIT",
+      "path": "node_modules/@types/react-transition-group",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/react-transition-group"
+      },
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-transition-group",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@types/react-transition-group/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S016"
+      ],
+      "license_and_notice_ids": [
+        "L010"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@types/react-transition-group/4.4.12",
+      "tarball_url": "https://registry.npmjs.org/@types/react-transition-group/-/react-transition-group-4.4.12.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "@types/scheduler",
+      "version": "0.16.8",
+      "license": "MIT",
+      "path": "node_modules/@types/scheduler",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/scheduler"
+      },
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/scheduler",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/@types/scheduler/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S017"
+      ],
+      "license_and_notice_ids": [
+        "L010"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/@types/scheduler/0.16.8",
+      "tarball_url": "https://registry.npmjs.org/@types/scheduler/-/scheduler-0.16.8.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "classnames",
+      "version": "2.5.1",
+      "license": "MIT",
+      "path": "node_modules/classnames",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/JedWatson/classnames.git"
+      },
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/classnames/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S018"
+      ],
+      "license_and_notice_ids": [
+        "L011"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/classnames/2.5.1",
+      "tarball_url": "https://registry.npmjs.org/classnames/-/classnames-2.5.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "compute-scroll-into-view",
+      "version": "3.1.1",
+      "license": "MIT",
+      "path": "node_modules/compute-scroll-into-view",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/scroll-into-view/compute-scroll-into-view.git"
+      },
+      "homepage": "https://scroll-into-view.dev",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/compute-scroll-into-view/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S019"
+      ],
+      "license_and_notice_ids": [
+        "L012"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/compute-scroll-into-view/3.1.1",
+      "tarball_url": "https://registry.npmjs.org/compute-scroll-into-view/-/compute-scroll-into-view-3.1.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "csstype",
+      "version": "3.2.3",
+      "license": "MIT",
+      "path": "node_modules/csstype",
+      "repository": "https://github.com/frenic/csstype",
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/csstype/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S020"
+      ],
+      "license_and_notice_ids": [
+        "L013"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/csstype/3.2.3",
+      "tarball_url": "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "detect-browser",
+      "version": "5.3.0",
+      "license": "MIT",
+      "path": "node_modules/detect-browser",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/DamonOehlman/detect-browser.git"
+      },
+      "homepage": "https://github.com/DamonOehlman/detect-browser",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/detect-browser/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S021"
+      ],
+      "license_and_notice_ids": [
+        "L014"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/detect-browser/5.3.0",
+      "tarball_url": "https://registry.npmjs.org/detect-browser/-/detect-browser-5.3.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "detect-node-es",
+      "version": "1.1.0",
+      "license": "MIT",
+      "path": "node_modules/detect-node-es",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/thekashey/detect-node"
+      },
+      "homepage": "https://github.com/thekashey/detect-node",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/detect-node-es/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S022"
+      ],
+      "license_and_notice_ids": [
+        "L015"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/detect-node-es/1.1.0",
+      "tarball_url": "https://registry.npmjs.org/detect-node-es/-/detect-node-es-1.1.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "dom-helpers",
+      "version": "5.2.1",
+      "license": "MIT",
+      "path": "node_modules/dom-helpers",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/react-bootstrap/dom-helpers.git"
+      },
+      "homepage": "https://github.com/react-bootstrap/dom-helpers#readme",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/dom-helpers/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S023"
+      ],
+      "license_and_notice_ids": [
+        "L016"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/dom-helpers/5.2.1",
+      "tarball_url": "https://registry.npmjs.org/dom-helpers/-/dom-helpers-5.2.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "downshift",
+      "version": "8.4.0",
+      "license": "MIT",
+      "path": "node_modules/downshift",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/downshift-js/downshift.git"
+      },
+      "homepage": "https://downshift-js.com",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/downshift/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S024"
+      ],
+      "license_and_notice_ids": [
+        "L017"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/downshift/8.4.0",
+      "tarball_url": "https://registry.npmjs.org/downshift/-/downshift-8.4.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "focus-lock",
+      "version": "1.3.6",
+      "license": "MIT",
+      "path": "node_modules/focus-lock",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/theKashey/focus-lock.git"
+      },
+      "homepage": "https://github.com/theKashey/focus-lock#readme",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/focus-lock/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S025"
+      ],
+      "license_and_notice_ids": [
+        "L018"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/focus-lock/1.3.6",
+      "tarball_url": "https://registry.npmjs.org/focus-lock/-/focus-lock-1.3.6.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "get-nonce",
+      "version": "1.0.1",
+      "license": "MIT",
+      "path": "node_modules/get-nonce",
+      "repository": "git@github.com:theKashey/get-nonce.git",
+      "homepage": "https://github.com/theKashey/get-nonce",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/get-nonce/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S026"
+      ],
+      "license_and_notice_ids": [
+        "L019"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/get-nonce/1.0.1",
+      "tarball_url": "https://registry.npmjs.org/get-nonce/-/get-nonce-1.0.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "intersection-observer",
+      "version": "0.12.2",
+      "license": "Apache-2.0",
+      "path": "node_modules/intersection-observer",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/GoogleChromeLabs/intersection-observer.git"
+      },
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S027",
+        "S028",
+        "S029"
+      ],
+      "license_and_notice_ids": [
+        "L020",
+        "L021",
+        "L022"
+      ],
+      "notes": [
+        "Package metadata declares Apache-2.0, but the installed source header declares the W3C Software and Document Notice and License (2015) and Copyright 2016 Google Inc. Both pieces of evidence and both sets of terms are preserved without deciding which declaration takes precedence."
+      ],
+      "observed_source_licenses": [
+        "W3C-20150513"
+      ],
+      "status": "package-metadata-and-source-license-discrepancy-preserved",
+      "registry_metadata_url": "https://registry.npmjs.org/intersection-observer/0.12.2",
+      "tarball_url": "https://registry.npmjs.org/intersection-observer/-/intersection-observer-0.12.2.tgz",
+      "installed_manifest_license": "Apache-2.0"
+    },
+    {
+      "name": "js-tokens",
+      "version": "4.0.0",
+      "license": "MIT",
+      "path": "node_modules/js-tokens",
+      "repository": "lydell/js-tokens",
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/js-tokens/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S030"
+      ],
+      "license_and_notice_ids": [
+        "L023"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/js-tokens/4.0.0",
+      "tarball_url": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "lodash",
+      "version": "4.18.1",
+      "license": "MIT",
+      "path": "node_modules/lodash",
+      "repository": "lodash/lodash",
+      "homepage": "https://lodash.com/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/lodash/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S031"
+      ],
+      "license_and_notice_ids": [
+        "L024"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/lodash/4.18.1",
+      "tarball_url": "https://registry.npmjs.org/lodash/-/lodash-4.18.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "lodash-es",
+      "version": "4.18.1",
+      "license": "MIT",
+      "path": "node_modules/lodash-es",
+      "repository": "lodash/lodash",
+      "homepage": "https://lodash.com/custom-builds",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/lodash-es/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S032"
+      ],
+      "license_and_notice_ids": [
+        "L024"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/lodash-es/4.18.1",
+      "tarball_url": "https://registry.npmjs.org/lodash-es/-/lodash-es-4.18.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "loose-envify",
+      "version": "1.4.0",
+      "license": "MIT",
+      "path": "node_modules/loose-envify",
+      "repository": {
+        "type": "git",
+        "url": "git://github.com/zertosh/loose-envify.git"
+      },
+      "homepage": "https://github.com/zertosh/loose-envify",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/loose-envify/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S033"
+      ],
+      "license_and_notice_ids": [
+        "L025"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/loose-envify/1.4.0",
+      "tarball_url": "https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "object-assign",
+      "version": "4.1.1",
+      "license": "MIT",
+      "path": "node_modules/object-assign",
+      "repository": "sindresorhus/object-assign",
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/object-assign/license"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S034"
+      ],
+      "license_and_notice_ids": [
+        "L026"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/object-assign/4.1.1",
+      "tarball_url": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "popper-max-size-modifier",
+      "version": "0.2.0",
+      "license": "MIT",
+      "path": "node_modules/popper-max-size-modifier",
+      "repository": null,
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/popper-max-size-modifier/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S035"
+      ],
+      "license_and_notice_ids": [
+        "L027"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/popper-max-size-modifier/0.2.0",
+      "tarball_url": "https://registry.npmjs.org/popper-max-size-modifier/-/popper-max-size-modifier-0.2.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "prop-types",
+      "version": "15.8.1",
+      "license": "MIT",
+      "path": "node_modules/prop-types",
+      "repository": "facebook/prop-types",
+      "homepage": "https://facebook.github.io/react/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/prop-types/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S036"
+      ],
+      "license_and_notice_ids": [
+        "L028"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/prop-types/15.8.1",
+      "tarball_url": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react",
+      "version": "17.0.2",
+      "license": "MIT",
+      "path": "node_modules/react",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/facebook/react.git",
+        "directory": "packages/react"
+      },
+      "homepage": "https://reactjs.org/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S037"
+      ],
+      "license_and_notice_ids": [
+        "L029"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react/17.0.2",
+      "tarball_url": "https://registry.npmjs.org/react/-/react-17.0.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-clientside-effect",
+      "version": "1.2.8",
+      "license": "MIT",
+      "path": "node_modules/react-clientside-effect",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/thekashey/react-clientside-effect.git"
+      },
+      "homepage": "https://github.com/thekashey/react-clientside-effect",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-clientside-effect/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S038"
+      ],
+      "license_and_notice_ids": [
+        "L030"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-clientside-effect/1.2.8",
+      "tarball_url": "https://registry.npmjs.org/react-clientside-effect/-/react-clientside-effect-1.2.8.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-div-100vh",
+      "version": "0.7.0",
+      "license": "MIT",
+      "path": "node_modules/react-div-100vh",
+      "repository": {
+        "type": "git",
+        "url": "git@github.com:mvasin/react-div-100vh.git",
+        "directory": "packages/react-div-100vh"
+      },
+      "homepage": "https://github.com/mvasin/react-div-100vh",
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S039"
+      ],
+      "license_and_notice_ids": [
+        "L031"
+      ],
+      "notes": [
+        "Official v0.7.0 tag resolves to this commit; upstream LICENSE preserves its copyright statement."
+      ],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "upstream-release-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-div-100vh/0.7.0",
+      "tarball_url": "https://registry.npmjs.org/react-div-100vh/-/react-div-100vh-0.7.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-dom",
+      "version": "17.0.2",
+      "license": "MIT",
+      "path": "node_modules/react-dom",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/facebook/react.git",
+        "directory": "packages/react-dom"
+      },
+      "homepage": "https://reactjs.org/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-dom/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S040"
+      ],
+      "license_and_notice_ids": [
+        "L029"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-dom/17.0.2",
+      "tarball_url": "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-fast-compare",
+      "version": "3.2.2",
+      "license": "MIT",
+      "path": "node_modules/react-fast-compare",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/FormidableLabs/react-fast-compare"
+      },
+      "homepage": "https://github.com/FormidableLabs/react-fast-compare",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-fast-compare/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S041"
+      ],
+      "license_and_notice_ids": [
+        "L032"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-fast-compare/3.2.2",
+      "tarball_url": "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-3.2.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-focus-lock",
+      "version": "2.13.7",
+      "license": "MIT",
+      "path": "node_modules/react-focus-lock",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/theKashey/react-focus-lock.git"
+      },
+      "homepage": "https://github.com/theKashey/react-focus-lock#readme",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-focus-lock/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S042"
+      ],
+      "license_and_notice_ids": [
+        "L033"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-focus-lock/2.13.7",
+      "tarball_url": "https://registry.npmjs.org/react-focus-lock/-/react-focus-lock-2.13.7.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-is",
+      "version": "16.13.1",
+      "license": "MIT",
+      "path": "node_modules/prop-types/node_modules/react-is",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/facebook/react.git",
+        "directory": "packages/react-is"
+      },
+      "homepage": "https://reactjs.org/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/prop-types/node_modules/react-is/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S043"
+      ],
+      "license_and_notice_ids": [
+        "L029"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-is/16.13.1",
+      "tarball_url": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-is",
+      "version": "18.3.1",
+      "license": "MIT",
+      "path": "node_modules/downshift/node_modules/react-is",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/facebook/react.git",
+        "directory": "packages/react-is"
+      },
+      "homepage": "https://reactjs.org/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/downshift/node_modules/react-is/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S044"
+      ],
+      "license_and_notice_ids": [
+        "L029"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-is/18.3.1",
+      "tarball_url": "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-merge-refs",
+      "version": "1.1.0",
+      "license": "MIT",
+      "path": "node_modules/react-merge-refs",
+      "repository": "github:gregberge/react-merge-refs",
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-merge-refs/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S045"
+      ],
+      "license_and_notice_ids": [
+        "L034"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-merge-refs/1.1.0",
+      "tarball_url": "https://registry.npmjs.org/react-merge-refs/-/react-merge-refs-1.1.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-popper",
+      "version": "2.3.0",
+      "license": "MIT",
+      "path": "node_modules/react-popper",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/popperjs/react-popper"
+      },
+      "homepage": "https://popper.js.org/react-popper",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-popper/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S046"
+      ],
+      "license_and_notice_ids": [
+        "L035"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-popper/2.3.0",
+      "tarball_url": "https://registry.npmjs.org/react-popper/-/react-popper-2.3.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-remove-scroll",
+      "version": "2.7.2",
+      "license": "MIT",
+      "path": "node_modules/react-remove-scroll",
+      "repository": "https://github.com/theKashey/react-remove-scroll",
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-remove-scroll/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S047"
+      ],
+      "license_and_notice_ids": [
+        "L018"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-remove-scroll/2.7.2",
+      "tarball_url": "https://registry.npmjs.org/react-remove-scroll/-/react-remove-scroll-2.7.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-remove-scroll-bar",
+      "version": "2.3.8",
+      "license": "MIT",
+      "path": "node_modules/react-remove-scroll-bar",
+      "repository": "https://github.com/theKashey/react-remove-scroll-bar",
+      "homepage": null,
+      "licenses": [],
+      "notices": [],
+      "source_ids": [
+        "S048"
+      ],
+      "license_and_notice_ids": [
+        "L036"
+      ],
+      "notes": [
+        "Current official upstream LICENSE, pinned at audit time. Published npm gitHead b3b1287aad81def2e2ae707274b74531b61ddbaf was unavailable in the public repository; this is not represented as a release-commit match."
+      ],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "upstream-current-license-fallback",
+      "registry_metadata_url": "https://registry.npmjs.org/react-remove-scroll-bar/2.3.8",
+      "tarball_url": "https://registry.npmjs.org/react-remove-scroll-bar/-/react-remove-scroll-bar-2.3.8.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-router",
+      "version": "6.30.6",
+      "license": "MIT",
+      "path": "node_modules/react-router-dom/node_modules/react-router",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/remix-run/react-router",
+        "directory": "packages/react-router"
+      },
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-router-dom/node_modules/react-router/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S049"
+      ],
+      "license_and_notice_ids": [
+        "L009"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-router/6.30.6",
+      "tarball_url": "https://registry.npmjs.org/react-router/-/react-router-6.30.6.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-router-dom",
+      "version": "6.30.6",
+      "license": "MIT",
+      "path": "node_modules/react-router-dom",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/remix-run/react-router",
+        "directory": "packages/react-router-dom"
+      },
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-router-dom/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S050"
+      ],
+      "license_and_notice_ids": [
+        "L009"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-router-dom/6.30.6",
+      "tarball_url": "https://registry.npmjs.org/react-router-dom/-/react-router-dom-6.30.6.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-style-singleton",
+      "version": "2.2.3",
+      "license": "MIT",
+      "path": "node_modules/react-style-singleton",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/theKashey/react-style-singleton"
+      },
+      "homepage": "https://github.com/theKashey/react-style-singleton#readme",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-style-singleton/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S051"
+      ],
+      "license_and_notice_ids": [
+        "L018"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-style-singleton/2.2.3",
+      "tarball_url": "https://registry.npmjs.org/react-style-singleton/-/react-style-singleton-2.2.3.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-swipeable",
+      "version": "7.0.2",
+      "license": "MIT",
+      "path": "node_modules/react-swipeable",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/FormidableLabs/react-swipeable.git"
+      },
+      "homepage": "https://github.com/FormidableLabs/react-swipeable",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-swipeable/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S052"
+      ],
+      "license_and_notice_ids": [
+        "L037"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-swipeable/7.0.2",
+      "tarball_url": "https://registry.npmjs.org/react-swipeable/-/react-swipeable-7.0.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "react-transition-group",
+      "version": "4.4.5",
+      "license": "BSD-3-Clause",
+      "path": "node_modules/react-transition-group",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/reactjs/react-transition-group.git"
+      },
+      "homepage": "https://github.com/reactjs/react-transition-group#readme",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-transition-group/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S053"
+      ],
+      "license_and_notice_ids": [
+        "L038"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "BSD-3-Clause"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-transition-group/4.4.5",
+      "tarball_url": "https://registry.npmjs.org/react-transition-group/-/react-transition-group-4.4.5.tgz",
+      "installed_manifest_license": "BSD-3-Clause"
+    },
+    {
+      "name": "react-virtual",
+      "version": "2.10.4",
+      "license": "MIT",
+      "path": "node_modules/react-virtual",
+      "repository": "tannerlinsley/react-virtual",
+      "homepage": "https://github.com/tannerlinsley/react-virtual#readme",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/react-virtual/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S054"
+      ],
+      "license_and_notice_ids": [
+        "L039"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/react-virtual/2.10.4",
+      "tarball_url": "https://registry.npmjs.org/react-virtual/-/react-virtual-2.10.4.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "scheduler",
+      "version": "0.20.2",
+      "license": "MIT",
+      "path": "node_modules/scheduler",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/facebook/react.git",
+        "directory": "packages/scheduler"
+      },
+      "homepage": "https://reactjs.org/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/scheduler/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S055"
+      ],
+      "license_and_notice_ids": [
+        "L029"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/scheduler/0.20.2",
+      "tarball_url": "https://registry.npmjs.org/scheduler/-/scheduler-0.20.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "simplebar-core",
+      "version": "1.3.2",
+      "license": "MIT",
+      "path": "node_modules/simplebar-core",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/grsmto/simplebar.git",
+        "directory": "packages/simplebar-core"
+      },
+      "homepage": "https://grsmto.github.io/simplebar/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/simplebar-core/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S056"
+      ],
+      "license_and_notice_ids": [
+        "L040"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/simplebar-core/1.3.2",
+      "tarball_url": "https://registry.npmjs.org/simplebar-core/-/simplebar-core-1.3.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "simplebar-react",
+      "version": "3.3.2",
+      "license": "MIT",
+      "path": "node_modules/simplebar-react",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/grsmto/simplebar.git",
+        "directory": "packages/simplebar-react"
+      },
+      "homepage": "https://grsmto.github.io/simplebar/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/simplebar-react/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S057"
+      ],
+      "license_and_notice_ids": [
+        "L040"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/simplebar-react/3.3.2",
+      "tarball_url": "https://registry.npmjs.org/simplebar-react/-/simplebar-react-3.3.2.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "tslib",
+      "version": "2.8.1",
+      "license": "0BSD",
+      "path": "node_modules/tslib",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/Microsoft/tslib.git"
+      },
+      "homepage": "https://www.typescriptlang.org/",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/tslib/LICENSE.txt"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S058",
+        "S059"
+      ],
+      "license_and_notice_ids": [
+        "L041",
+        "L042"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "0BSD"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/tslib/2.8.1",
+      "tarball_url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
+      "installed_manifest_license": "0BSD"
+    },
+    {
+      "name": "use-callback-ref",
+      "version": "1.3.3",
+      "license": "MIT",
+      "path": "node_modules/use-callback-ref",
+      "repository": "https://github.com/theKashey/use-callback-ref/",
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/use-callback-ref/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S060"
+      ],
+      "license_and_notice_ids": [
+        "L018"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/use-callback-ref/1.3.3",
+      "tarball_url": "https://registry.npmjs.org/use-callback-ref/-/use-callback-ref-1.3.3.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "use-sidecar",
+      "version": "1.1.3",
+      "license": "MIT",
+      "path": "node_modules/use-sidecar",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/theKashey/use-sidecar"
+      },
+      "homepage": "https://github.com/theKashey/use-sidecar",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/use-sidecar/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S061"
+      ],
+      "license_and_notice_ids": [
+        "L018"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/use-sidecar/1.1.3",
+      "tarball_url": "https://registry.npmjs.org/use-sidecar/-/use-sidecar-1.1.3.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "use-sync-external-store",
+      "version": "1.7.0",
+      "license": "MIT",
+      "path": "node_modules/use-sync-external-store",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/react/react.git",
+        "directory": "packages/use-sync-external-store"
+      },
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/use-sync-external-store/LICENSE"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S062"
+      ],
+      "license_and_notice_ids": [
+        "L043"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/use-sync-external-store/1.7.0",
+      "tarball_url": "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.7.0.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "uuid",
+      "version": "14.0.3",
+      "license": "MIT",
+      "path": "node_modules/uuid",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/uuidjs/uuid.git"
+      },
+      "homepage": null,
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/uuid/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S063"
+      ],
+      "license_and_notice_ids": [
+        "L044"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/uuid/14.0.3",
+      "tarball_url": "https://registry.npmjs.org/uuid/-/uuid-14.0.3.tgz",
+      "installed_manifest_license": "MIT"
+    },
+    {
+      "name": "warning",
+      "version": "4.0.3",
+      "license": "MIT",
+      "path": "node_modules/warning",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/BerkeleyTrue/warning.git"
+      },
+      "homepage": "https://github.com/BerkeleyTrue/warning",
+      "licenses": [
+        "/workspace/scratch/eaacc0e50b79/alfabank_hackaton/frontend/node_modules/warning/LICENSE.md"
+      ],
+      "notices": [],
+      "source_ids": [
+        "S064"
+      ],
+      "license_and_notice_ids": [
+        "L028"
+      ],
+      "notes": [],
+      "observed_source_licenses": [
+        "MIT"
+      ],
+      "status": "bundled-license",
+      "registry_metadata_url": "https://registry.npmjs.org/warning/4.0.3",
+      "tarball_url": "https://registry.npmjs.org/warning/-/warning-4.0.3.tgz",
+      "installed_manifest_license": "MIT"
+    }
+  ],
+  "sources": [
+    {
+      "id": "S001",
+      "kind": "official-monorepo-license-fallback",
+      "role": "license",
+      "source_url": "https://raw.githubusercontent.com/core-ds/core-components/1fa28dd0cb78b3975394e7ad14a602eb7b162ad2/LICENSE.md",
+      "source_file": "/tmp/alfa-license-sources/upstream/core-components-LICENSE.md",
+      "archive_path": null,
+      "sha256": "2dbc8c8fa27b9106a0ec907b98224eaff93085b8b6c9d9f68e7588a9cf49b834",
+      "note": "The published component package declares MIT but omits a license file. This is the official Core Components monorepo root license pinned at audit time.",
+      "packages": [
+        "@alfalab/core-components-backdrop@5.0.2",
+        "@alfalab/core-components-base-modal@7.2.2",
+        "@alfalab/core-components-bottom-sheet@8.1.16",
+        "@alfalab/core-components-button@13.2.4",
+        "@alfalab/core-components-checkbox@6.3.2",
+        "@alfalab/core-components-config@1.1.0",
+        "@alfalab/core-components-form-control@14.0.11",
+        "@alfalab/core-components-global-store@4.0.1",
+        "@alfalab/core-components-icon-button@8.0.12",
+        "@alfalab/core-components-indicator@4.0.2",
+        "@alfalab/core-components-input@17.2.2",
+        "@alfalab/core-components-modal@11.0.19",
+        "@alfalab/core-components-mq@6.0.9",
+        "@alfalab/core-components-navigation-bar-private@2.0.16",
+        "@alfalab/core-components-pagination@4.0.12",
+        "@alfalab/core-components-plate@9.0.12",
+        "@alfalab/core-components-popover@8.1.4",
+        "@alfalab/core-components-portal@5.0.6",
+        "@alfalab/core-components-scrollbar-private@0.0.1",
+        "@alfalab/core-components-select@19.2.11",
+        "@alfalab/core-components-shared@2.3.0",
+        "@alfalab/core-components-skeleton@7.0.5",
+        "@alfalab/core-components-spinner@6.0.9",
+        "@alfalab/core-components-stack@7.0.1",
+        "@alfalab/core-components-stack-context@1.0.1",
+        "@alfalab/core-components-status@5.1.1",
+        "@alfalab/core-components-status-badge@3.0.2",
+        "@alfalab/core-components-table@4.0.30",
+        "@alfalab/core-components-tag@10.3.2",
+        "@alfalab/core-components-themes@15.2.1",
+        "@alfalab/core-components-types@2.1.0",
+        "@alfalab/core-components-typography@6.0.13"
+      ],
+      "document_id": "L001"
+    },
+    {
+      "id": "S002",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@alfalab/data/-/data-1.10.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@alfalab--data/1.10.2/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "acf0357beb0d41aa581ac873a74ac8f543d2155f193a2df7d58447507870ec3e",
+      "note": "Copied from installed node_modules/@alfalab/data/LICENSE.md.",
+      "packages": [
+        "@alfalab/data@1.10.2"
+      ],
+      "document_id": "L002"
+    },
+    {
+      "id": "S003",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@alfalab/hooks/-/hooks-1.18.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@alfalab--hooks/1.18.1/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "acf0357beb0d41aa581ac873a74ac8f543d2155f193a2df7d58447507870ec3e",
+      "note": "Copied from installed node_modules/@alfalab/hooks/LICENSE.md.",
+      "packages": [
+        "@alfalab/hooks@1.18.1"
+      ],
+      "document_id": "L002"
+    },
+    {
+      "id": "S004",
+      "kind": "official-package-license-declaration",
+      "role": "license-declaration",
+      "source_url": "https://raw.githubusercontent.com/core-ds/ui-primitives/440b15a6a0481e440ce739150d15968a42cf502e/packages/glyph/package.json",
+      "source_file": "/tmp/alfa-license-sources/upstream/icons-pinned-package.json",
+      "archive_path": null,
+      "sha256": "2dcac3e9671d9787537e74c6240281f0adbf1c6bebe28a7a9c2da5e2d62763cc",
+      "note": "Manifest version 2.293.3 exactly matches the installed package; license field is MIT.",
+      "packages": [
+        "@alfalab/icons-glyph@2.293.3"
+      ]
+    },
+    {
+      "id": "S005",
+      "kind": "canonical-license-terms-extract",
+      "role": "license",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/main/json/details/MIT.json",
+      "source_file": "/tmp/alfa-license-sources/extracts/MIT-permission-and-warranty-terms.txt",
+      "archive_path": null,
+      "sha256": "83330a27667f812efa9c7cdaefd4c83f95b57a7454323a61ee29291312640468",
+      "note": "Standard MIT permission/warranty paragraphs from SPDX. The template copyright-holder line is not reproduced as if it were an actual upstream attribution. No upstream holder attribution was available.",
+      "packages": [
+        "@alfalab/icons-glyph@2.293.3"
+      ],
+      "document_id": "L003"
+    },
+    {
+      "id": "S006",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@alfalab/utils/-/utils-1.22.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@alfalab--utils/1.22.0/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "acf0357beb0d41aa581ac873a74ac8f543d2155f193a2df7d58447507870ec3e",
+      "note": "Copied from installed node_modules/@alfalab/utils/LICENSE.md.",
+      "packages": [
+        "@alfalab/utils@1.22.0"
+      ],
+      "document_id": "L002"
+    },
+    {
+      "id": "S007",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.29.10.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@babel--runtime/7.29.10/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76",
+      "note": "Copied from installed node_modules/@babel/runtime/LICENSE.",
+      "packages": [
+        "@babel/runtime@7.29.10"
+      ],
+      "document_id": "L004"
+    },
+    {
+      "id": "S008",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@juggle/resize-observer/-/resize-observer-3.4.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@juggle--resize-observer/3.4.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "293c905e2ec4f6c30c4684592898fd24215ac735f0601b07b158d1588c8a5af7",
+      "note": "Copied from installed node_modules/@juggle/resize-observer/LICENSE.",
+      "packages": [
+        "@juggle/resize-observer@3.4.0"
+      ],
+      "document_id": "L005"
+    },
+    {
+      "id": "S009",
+      "kind": "upstream-release-license",
+      "role": "license",
+      "source_url": "https://raw.githubusercontent.com/taiga-family/maskito/33ff40937fb6afcc7569273cdb8439d66ed56e70/LICENSE",
+      "source_file": "/tmp/alfa-license-sources/upstream/maskito-LICENSE",
+      "archive_path": null,
+      "sha256": "5015e75afef4dfd244f8bfb6098cba84296f2d278b93f229a5ae8d2e20173907",
+      "note": "Release commit from npm gitHead; upstream LICENSE includes Copyright 2019 Tinkoff Bank.",
+      "packages": [
+        "@maskito/core@1.9.0"
+      ],
+      "document_id": "L006"
+    },
+    {
+      "id": "S010",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@popperjs--core/2.11.8/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "bf67e2c9b7974543bb18ced3a0b37f53729aaff953b442dd89a3adaf90fd93e8",
+      "note": "Copied from installed node_modules/@popperjs/core/LICENSE.md.",
+      "packages": [
+        "@popperjs/core@2.11.8"
+      ],
+      "document_id": "L007"
+    },
+    {
+      "id": "S011",
+      "kind": "installed-readme-legal-extract",
+      "role": "copyright-and-license-declaration",
+      "source_url": "https://registry.npmjs.org/@reach/observe-rect/-/observe-rect-1.2.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/extracts/reach-observe-rect-LEGAL.txt",
+      "archive_path": "package/README.md",
+      "sha256": "0f4f77b884e4598397acb642f8bc757e3d2b950b451de6d2a6dacef66cbd3779",
+      "note": "Verbatim Legal section from the bundled README; also verified in official upstream README at commit 4da69010382bf9b9a4cb2078afe613babab9d764.",
+      "packages": [
+        "@reach/observe-rect@1.2.0"
+      ],
+      "document_id": "L008"
+    },
+    {
+      "id": "S012",
+      "kind": "canonical-license-terms-extract",
+      "role": "license",
+      "source_url": "https://raw.githubusercontent.com/spdx/license-list-data/main/json/details/MIT.json",
+      "source_file": "/tmp/alfa-license-sources/extracts/MIT-permission-and-warranty-terms.txt",
+      "archive_path": null,
+      "sha256": "83330a27667f812efa9c7cdaefd4c83f95b57a7454323a61ee29291312640468",
+      "note": "Standard MIT permission/warranty paragraphs from SPDX. Copyright attribution is separately preserved from the package README; no owner was invented.",
+      "packages": [
+        "@reach/observe-rect@1.2.0"
+      ],
+      "document_id": "L003"
+    },
+    {
+      "id": "S013",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@remix-run/router/-/router-1.23.4.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@remix-run--router/1.23.4/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "77c9ee6a9c5d5782fb0c50b50d101189116314c14f7df0a1b0d385fc96a7ba49",
+      "note": "Copied from installed node_modules/@remix-run/router/LICENSE.md.",
+      "packages": [
+        "@remix-run/router@1.23.4"
+      ],
+      "document_id": "L009"
+    },
+    {
+      "id": "S014",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@types--prop-types/15.7.15/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "note": "Copied from installed node_modules/@types/prop-types/LICENSE.",
+      "packages": [
+        "@types/prop-types@15.7.15"
+      ],
+      "document_id": "L010"
+    },
+    {
+      "id": "S015",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@types/react/-/react-17.0.90.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@types--react/17.0.90/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "note": "Copied from installed node_modules/@types/react/LICENSE.",
+      "packages": [
+        "@types/react@17.0.90"
+      ],
+      "document_id": "L010"
+    },
+    {
+      "id": "S016",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@types/react-transition-group/-/react-transition-group-4.4.12.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@types--react-transition-group/4.4.12/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "note": "Copied from installed node_modules/@types/react-transition-group/LICENSE.",
+      "packages": [
+        "@types/react-transition-group@4.4.12"
+      ],
+      "document_id": "L010"
+    },
+    {
+      "id": "S017",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/@types/scheduler/-/scheduler-0.16.8.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/@types--scheduler/0.16.8/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "note": "Copied from installed node_modules/@types/scheduler/LICENSE.",
+      "packages": [
+        "@types/scheduler@0.16.8"
+      ],
+      "document_id": "L010"
+    },
+    {
+      "id": "S018",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/classnames/-/classnames-2.5.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/classnames/2.5.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "0c1c24dcc129cb0c02ee9803cfa7a50061c236a3b59b36a714c27f3ade66d7be",
+      "note": "Copied from installed node_modules/classnames/LICENSE.",
+      "packages": [
+        "classnames@2.5.1"
+      ],
+      "document_id": "L011"
+    },
+    {
+      "id": "S019",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/compute-scroll-into-view/-/compute-scroll-into-view-3.1.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/compute-scroll-into-view/3.1.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "dfe2b2d612c7c1de1f32dcab5969bd68ecac0022a7582ca8cd4594729b9c8664",
+      "note": "Copied from installed node_modules/compute-scroll-into-view/LICENSE.",
+      "packages": [
+        "compute-scroll-into-view@3.1.1"
+      ],
+      "document_id": "L012"
+    },
+    {
+      "id": "S020",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/csstype/3.2.3/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e",
+      "note": "Copied from installed node_modules/csstype/LICENSE.",
+      "packages": [
+        "csstype@3.2.3"
+      ],
+      "document_id": "L013"
+    },
+    {
+      "id": "S021",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/detect-browser/-/detect-browser-5.3.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/detect-browser/5.3.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "865e4172abe65f4ad1fe3d73fb21d7b9a16588c68597753470b2078bedf3b54a",
+      "note": "Copied from installed node_modules/detect-browser/LICENSE.",
+      "packages": [
+        "detect-browser@5.3.0"
+      ],
+      "document_id": "L014"
+    },
+    {
+      "id": "S022",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/detect-node-es/-/detect-node-es-1.1.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/detect-node-es/1.1.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "54b32293ea560d22cd9b62af9b2cda1a030d910a48c6601d227c5ff2338d95f8",
+      "note": "Copied from installed node_modules/detect-node-es/LICENSE.",
+      "packages": [
+        "detect-node-es@1.1.0"
+      ],
+      "document_id": "L015"
+    },
+    {
+      "id": "S023",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/dom-helpers/-/dom-helpers-5.2.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/dom-helpers/5.2.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "1b0a9ba95a67bc484e028b13c61b83fc5aa1ca7957d1e2d43c2b0f70d9e9dd45",
+      "note": "Copied from installed node_modules/dom-helpers/LICENSE.",
+      "packages": [
+        "dom-helpers@5.2.1"
+      ],
+      "document_id": "L016"
+    },
+    {
+      "id": "S024",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/downshift/-/downshift-8.4.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/downshift/8.4.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "344d83316cc914b58e175f97942abc2ed8b9bb1a6221f5e03586422a2426a4d1",
+      "note": "Copied from installed node_modules/downshift/LICENSE.",
+      "packages": [
+        "downshift@8.4.0"
+      ],
+      "document_id": "L017"
+    },
+    {
+      "id": "S025",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/focus-lock/-/focus-lock-1.3.6.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/focus-lock/1.3.6/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "30f0cfddf483d1128e3610205020f2041a6c5e837aa999e0aa82e5576187d4a9",
+      "note": "Copied from installed node_modules/focus-lock/LICENSE.",
+      "packages": [
+        "focus-lock@1.3.6"
+      ],
+      "document_id": "L018"
+    },
+    {
+      "id": "S026",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/get-nonce/-/get-nonce-1.0.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/get-nonce/1.0.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "acf3b087b348d2f2e731b9d4131af185aad694c1204ce14a46909483fd42da05",
+      "note": "Copied from installed node_modules/get-nonce/LICENSE.",
+      "packages": [
+        "get-nonce@1.0.1"
+      ],
+      "document_id": "L019"
+    },
+    {
+      "id": "S027",
+      "kind": "installed-source-header-extract",
+      "role": "copyright-and-license-declaration",
+      "source_url": "https://registry.npmjs.org/intersection-observer/-/intersection-observer-0.12.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/extracts/intersection-observer-source-notice.txt",
+      "archive_path": "package/intersection-observer.js",
+      "sha256": "53e49150a985ed337ada3e9399639105aca756b884e53acdeba26452806d87e0",
+      "note": "Verbatim distributed source header; matched official release source at gitHead a7874945a27061d01e4076b8aae8b30abc756e97.",
+      "packages": [
+        "intersection-observer@0.12.2"
+      ],
+      "document_id": "L020"
+    },
+    {
+      "id": "S028",
+      "kind": "source-referenced-license-terms",
+      "role": "license",
+      "source_url": "https://www.w3.org/copyright/software-license-2015/",
+      "source_file": "/tmp/alfa-license-sources/extracts/W3C-20150513-LICENSE.txt",
+      "archive_path": null,
+      "sha256": "2135a7525d9ef8b9b36cacccd768fb99fd358cf531dbc260e61c04dfe1bafde0",
+      "note": "Full license and disclaimer text extracted from the official 2015 license page referenced by the distributed source. Its full-notice requirement specifies a location viewable to users.",
+      "packages": [
+        "intersection-observer@0.12.2"
+      ],
+      "document_id": "L021"
+    },
+    {
+      "id": "S029",
+      "kind": "metadata-declared-canonical-license-terms",
+      "role": "license",
+      "source_url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "source_file": "/tmp/alfa-license-sources/upstream/Apache-2.0.txt",
+      "archive_path": null,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "note": "Canonical Apache-2.0 terms included because that identifier is declared in package metadata. This does not resolve the conflicting W3C declaration in the actual source.",
+      "packages": [
+        "intersection-observer@0.12.2"
+      ],
+      "document_id": "L022"
+    },
+    {
+      "id": "S030",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/js-tokens/4.0.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "2213d91c606205c71eb051a199478cdc2adde945893404d7f1421436dd6d5cc1",
+      "note": "Copied from installed node_modules/js-tokens/LICENSE.",
+      "packages": [
+        "js-tokens@4.0.0"
+      ],
+      "document_id": "L023"
+    },
+    {
+      "id": "S031",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/lodash/-/lodash-4.18.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/lodash/4.18.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "f71e8ed126b46346494aad5486874cd8f0aafe95092ed67d2e3cb6110f939abc",
+      "note": "Copied from installed node_modules/lodash/LICENSE.",
+      "packages": [
+        "lodash@4.18.1"
+      ],
+      "document_id": "L024"
+    },
+    {
+      "id": "S032",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/lodash-es/-/lodash-es-4.18.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/lodash-es/4.18.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "f71e8ed126b46346494aad5486874cd8f0aafe95092ed67d2e3cb6110f939abc",
+      "note": "Copied from installed node_modules/lodash-es/LICENSE.",
+      "packages": [
+        "lodash-es@4.18.1"
+      ],
+      "document_id": "L024"
+    },
+    {
+      "id": "S033",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/loose-envify/1.4.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "4eb7543b08d955a6d23fcc224601d43ff566e775be918805e26210d7f6eb4893",
+      "note": "Copied from installed node_modules/loose-envify/LICENSE.",
+      "packages": [
+        "loose-envify@1.4.0"
+      ],
+      "document_id": "L025"
+    },
+    {
+      "id": "S034",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/object-assign/4.1.1/license",
+      "archive_path": "package/license",
+      "sha256": "6fb9754611c20f6649f68805e8c990e83261f29316e29de9e6cedae607b8634c",
+      "note": "Copied from installed node_modules/object-assign/license.",
+      "packages": [
+        "object-assign@4.1.1"
+      ],
+      "document_id": "L026"
+    },
+    {
+      "id": "S035",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/popper-max-size-modifier/-/popper-max-size-modifier-0.2.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/popper-max-size-modifier/0.2.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "0f141811d3a9e496c13783bfffd14065bf80e6445e3465b1157f1493b009bcd6",
+      "note": "Copied from installed node_modules/popper-max-size-modifier/LICENSE.",
+      "packages": [
+        "popper-max-size-modifier@0.2.0"
+      ],
+      "document_id": "L027"
+    },
+    {
+      "id": "S036",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/prop-types/15.8.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "f657f99d3fb9647db92628e96007aabb46e5f04f33e49999075aab8e250ca7ce",
+      "note": "Copied from installed node_modules/prop-types/LICENSE.",
+      "packages": [
+        "prop-types@15.8.1"
+      ],
+      "document_id": "L028"
+    },
+    {
+      "id": "S037",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react/-/react-17.0.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react/17.0.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "note": "Copied from installed node_modules/react/LICENSE.",
+      "packages": [
+        "react@17.0.2"
+      ],
+      "document_id": "L029"
+    },
+    {
+      "id": "S038",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-clientside-effect/-/react-clientside-effect-1.2.8.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-clientside-effect/1.2.8/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "65a1f00f35ea469048896fbfec3c5faed7d3fe7c7e0be2a0478470b59d9e1439",
+      "note": "Copied from installed node_modules/react-clientside-effect/LICENSE.",
+      "packages": [
+        "react-clientside-effect@1.2.8"
+      ],
+      "document_id": "L030"
+    },
+    {
+      "id": "S039",
+      "kind": "upstream-release-license",
+      "role": "license",
+      "source_url": "https://raw.githubusercontent.com/mvasin/react-div-100vh/56872629f9a832b86a3e50e584ff990a1387f124/LICENSE",
+      "source_file": "/tmp/alfa-license-sources/upstream/react-div-100vh-release-LICENSE",
+      "archive_path": null,
+      "sha256": "643ec7df40cf670161acebab3c4ded9d135be4ea072a62accf5cda6bdef72ae2",
+      "note": "Official v0.7.0 tag resolves to this commit; upstream LICENSE preserves its copyright statement.",
+      "packages": [
+        "react-div-100vh@0.7.0"
+      ],
+      "document_id": "L031"
+    },
+    {
+      "id": "S040",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-dom/17.0.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "note": "Copied from installed node_modules/react-dom/LICENSE.",
+      "packages": [
+        "react-dom@17.0.2"
+      ],
+      "document_id": "L029"
+    },
+    {
+      "id": "S041",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-3.2.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-fast-compare/3.2.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "1e187eec147d04bcbb3b7aef9f3b0ea82228961fa7d390d3efb9e57751dbe0cb",
+      "note": "Copied from installed node_modules/react-fast-compare/LICENSE.",
+      "packages": [
+        "react-fast-compare@3.2.2"
+      ],
+      "document_id": "L032"
+    },
+    {
+      "id": "S042",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-focus-lock/-/react-focus-lock-2.13.7.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-focus-lock/2.13.7/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "f3b3ff0eb35b71c73d0b85c0c0cfc83dbf735695de4fe46a44cbdf0ef1966634",
+      "note": "Copied from installed node_modules/react-focus-lock/LICENSE.",
+      "packages": [
+        "react-focus-lock@2.13.7"
+      ],
+      "document_id": "L033"
+    },
+    {
+      "id": "S043",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-is/16.13.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "note": "Copied from installed node_modules/prop-types/node_modules/react-is/LICENSE.",
+      "packages": [
+        "react-is@16.13.1"
+      ],
+      "document_id": "L029"
+    },
+    {
+      "id": "S044",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-is/18.3.1/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "note": "Copied from installed node_modules/downshift/node_modules/react-is/LICENSE.",
+      "packages": [
+        "react-is@18.3.1"
+      ],
+      "document_id": "L029"
+    },
+    {
+      "id": "S045",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-merge-refs/-/react-merge-refs-1.1.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-merge-refs/1.1.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "ab279d396fd279188cec77662c3298690ad468c59985c0e2a5027a3b4275e38f",
+      "note": "Copied from installed node_modules/react-merge-refs/LICENSE.",
+      "packages": [
+        "react-merge-refs@1.1.0"
+      ],
+      "document_id": "L034"
+    },
+    {
+      "id": "S046",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-popper/-/react-popper-2.3.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-popper/2.3.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "7d8e07a60e4aa02d24648ce987b644c2e0978234d209fe454a4fe91701867355",
+      "note": "Copied from installed node_modules/react-popper/LICENSE.",
+      "packages": [
+        "react-popper@2.3.0"
+      ],
+      "document_id": "L035"
+    },
+    {
+      "id": "S047",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-remove-scroll/-/react-remove-scroll-2.7.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-remove-scroll/2.7.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "30f0cfddf483d1128e3610205020f2041a6c5e837aa999e0aa82e5576187d4a9",
+      "note": "Copied from installed node_modules/react-remove-scroll/LICENSE.",
+      "packages": [
+        "react-remove-scroll@2.7.2"
+      ],
+      "document_id": "L018"
+    },
+    {
+      "id": "S048",
+      "kind": "upstream-current-license-fallback",
+      "role": "license",
+      "source_url": "https://raw.githubusercontent.com/theKashey/react-remove-scroll-bar/8ca9ba5ea52de03308fe8ced94f7b159a44d28ff/LICENSE",
+      "source_file": "/tmp/alfa-license-sources/upstream/react-remove-scroll-bar-pinned-LICENSE",
+      "archive_path": null,
+      "sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84",
+      "note": "Current official upstream LICENSE, pinned at audit time. Published npm gitHead b3b1287aad81def2e2ae707274b74531b61ddbaf was unavailable in the public repository; this is not represented as a release-commit match.",
+      "packages": [
+        "react-remove-scroll-bar@2.3.8"
+      ],
+      "document_id": "L036"
+    },
+    {
+      "id": "S049",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-router/-/react-router-6.30.6.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-router/6.30.6/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "77c9ee6a9c5d5782fb0c50b50d101189116314c14f7df0a1b0d385fc96a7ba49",
+      "note": "Copied from installed node_modules/react-router-dom/node_modules/react-router/LICENSE.md.",
+      "packages": [
+        "react-router@6.30.6"
+      ],
+      "document_id": "L009"
+    },
+    {
+      "id": "S050",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-router-dom/-/react-router-dom-6.30.6.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-router-dom/6.30.6/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "77c9ee6a9c5d5782fb0c50b50d101189116314c14f7df0a1b0d385fc96a7ba49",
+      "note": "Copied from installed node_modules/react-router-dom/LICENSE.md.",
+      "packages": [
+        "react-router-dom@6.30.6"
+      ],
+      "document_id": "L009"
+    },
+    {
+      "id": "S051",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-style-singleton/-/react-style-singleton-2.2.3.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-style-singleton/2.2.3/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "30f0cfddf483d1128e3610205020f2041a6c5e837aa999e0aa82e5576187d4a9",
+      "note": "Copied from installed node_modules/react-style-singleton/LICENSE.",
+      "packages": [
+        "react-style-singleton@2.2.3"
+      ],
+      "document_id": "L018"
+    },
+    {
+      "id": "S052",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-swipeable/-/react-swipeable-7.0.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-swipeable/7.0.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "a075b2ceb62e66f713d2390b332c66b4f70601d6dc63537a4faf3c43522b7ca8",
+      "note": "Copied from installed node_modules/react-swipeable/LICENSE.",
+      "packages": [
+        "react-swipeable@7.0.2"
+      ],
+      "document_id": "L037"
+    },
+    {
+      "id": "S053",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-transition-group/-/react-transition-group-4.4.5.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-transition-group/4.4.5/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "b9adc17ad75a847d8743be2843935f0842a0ea4f45e7b0c7e17ed0be98614b9b",
+      "note": "Copied from installed node_modules/react-transition-group/LICENSE.",
+      "packages": [
+        "react-transition-group@4.4.5"
+      ],
+      "document_id": "L038"
+    },
+    {
+      "id": "S054",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/react-virtual/-/react-virtual-2.10.4.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/react-virtual/2.10.4/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "8802066b56e5473d7d0084fe7ee633a3e3377fd344d8408c620e3569dc604fe1",
+      "note": "Copied from installed node_modules/react-virtual/LICENSE.",
+      "packages": [
+        "react-virtual@2.10.4"
+      ],
+      "document_id": "L039"
+    },
+    {
+      "id": "S055",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/scheduler/-/scheduler-0.20.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/scheduler/0.20.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "note": "Copied from installed node_modules/scheduler/LICENSE.",
+      "packages": [
+        "scheduler@0.20.2"
+      ],
+      "document_id": "L029"
+    },
+    {
+      "id": "S056",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/simplebar-core/-/simplebar-core-1.3.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/simplebar-core/1.3.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "ecac7147196913380d69bde30b1ccb25e680c5a8ec5be1189078e5c69e8cc9e2",
+      "note": "Copied from installed node_modules/simplebar-core/LICENSE.",
+      "packages": [
+        "simplebar-core@1.3.2"
+      ],
+      "document_id": "L040"
+    },
+    {
+      "id": "S057",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/simplebar-react/-/simplebar-react-3.3.2.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/simplebar-react/3.3.2/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "ecac7147196913380d69bde30b1ccb25e680c5a8ec5be1189078e5c69e8cc9e2",
+      "note": "Copied from installed node_modules/simplebar-react/LICENSE.",
+      "packages": [
+        "simplebar-react@3.3.2"
+      ],
+      "document_id": "L040"
+    },
+    {
+      "id": "S058",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/tslib/2.8.1/LICENSE.txt",
+      "archive_path": "package/LICENSE.txt",
+      "sha256": "210b19e543130388c68654b7497e967119ce17145f66ab7d85688fbd70f08751",
+      "note": "Copied from installed node_modules/tslib/LICENSE.txt.",
+      "packages": [
+        "tslib@2.8.1"
+      ],
+      "document_id": "L041"
+    },
+    {
+      "id": "S059",
+      "kind": "installed-package-additional-notice",
+      "role": "additional-notice",
+      "source_url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/tslib/2.8.1/CopyrightNotice.txt",
+      "archive_path": "package/CopyrightNotice.txt",
+      "sha256": "da16ddb65f8ca390998fb99223d0112498b56b45784d00afd77ff8ce1ac4de8b",
+      "note": "Additional bundled notice copied from node_modules/tslib/CopyrightNotice.txt.",
+      "packages": [
+        "tslib@2.8.1"
+      ],
+      "document_id": "L042"
+    },
+    {
+      "id": "S060",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/use-callback-ref/-/use-callback-ref-1.3.3.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/use-callback-ref/1.3.3/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "30f0cfddf483d1128e3610205020f2041a6c5e837aa999e0aa82e5576187d4a9",
+      "note": "Copied from installed node_modules/use-callback-ref/LICENSE.",
+      "packages": [
+        "use-callback-ref@1.3.3"
+      ],
+      "document_id": "L018"
+    },
+    {
+      "id": "S061",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/use-sidecar/-/use-sidecar-1.1.3.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/use-sidecar/1.1.3/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "30f0cfddf483d1128e3610205020f2041a6c5e837aa999e0aa82e5576187d4a9",
+      "note": "Copied from installed node_modules/use-sidecar/LICENSE.",
+      "packages": [
+        "use-sidecar@1.1.3"
+      ],
+      "document_id": "L018"
+    },
+    {
+      "id": "S062",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.7.0.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/use-sync-external-store/1.7.0/LICENSE",
+      "archive_path": "package/LICENSE",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "note": "Copied from installed node_modules/use-sync-external-store/LICENSE.",
+      "packages": [
+        "use-sync-external-store@1.7.0"
+      ],
+      "document_id": "L043"
+    },
+    {
+      "id": "S063",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/uuid/-/uuid-14.0.3.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/uuid/14.0.3/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "beaa6b04fb82e41dd2ad679e19e27953afb5999b1abbb455b6564e78ebfeb332",
+      "note": "Copied from installed node_modules/uuid/LICENSE.md.",
+      "packages": [
+        "uuid@14.0.3"
+      ],
+      "document_id": "L044"
+    },
+    {
+      "id": "S064",
+      "kind": "installed-package-license",
+      "role": "license",
+      "source_url": "https://registry.npmjs.org/warning/-/warning-4.0.3.tgz",
+      "source_file": "/tmp/alfa-license-sources/bundled/warning/4.0.3/LICENSE.md",
+      "archive_path": "package/LICENSE.md",
+      "sha256": "f657f99d3fb9647db92628e96007aabb46e5f04f33e49999075aab8e250ca7ce",
+      "note": "Copied from installed node_modules/warning/LICENSE.md.",
+      "packages": [
+        "warning@4.0.3"
+      ],
+      "document_id": "L028"
+    }
+  ],
+  "license_and_notice_groups": [
+    {
+      "id": "L001",
+      "sha256_normalized": "2dbc8c8fa27b9106a0ec907b98224eaff93085b8b6c9d9f68e7588a9cf49b834",
+      "packages": [
+        "@alfalab/core-components-backdrop@5.0.2",
+        "@alfalab/core-components-base-modal@7.2.2",
+        "@alfalab/core-components-bottom-sheet@8.1.16",
+        "@alfalab/core-components-button@13.2.4",
+        "@alfalab/core-components-checkbox@6.3.2",
+        "@alfalab/core-components-config@1.1.0",
+        "@alfalab/core-components-form-control@14.0.11",
+        "@alfalab/core-components-global-store@4.0.1",
+        "@alfalab/core-components-icon-button@8.0.12",
+        "@alfalab/core-components-indicator@4.0.2",
+        "@alfalab/core-components-input@17.2.2",
+        "@alfalab/core-components-modal@11.0.19",
+        "@alfalab/core-components-mq@6.0.9",
+        "@alfalab/core-components-navigation-bar-private@2.0.16",
+        "@alfalab/core-components-pagination@4.0.12",
+        "@alfalab/core-components-plate@9.0.12",
+        "@alfalab/core-components-popover@8.1.4",
+        "@alfalab/core-components-portal@5.0.6",
+        "@alfalab/core-components-scrollbar-private@0.0.1",
+        "@alfalab/core-components-select@19.2.11",
+        "@alfalab/core-components-shared@2.3.0",
+        "@alfalab/core-components-skeleton@7.0.5",
+        "@alfalab/core-components-spinner@6.0.9",
+        "@alfalab/core-components-stack@7.0.1",
+        "@alfalab/core-components-stack-context@1.0.1",
+        "@alfalab/core-components-status@5.1.1",
+        "@alfalab/core-components-status-badge@3.0.2",
+        "@alfalab/core-components-table@4.0.30",
+        "@alfalab/core-components-tag@10.3.2",
+        "@alfalab/core-components-themes@15.2.1",
+        "@alfalab/core-components-types@2.1.0",
+        "@alfalab/core-components-typography@6.0.13"
+      ],
+      "source_ids": [
+        "S001"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L002",
+      "sha256_normalized": "5a86921a61c35bf6c0df0cba6db335afe4b7c6ef49bcc8db86dac3e46d083198",
+      "packages": [
+        "@alfalab/data@1.10.2",
+        "@alfalab/hooks@1.18.1",
+        "@alfalab/utils@1.22.0"
+      ],
+      "source_ids": [
+        "S002",
+        "S003",
+        "S006"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L003",
+      "sha256_normalized": "83330a27667f812efa9c7cdaefd4c83f95b57a7454323a61ee29291312640468",
+      "packages": [
+        "@alfalab/icons-glyph@2.293.3",
+        "@reach/observe-rect@1.2.0"
+      ],
+      "source_ids": [
+        "S005",
+        "S012"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L004",
+      "sha256_normalized": "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76",
+      "packages": [
+        "@babel/runtime@7.29.10"
+      ],
+      "source_ids": [
+        "S007"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L005",
+      "sha256_normalized": "293c905e2ec4f6c30c4684592898fd24215ac735f0601b07b158d1588c8a5af7",
+      "packages": [
+        "@juggle/resize-observer@3.4.0"
+      ],
+      "source_ids": [
+        "S008"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L006",
+      "sha256_normalized": "9d8a6aaa5a7d0f5a36ba53f87069790a443a75ee9c1223c116b4174e40273974",
+      "packages": [
+        "@maskito/core@1.9.0"
+      ],
+      "source_ids": [
+        "S009"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L007",
+      "sha256_normalized": "bf67e2c9b7974543bb18ced3a0b37f53729aaff953b442dd89a3adaf90fd93e8",
+      "packages": [
+        "@popperjs/core@2.11.8"
+      ],
+      "source_ids": [
+        "S010"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L008",
+      "sha256_normalized": "0f4f77b884e4598397acb642f8bc757e3d2b950b451de6d2a6dacef66cbd3779",
+      "packages": [
+        "@reach/observe-rect@1.2.0"
+      ],
+      "source_ids": [
+        "S011"
+      ],
+      "roles": [
+        "copyright-and-license-declaration"
+      ]
+    },
+    {
+      "id": "L009",
+      "sha256_normalized": "77c9ee6a9c5d5782fb0c50b50d101189116314c14f7df0a1b0d385fc96a7ba49",
+      "packages": [
+        "@remix-run/router@1.23.4",
+        "react-router@6.30.6",
+        "react-router-dom@6.30.6"
+      ],
+      "source_ids": [
+        "S013",
+        "S049",
+        "S050"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L010",
+      "sha256_normalized": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "packages": [
+        "@types/prop-types@15.7.15",
+        "@types/react@17.0.90",
+        "@types/react-transition-group@4.4.12",
+        "@types/scheduler@0.16.8"
+      ],
+      "source_ids": [
+        "S014",
+        "S015",
+        "S016",
+        "S017"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L011",
+      "sha256_normalized": "0c1c24dcc129cb0c02ee9803cfa7a50061c236a3b59b36a714c27f3ade66d7be",
+      "packages": [
+        "classnames@2.5.1"
+      ],
+      "source_ids": [
+        "S018"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L012",
+      "sha256_normalized": "dfe2b2d612c7c1de1f32dcab5969bd68ecac0022a7582ca8cd4594729b9c8664",
+      "packages": [
+        "compute-scroll-into-view@3.1.1"
+      ],
+      "source_ids": [
+        "S019"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L013",
+      "sha256_normalized": "11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e",
+      "packages": [
+        "csstype@3.2.3"
+      ],
+      "source_ids": [
+        "S020"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L014",
+      "sha256_normalized": "865e4172abe65f4ad1fe3d73fb21d7b9a16588c68597753470b2078bedf3b54a",
+      "packages": [
+        "detect-browser@5.3.0"
+      ],
+      "source_ids": [
+        "S021"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L015",
+      "sha256_normalized": "54b32293ea560d22cd9b62af9b2cda1a030d910a48c6601d227c5ff2338d95f8",
+      "packages": [
+        "detect-node-es@1.1.0"
+      ],
+      "source_ids": [
+        "S022"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L016",
+      "sha256_normalized": "839c52871ed9f56c730a17ae80534aaef5cde4006bbc860a50554c8952dcdf07",
+      "packages": [
+        "dom-helpers@5.2.1"
+      ],
+      "source_ids": [
+        "S023"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L017",
+      "sha256_normalized": "344d83316cc914b58e175f97942abc2ed8b9bb1a6221f5e03586422a2426a4d1",
+      "packages": [
+        "downshift@8.4.0"
+      ],
+      "source_ids": [
+        "S024"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L018",
+      "sha256_normalized": "30f0cfddf483d1128e3610205020f2041a6c5e837aa999e0aa82e5576187d4a9",
+      "packages": [
+        "focus-lock@1.3.6",
+        "react-remove-scroll@2.7.2",
+        "react-style-singleton@2.2.3",
+        "use-callback-ref@1.3.3",
+        "use-sidecar@1.1.3"
+      ],
+      "source_ids": [
+        "S025",
+        "S047",
+        "S051",
+        "S060",
+        "S061"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L019",
+      "sha256_normalized": "acf3b087b348d2f2e731b9d4131af185aad694c1204ce14a46909483fd42da05",
+      "packages": [
+        "get-nonce@1.0.1"
+      ],
+      "source_ids": [
+        "S026"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L020",
+      "sha256_normalized": "53e49150a985ed337ada3e9399639105aca756b884e53acdeba26452806d87e0",
+      "packages": [
+        "intersection-observer@0.12.2"
+      ],
+      "source_ids": [
+        "S027"
+      ],
+      "roles": [
+        "copyright-and-license-declaration"
+      ]
+    },
+    {
+      "id": "L021",
+      "sha256_normalized": "2135a7525d9ef8b9b36cacccd768fb99fd358cf531dbc260e61c04dfe1bafde0",
+      "packages": [
+        "intersection-observer@0.12.2"
+      ],
+      "source_ids": [
+        "S028"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L022",
+      "sha256_normalized": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "packages": [
+        "intersection-observer@0.12.2"
+      ],
+      "source_ids": [
+        "S029"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L023",
+      "sha256_normalized": "2213d91c606205c71eb051a199478cdc2adde945893404d7f1421436dd6d5cc1",
+      "packages": [
+        "js-tokens@4.0.0"
+      ],
+      "source_ids": [
+        "S030"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L024",
+      "sha256_normalized": "f71e8ed126b46346494aad5486874cd8f0aafe95092ed67d2e3cb6110f939abc",
+      "packages": [
+        "lodash@4.18.1",
+        "lodash-es@4.18.1"
+      ],
+      "source_ids": [
+        "S031",
+        "S032"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L025",
+      "sha256_normalized": "4eb7543b08d955a6d23fcc224601d43ff566e775be918805e26210d7f6eb4893",
+      "packages": [
+        "loose-envify@1.4.0"
+      ],
+      "source_ids": [
+        "S033"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L026",
+      "sha256_normalized": "6fb9754611c20f6649f68805e8c990e83261f29316e29de9e6cedae607b8634c",
+      "packages": [
+        "object-assign@4.1.1"
+      ],
+      "source_ids": [
+        "S034"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L027",
+      "sha256_normalized": "0f141811d3a9e496c13783bfffd14065bf80e6445e3465b1157f1493b009bcd6",
+      "packages": [
+        "popper-max-size-modifier@0.2.0"
+      ],
+      "source_ids": [
+        "S035"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L028",
+      "sha256_normalized": "f657f99d3fb9647db92628e96007aabb46e5f04f33e49999075aab8e250ca7ce",
+      "packages": [
+        "prop-types@15.8.1",
+        "warning@4.0.3"
+      ],
+      "source_ids": [
+        "S036",
+        "S064"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L029",
+      "sha256_normalized": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "packages": [
+        "react@17.0.2",
+        "react-dom@17.0.2",
+        "react-is@16.13.1",
+        "react-is@18.3.1",
+        "scheduler@0.20.2"
+      ],
+      "source_ids": [
+        "S037",
+        "S040",
+        "S043",
+        "S044",
+        "S055"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L030",
+      "sha256_normalized": "65a1f00f35ea469048896fbfec3c5faed7d3fe7c7e0be2a0478470b59d9e1439",
+      "packages": [
+        "react-clientside-effect@1.2.8"
+      ],
+      "source_ids": [
+        "S038"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L031",
+      "sha256_normalized": "643ec7df40cf670161acebab3c4ded9d135be4ea072a62accf5cda6bdef72ae2",
+      "packages": [
+        "react-div-100vh@0.7.0"
+      ],
+      "source_ids": [
+        "S039"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L032",
+      "sha256_normalized": "1e187eec147d04bcbb3b7aef9f3b0ea82228961fa7d390d3efb9e57751dbe0cb",
+      "packages": [
+        "react-fast-compare@3.2.2"
+      ],
+      "source_ids": [
+        "S041"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L033",
+      "sha256_normalized": "f3b3ff0eb35b71c73d0b85c0c0cfc83dbf735695de4fe46a44cbdf0ef1966634",
+      "packages": [
+        "react-focus-lock@2.13.7"
+      ],
+      "source_ids": [
+        "S042"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L034",
+      "sha256_normalized": "27978bcaf61cbcb077b326b6325104503c8617cbb8514a8bf73fa7b549291ab9",
+      "packages": [
+        "react-merge-refs@1.1.0"
+      ],
+      "source_ids": [
+        "S045"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L035",
+      "sha256_normalized": "7d8e07a60e4aa02d24648ce987b644c2e0978234d209fe454a4fe91701867355",
+      "packages": [
+        "react-popper@2.3.0"
+      ],
+      "source_ids": [
+        "S046"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L036",
+      "sha256_normalized": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84",
+      "packages": [
+        "react-remove-scroll-bar@2.3.8"
+      ],
+      "source_ids": [
+        "S048"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L037",
+      "sha256_normalized": "a075b2ceb62e66f713d2390b332c66b4f70601d6dc63537a4faf3c43522b7ca8",
+      "packages": [
+        "react-swipeable@7.0.2"
+      ],
+      "source_ids": [
+        "S052"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L038",
+      "sha256_normalized": "b9adc17ad75a847d8743be2843935f0842a0ea4f45e7b0c7e17ed0be98614b9b",
+      "packages": [
+        "react-transition-group@4.4.5"
+      ],
+      "source_ids": [
+        "S053"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L039",
+      "sha256_normalized": "8802066b56e5473d7d0084fe7ee633a3e3377fd344d8408c620e3569dc604fe1",
+      "packages": [
+        "react-virtual@2.10.4"
+      ],
+      "source_ids": [
+        "S054"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L040",
+      "sha256_normalized": "a243497fa50597636b1220b88aa3913416b5e882a052057cf1a71d725f456ed6",
+      "packages": [
+        "simplebar-core@1.3.2",
+        "simplebar-react@3.3.2"
+      ],
+      "source_ids": [
+        "S056",
+        "S057"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L041",
+      "sha256_normalized": "5989359645911c04a140c49d89496b13feca980bbf36d2250a12d3b9d06250d6",
+      "packages": [
+        "tslib@2.8.1"
+      ],
+      "source_ids": [
+        "S058"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L042",
+      "sha256_normalized": "72ba857a2d06a6d440c28e690835119f6d70fe16f58b7538e3e3c1c133d944d7",
+      "packages": [
+        "tslib@2.8.1"
+      ],
+      "source_ids": [
+        "S059"
+      ],
+      "roles": [
+        "additional-notice"
+      ]
+    },
+    {
+      "id": "L043",
+      "sha256_normalized": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "packages": [
+        "use-sync-external-store@1.7.0"
+      ],
+      "source_ids": [
+        "S062"
+      ],
+      "roles": [
+        "license"
+      ]
+    },
+    {
+      "id": "L044",
+      "sha256_normalized": "beaa6b04fb82e41dd2ad679e19e27953afb5999b1abbb455b6564e78ebfeb332",
+      "packages": [
+        "uuid@14.0.3"
+      ],
+      "source_ids": [
+        "S063"
+      ],
+      "roles": [
+        "license"
+      ]
+    }
+  ]
+}

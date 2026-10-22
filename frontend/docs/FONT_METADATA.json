@@ -1,0 +1,66 @@
+[
+  {
+    "filename": "styrene-ui_regular.woff2",
+    "local_read_path": "/tmp/core-components-audit/styrene-ui_regular.woff2",
+    "source_url": "https://raw.githubusercontent.com/core-ds/core-components/master/.storybook/public/fonts/styrene-ui_regular.woff2",
+    "sha256": "2125296d9d97fd8eacad5d014771909487cbadec236a65767ef62e4e46b5c7e9",
+    "embedded_name_records": [
+      {
+        "name_id": 0,
+        "text": "Copyright (C)2016 Commercial Type."
+      },
+      {
+        "name_id": 8,
+        "text": "Commercial Type, Inc."
+      },
+      {
+        "name_id": 9,
+        "text": "Berton Hasebe"
+      },
+      {
+        "name_id": 11,
+        "text": "http://commercialtype.com"
+      },
+      {
+        "name_id": 13,
+        "text": "Not to be used for anything other than web font use!"
+      },
+      {
+        "name_id": 14,
+        "text": "http://commercialtype.com/license"
+      }
+    ]
+  },
+  {
+    "filename": "alfa-interface-sans_regular.woff2",
+    "local_read_path": "/tmp/core-components-audit/alfa-interface-sans_regular.woff2",
+    "source_url": "https://raw.githubusercontent.com/core-ds/core-components/master/.storybook/public/fonts/alfa-interface-sans_regular.woff2",
+    "sha256": "d01f0c2f390e7c373693660a0170189420fc0afe622ef55e3322e570c13e3a3b",
+    "embedded_name_records": [
+      {
+        "name_id": 0,
+        "text": "Copyright © 2024, ParaType Ltd. All rights reserved."
+      },
+      {
+        "name_id": 8,
+        "text": "ParaType Ltd."
+      },
+      {
+        "name_id": 9,
+        "text": "Vitaly Kuzmin, Nick Nedashkovskiy"
+      },
+      {
+        "name_id": 11,
+        "text": "http://www.paratype.com"
+      },
+      {
+        "name_id": 13,
+        "text": "http://www.paratype.com/eula"
+      },
+      {
+        "name_id": 14,
+        "text": "http://www.paratype.com/eula"
+      }
+    ]
+  }
+]
