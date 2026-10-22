@@ -1,0 +1,33 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> alfa-credit-workspace@1.0.0 test:e2e
+> playwright test --workers=2
+
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:10891) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 2 workers
+
+(node:10925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/workspaces.spec.ts:32:3 › demo login client_good: server profile, route, and Bearer requests (490ms)
+  ✓   2 [chromium] › e2e/workspaces.spec.ts:32:3 › demo login client_bad: server profile, route, and Bearer requests (505ms)
+  ✓   3 [chromium] › e2e/workspaces.spec.ts:32:3 › demo login bank_employee: server profile, route, and Bearer requests (460ms)
+  ✓   4 [chromium] › e2e/workspaces.spec.ts:55:1 › guests cannot open either workspace and the root opens login (533ms)
+  ✓   5 [chromium] › e2e/workspaces.spec.ts:66:1 › refresh restores the server profile and logout clears both storage keys (605ms)
+  ✓   6 [chromium] › e2e/workspaces.spec.ts:85:3 › CLIENT cross-role 403 preserves session, returns home, and switches user (585ms)
+  ✓   8 [chromium] › e2e/workspaces.spec.ts:110:3 › HTTP 401 from the API expires the session (351ms)
+  ✓   7 [chromium] › e2e/workspaces.spec.ts:85:3 › EMPLOYEE cross-role 403 preserves session, returns home, and switches user (602ms)
+  ✓   9 [chromium] › e2e/workspaces.spec.ts:110:3 › HTTP 403 from the API retains the session (340ms)
+  ✓  10 [chromium] › e2e/workspaces.spec.ts:127:3 › create once, poll, and show APPROVED (590ms)
+  ✓  11 [chromium] › e2e/workspaces.spec.ts:127:3 › create once, poll, and show REJECTED with its reason (606ms)
+  ✓  12 [chromium] › e2e/workspaces.spec.ts:178:1 › refresh resumes a processing application and logout stops future polling (586ms)
+  ✓  13 [chromium] › e2e/workspaces.spec.ts:197:1 › employee ALL explicitly aggregates, deduplicates, sorts, filters, and refreshes (835ms)
+  ✓  14 [chromium] › e2e/workspaces.spec.ts:229:1 › an ALL request failure shows an error without a partial registry and refresh recovers (1.3s)
+  ✓  16 [chromium] › e2e/workspaces.spec.ts:298:1 › form reports invalid bounds, focuses the field, and accepts inclusive minimums (610ms)
+  ✓  15 [chromium] › e2e/workspaces.spec.ts:247:1 › all four Core screens are responsive and have no serious or critical axe violations (8.5s)
+
+  16 passed (13.5s)

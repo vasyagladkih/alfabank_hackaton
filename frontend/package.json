@@ -1,0 +1,60 @@
+{
+  "name": "alfa-credit-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^24.15.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "generate:api": "openapi-typescript ../docs/openapi.yaml -o src/api/schema.d.ts",
+    "check:api": "node scripts/check-api.mjs",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "check": "npm run check:api && npm run lint && npm test && npm run build"
+  },
+  "dependencies": {
+    "@alfalab/core-components-button": "13.2.4",
+    "@alfalab/core-components-config": "1.1.0",
+    "@alfalab/core-components-form-control": "14.0.11",
+    "@alfalab/core-components-input": "17.2.2",
+    "@alfalab/core-components-plate": "9.0.12",
+    "@alfalab/core-components-spinner": "6.0.9",
+    "@alfalab/core-components-stack-context": "1.0.1",
+    "@alfalab/core-components-status": "5.1.1",
+    "@alfalab/core-components-table": "4.0.30",
+    "@alfalab/core-components-themes": "15.2.1",
+    "@alfalab/core-components-typography": "6.0.13",
+    "@alfalab/icons-glyph": "2.293.3",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-router-dom": "6.30.6"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "12.1.5",
+    "@testing-library/user-event": "14.6.8",
+    "@types/node": "26.6.5",
+    "@types/react": "17.0.90",
+    "@types/react-dom": "17.0.26",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "jsdom": "30.1.3",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.0",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}
