@@ -1,0 +1,466 @@
+openapi: 3.0.3
+info:
+  title: Employee workflow contract — issue15 proposal for issue18
+  version: 1.2.0
+paths:
+  /api/v1/employee/applications/{id}:
+    get:
+      tags:
+      - employee-applications
+      operationId: getEmployeeDossier
+      security:
+      - BearerAuth: []
+      parameters:
+      - &id001
+        name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        '200':
+          description: Актуальная заявка / досье. Точный повтор команды возвращает
+            сохранённый ответ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDossier'
+        '400':
+          description: Некорректные параметры учебной команды.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '401':
+          description: Требуется авторизация.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '403':
+          description: Недостаточно прав или чужая заявка.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '404':
+          description: Заявка отсутствует.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '409':
+          description: Состояние или версия изменились; повторный ключ с другим содержимым.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+  /api/v1/employee/applications/{id}/decisions:
+    post:
+      tags:
+      - employee-applications
+      operationId: decideApplication
+      security:
+      - BearerAuth: []
+      parameters:
+      - *id001
+      responses:
+        '200':
+          description: Актуальная заявка / досье. Точный повтор команды возвращает
+            сохранённый ответ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDossier'
+        '400':
+          description: Некорректные параметры учебной команды.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '401':
+          description: Требуется авторизация.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '403':
+          description: Недостаточно прав или чужая заявка.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '404':
+          description: Заявка отсутствует.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '409':
+          description: Состояние или версия изменились; повторный ключ с другим содержимым.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeDecisionRequest'
+  /api/v1/client/applications/{id}/offer-response:
+    post:
+      tags:
+      - client-applications
+      operationId: respondToOffer
+      security:
+      - BearerAuth: []
+      parameters:
+      - *id001
+      responses:
+        '200':
+          description: Актуальная заявка / досье. Точный повтор команды возвращает
+            сохранённый ответ.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ApplicationResponse
+        '400':
+          description: Некорректные параметры учебной команды.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '401':
+          description: Требуется авторизация.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '403':
+          description: Недостаточно прав или чужая заявка.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '404':
+          description: Заявка отсутствует.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+        '409':
+          description: Состояние или версия изменились; повторный ключ с другим содержимым.
+          content:
+            application/json:
+              schema:
+                $ref: ../openapi.yaml#/components/schemas/ErrorResponse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferResponseRequest'
+components:
+  schemas:
+    EmployeeDecisionType:
+      type: string
+      enum:
+      - APPROVE
+      - REJECT
+      - COUNTEROFFER
+    EmployeeDecisionRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expectedVersion
+      - requestId
+      - type
+      - rationale
+      properties:
+        expectedVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        requestId:
+          type: string
+          format: uuid
+          description: Ключ повтора в пределах заявки и пользователя; тот же UUID с другим содержимым в этой заявке даёт 409.
+        type:
+          $ref: '#/components/schemas/EmployeeDecisionType'
+        rationale:
+          type: string
+          minLength: 3
+          maxLength: 1000
+        offerAmount:
+          type: integer
+          format: int64
+          minimum: 100000
+          maximum: 50000000
+    OfferResponseRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expectedVersion
+      - requestId
+      - decision
+      properties:
+        expectedVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        requestId:
+          type: string
+          format: uuid
+          description: Ключ повтора в пределах заявки и пользователя; тот же UUID с другим содержимым в этой заявке даёт 409.
+        decision:
+          type: string
+          enum:
+          - ACCEPT
+          - REJECT
+    DossierFact:
+      type: object
+      required:
+      - code
+      - label
+      - source
+      properties:
+        code: &id002
+          type: string
+        label: *id002
+        value:
+          type: string
+          nullable: true
+        unit:
+          type: string
+          nullable: true
+        source: *id002
+    DossierSource:
+      type: object
+      required:
+      - code
+      - label
+      - demoOnly
+      - freshness
+      properties:
+        code: *id002
+        label: *id002
+        version:
+          type: string
+          nullable: true
+        observedOn:
+          type: string
+          format: date
+          nullable: true
+        demoOnly:
+          type: boolean
+          enum:
+          - true
+        freshness:
+          type: string
+          enum:
+          - FRESH
+          - STALE
+          - MISSING
+          - INVALID
+    MonthlyTurnover:
+      type: object
+      required:
+      - month
+      properties:
+        month:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}$
+        turnover: &id003
+          type: string
+          nullable: true
+          pattern: ^-?[0-9]+(\.[0-9]+)?$
+    ScoreContribution:
+      type: object
+      required:
+      - code
+      - label
+      - value
+      - points
+      - maximum
+      - explanation
+      properties:
+        code: *id002
+        label: *id002
+        value: *id002
+        points:
+          type: integer
+          minimum: 0
+        maximum:
+          type: integer
+          minimum: 0
+        explanation: *id002
+    RuleFinding:
+      type: object
+      required:
+      - code
+      - severity
+      - message
+      properties:
+        code: *id002
+        severity:
+          type: string
+          enum:
+          - HARD_STOP
+          - DATA_QUALITY
+          - WARNING
+          - DECISION
+        message: *id002
+    RiskAssessment:
+      type: object
+      required:
+      - ruleVersion
+      - asOf
+      - outcome
+      - maxScore
+      - evidenceComplete
+      - eligibleForManualApproval
+      - components
+      - findings
+      properties:
+        ruleVersion: *id002
+        asOf:
+          type: string
+          format: date
+        outcome:
+          $ref: ../openapi.yaml#/components/schemas/ApplicationStatus
+        score:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 850
+        maxScore:
+          type: integer
+          minimum: 0
+        evidenceComplete:
+          type: boolean
+        eligibleForManualApproval:
+          type: boolean
+        annualRate: *id003
+        monthlyIncome: *id003
+        existingDebtPayment: *id003
+        requestedPayment: *id003
+        debtRatio: *id003
+        affordableAmount:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 50000000
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoreContribution'
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleFinding'
+    AuditEvent:
+      type: object
+      required:
+      - id
+      - eventType
+      - actorRole
+      - toStatus
+      - createdAt
+      - version
+      properties:
+        id:
+          type: integer
+          format: int64
+        eventType: *id002
+        actorRole:
+          type: string
+          enum:
+          - SYSTEM
+          - EMPLOYEE
+          - CLIENT
+        fromStatus:
+          allOf:
+          - $ref: ../openapi.yaml#/components/schemas/ApplicationStatus
+          nullable: true
+        toStatus:
+          $ref: ../openapi.yaml#/components/schemas/ApplicationStatus
+        rationale:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+          minimum: 0
+    EmployeeDossier:
+      type: object
+      required:
+      - application
+      - demoOnly
+      - facts
+      - cashflows
+      - sources
+      - allowedActions
+      - audit
+      properties:
+        application:
+          $ref: ../openapi.yaml#/components/schemas/ApplicationResponse
+        demoOnly:
+          type: boolean
+          enum:
+          - true
+        snapshotCapturedAt:
+          type: string
+          format: date-time
+          nullable: true
+        snapshotAsOf:
+          type: string
+          format: date
+          nullable: true
+        snapshotOrigin:
+          type: string
+          nullable: true
+        snapshotSha256:
+          type: string
+          nullable: true
+        facts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DossierFact'
+        cashflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyTurnover'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DossierSource'
+        assessment:
+          allOf:
+          - $ref: '#/components/schemas/RiskAssessment'
+          nullable: true
+        allowedActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDecisionType'
+        audit:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'
+  securitySchemes:
+    BearerAuth:
+      $ref: ../openapi.yaml#/components/securitySchemes/BearerAuth
+x-existing-list-additional-query:
+  name: search
+  in: query
+  required: false
+  description: Подстрока ID, названия компании или ИНН; до 120 символов.
+  schema:
+    type: string
+    maxLength: 120
