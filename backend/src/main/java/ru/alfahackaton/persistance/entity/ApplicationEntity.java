@@ -1,9 +1,17 @@
 package ru.alfahackaton.persistance.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.ReadOnlyProperty;
+import org.springframework.data.relational.core.mapping.Table;
+
 import java.time.OffsetDateTime;
 
+/**
+ * Сущность кредитной заявки на базе Spring Data JDBC.
+ */
+@Table("applications")
 public record ApplicationEntity(
-        Long id,
+        @Id Long id,
         Long userId,
         Long amount,
         Integer termMonths,
@@ -12,8 +20,8 @@ public record ApplicationEntity(
         String rejectionReason,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
-        String companyName,
-        String inn
+        @ReadOnlyProperty String companyName,
+        @ReadOnlyProperty String inn
 ) {
     public ApplicationEntity(
             Long id,

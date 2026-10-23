@@ -1,9 +1,16 @@
 package ru.alfahackaton.persistance.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
 import java.time.OffsetDateTime;
 
+/**
+ * Сущность пользователя системы.
+ */
+@Table("users")
 public record UserEntity(
-        Long id,
+        @Id Long id,
         String username,
         String role,
         String companyName,

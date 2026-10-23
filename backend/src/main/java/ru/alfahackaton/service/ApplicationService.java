@@ -2,10 +2,12 @@ package ru.alfahackaton.service;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import ru.alfahackaton.dto.ApplicationResponse;
 import ru.alfahackaton.dto.ApplicationStatus;
 import ru.alfahackaton.dto.CreateApplicationRequest;
-import ru.alfahackaton.dto.LoanPurpose;
+import ru.alfahackaton.mapper.ApplicationMapper;
 import ru.alfahackaton.persistance.entity.ApplicationEntity;
 import ru.alfahackaton.persistance.entity.UserEntity;
 import ru.alfahackaton.persistance.repository.ApplicationRepository;
@@ -17,21 +19,33 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@Transactional(readOnly = true)
 public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
+    private final TransactionTemplate transactionTemplate;
+    private final ApplicationMapper mapper;
 
-    public ApplicationService(ApplicationRepository applicationRepository, UserRepository userRepository) {
+    public ApplicationService(
+            ApplicationRepository applicationRepository,
+            UserRepository userRepository,
+            TransactionTemplate transactionTemplate, ApplicationMapper mapper
+    ) {
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
+        this.transactionTemplate = transactionTemplate;
+        this.mapper = mapper;
     }
 
+    @Transactional
     public ApplicationResponse createApplication(CreateApplicationRequest request, Long currentUserId) {
+
         UserEntity user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
         OffsetDateTime now = OffsetDateTime.now(ZoneId.systemDefault());
+
         ApplicationEntity entity = new ApplicationEntity(
                 null,
                 currentUserId,
@@ -62,13 +76,19 @@ public class ApplicationService {
                     finalStatus = ApplicationStatus.APPROVED.getValue();
                 }
 
-                applicationRepository.updateStatus(saved.id(), finalStatus, rejectionReason);
+                String effectiveRejectionReason = rejectionReason;
+                transactionTemplate.executeWithoutResult(status ->
+                        applicationRepository.updateStatus(saved.id(), finalStatus, effectiveRejectionReason)
+                );
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         });
 
-        return toDto(saved);
+        ApplicationResponse response = mapper.toDto(saved);
+        if (response.getCompanyName() == null) response.setCompanyName(user.companyName());
+        if (response.getInn() == null) response.setInn(user.inn());
+        return response;
     }
 
     public ApplicationResponse getApplicationById(Long applicationId, Long currentUserId, String currentRole) {
@@ -76,16 +96,16 @@ public class ApplicationService {
                 .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
 
         if (("ROLE_CLIENT".equals(currentRole) || "CLIENT".equals(currentRole)) && !entity.userId().equals(currentUserId)) {
-                throw new AccessDeniedException("Доступ к чужой заявке запрещен");
-            }
+            throw new AccessDeniedException("Доступ к чужой заявке запрещен");
+        }
 
-        return toDto(entity);
+        return mapper.toDto(entity);
     }
 
     public List<ApplicationResponse> getClientApplications(Long currentUserId) {
         return applicationRepository.findByUserId(currentUserId)
                 .stream()
-                .map(this::toDto)
+                .map(mapper::toDto)
                 .toList();
     }
 
@@ -93,27 +113,7 @@ public class ApplicationService {
         String filter = status != null ? status.getValue() : null;
         return applicationRepository.findAll(filter)
                 .stream()
-                .map(this::toDto)
+                .map(mapper::toDto)
                 .toList();
-    }
-
-    private ApplicationResponse toDto(ApplicationEntity entity) {
-        LoanPurpose purposeEnum = LoanPurpose.fromValue(entity.purpose());
-        ApplicationStatus statusEnum = ApplicationStatus.fromValue(entity.status());
-
-        ApplicationResponse response = new ApplicationResponse(
-                entity.id(),
-                entity.amount(),
-                entity.termMonths(),
-                purposeEnum,
-                statusEnum,
-                entity.createdAt()
-        );
-        response.setCompanyName(entity.companyName());
-        response.setInn(entity.inn());
-        response.setRejectionReason(entity.rejectionReason());
-        response.setUpdatedAt(entity.updatedAt());
-
-        return response;
     }
 }
