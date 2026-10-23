@@ -20,3 +20,7 @@ jwt:
 
 server:
   port: 8080
+
+demo:
+  seed:
+    enabled: ${DEMO_SEED_ENABLED:false}

@@ -1,0 +1,221 @@
+{
+  "asOf": "2026-10-23",
+  "datasetVersion": "DEMO_DATA_V1",
+  "demoOnly": true,
+  "generator": "python3 scripts/generate-demo-seed.py",
+  "notes": "Expected paths use the versioned default demo policy. No live data or actual credit decisions.",
+  "ruleVersion": "DEMO_RULES_V1",
+  "scenarios": [
+    {
+      "amountRub": 1000000,
+      "code": "approved",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Complete fresh inputs, score850, affordable original terms",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Зелёный сценарий"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "low-score",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Score240 below500; no hard-stop required",
+      "owner": "client_bad",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Низкий демонстрационный балл"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "manual-review",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Score640 requires employee rationale",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Серая зона скоринга"
+    },
+    {
+      "amountRub": 10000000,
+      "code": "counteroffer",
+      "expectedOutcome": "OFFER_PROPOSED",
+      "expectedPath": "Green score; requested payment exceeds cap; reduced amount >=100000",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Доступная меньшая сумма"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "no-affordable-offer",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Existing debt600000 exceeds 50% of income1050000",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Нет доступной суммы"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "missing-data",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Unknown bureauScore stays null; no fabricated score",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Отсутствует показатель БКИ"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "stale-data",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "BKI evidence31days old exceeds30day inclusive freshness",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Устаревшие сведения БКИ"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "tax-block",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop taxBlocked=true",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Синтетическая блокировка"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "bankrupt",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop bankrupt=true",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Синтетическое банкротство"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "liquidating",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop liquidating=true",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Синтетическая ликвидация"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "overdue-91",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop maxOverdueDays24m>90",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Просрочка 91 день"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "young-business",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop before six calendar months",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Возраст бизнеса меньше 6 месяцев"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "director-59-days",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Management change age59<60",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Смена директора 59 дней назад"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "founder-59-days",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Sole founder change age59<60",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Смена учредителя 59 дней назад"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "short-overdue",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Recent closed overdue30days is a warning",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Закрытая короткая просрочка"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-business-six-months",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Registration2026-04-23 plus6months equals valuation date; score730",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Ровно 6 месяцев бизнеса"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-director-60-days",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Management change age60 is not a soft-stop",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Ровно 60 дней после смены"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-overdue-90",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "90 is not the >90 hard-stop;31..90days conservatively requires review",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Просрочка ровно 90 дней"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-turnover-drop-35",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Last month1300000 / annual mean2000000;35% does not exceed threshold",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Падение оборота ровно 35%"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "turnover-drop-over-35",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Last month is below65% of the twelve-month mean",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Падение оборота больше 35%"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-source-30-days",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Source age30days is accepted by inclusive freshness limit",
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Сведения БКИ ровно 30 дней"
+    }
+  ],
+  "schemaVersion": "DEMO_INPUTS_V1"
+}

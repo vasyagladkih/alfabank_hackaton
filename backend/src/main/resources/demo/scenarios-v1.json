@@ -1,0 +1,1902 @@
+{
+  "asOf": "2026-10-23",
+  "datasetVersion": "DEMO_DATA_V1",
+  "demoOnly": true,
+  "profileScenarios": {
+    "client_bad": "low-score",
+    "client_good": "approved"
+  },
+  "scenarios": [
+    {
+      "amountRub": 1000000,
+      "code": "approved",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Complete fresh inputs, score850, affordable original terms",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Зелёный сценарий"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "low-score",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Score240 below500; no hard-stop required",
+      "inputs": {
+        "accountOpenedOn": "2026-06-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 400,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 400000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 400000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_bad",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Низкий демонстрационный балл"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "manual-review",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Score640 requires employee rationale",
+      "inputs": {
+        "accountOpenedOn": "2025-08-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 600,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 1500000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 1500000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Серая зона скоринга"
+    },
+    {
+      "amountRub": 10000000,
+      "code": "counteroffer",
+      "expectedOutcome": "OFFER_PROPOSED",
+      "expectedPath": "Green score; requested payment exceeds cap; reduced amount >=100000",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Доступная меньшая сумма"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "no-affordable-offer",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Existing debt600000 exceeds 50% of income1050000",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 600000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Нет доступной суммы"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "missing-data",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Unknown bureauScore stays null; no fabricated score",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": null,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Отсутствует показатель БКИ"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "stale-data",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "BKI evidence31days old exceeds30day inclusive freshness",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-09-22",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Устаревшие сведения БКИ"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "tax-block",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop taxBlocked=true",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": true
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Синтетическая блокировка"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "bankrupt",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop bankrupt=true",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": true,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Синтетическое банкротство"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "liquidating",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop liquidating=true",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": true,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Синтетическая ликвидация"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "overdue-91",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop maxOverdueDays24m>90",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 91,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Просрочка 91 день"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "young-business",
+      "expectedOutcome": "REJECTED",
+      "expectedPath": "Hard-stop before six calendar months",
+      "inputs": {
+        "accountOpenedOn": "2026-05-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2026-05-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Возраст бизнеса меньше 6 месяцев"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "director-59-days",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Management change age59<60",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": "2026-08-25",
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Смена директора 59 дней назад"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "founder-59-days",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Sole founder change age59<60",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": "2026-08-25",
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Смена учредителя 59 дней назад"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "short-overdue",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Recent closed overdue30days is a warning",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 30,
+        "recentClosedOverdueDays12m": 30,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Закрытая короткая просрочка"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-business-six-months",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Registration2026-04-23 plus6months equals valuation date; score730",
+      "inputs": {
+        "accountOpenedOn": "2026-04-23",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2026-04-23",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Ровно 6 месяцев бизнеса"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-director-60-days",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Management change age60 is not a soft-stop",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": "2026-08-24",
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Ровно 60 дней после смены"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-overdue-90",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "90 is not the >90 hard-stop;31..90days conservatively requires review",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 90,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Просрочка ровно 90 дней"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-turnover-drop-35",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Last month1300000 / annual mean2000000;35% does not exceed threshold",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 2700000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 1300000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Падение оборота ровно 35%"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "turnover-drop-over-35",
+      "expectedOutcome": "MANUAL_REVIEW",
+      "expectedPath": "Last month is below65% of the twelve-month mean",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 2000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 2700000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 1299999
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Падение оборота больше 35%"
+    },
+    {
+      "amountRub": 1000000,
+      "code": "boundary-source-30-days",
+      "expectedOutcome": "APPROVED",
+      "expectedPath": "Source age30days is accepted by inclusive freshness limit",
+      "inputs": {
+        "accountOpenedOn": "2022-01-01",
+        "asOf": "2026-10-23",
+        "bankrupt": false,
+        "bureauScore": 750,
+        "bureauSource": {
+          "observedOn": "2026-09-23",
+          "source": "SYNTHETIC_BKI",
+          "version": "DEMO_DATA_V1"
+        },
+        "cashflows": [
+          {
+            "month": "2025-10",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-11",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2025-12",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-01",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-02",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-03",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-04",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-05",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-06",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-07",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-08",
+            "netCreditTurnoverRub": 3000000
+          },
+          {
+            "month": "2026-09",
+            "netCreditTurnoverRub": 3000000
+          }
+        ],
+        "directorChangedOn": null,
+        "existingDebtPaymentRub": 50000,
+        "fnsSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_FNS",
+          "version": "DEMO_DATA_V1"
+        },
+        "internalSource": {
+          "observedOn": "2026-10-23",
+          "source": "SYNTHETIC_INTERNAL",
+          "version": "DEMO_DATA_V1"
+        },
+        "liquidating": false,
+        "managementHistoryComplete": true,
+        "maxOverdueDays24m": 0,
+        "recentClosedOverdueDays12m": 0,
+        "registeredOn": "2020-01-01",
+        "soleFounderChangedOn": null,
+        "taxBlocked": false
+      },
+      "owner": "client_good",
+      "purpose": "WORKING_CAPITAL",
+      "termMonths": 12,
+      "title": "Сведения БКИ ровно 30 дней"
+    }
+  ],
+  "schemaVersion": "DEMO_INPUTS_V1"
+}
