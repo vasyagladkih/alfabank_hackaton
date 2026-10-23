@@ -7,14 +7,14 @@ WORKDIR /workspace
 # 1. Кэширование зависимостей Gradle
 COPY backend/gradle/ gradle/
 COPY backend/gradlew backend/settings.gradle backend/build.gradle ./
-RUN chmod +x gradlew && ./gradlew dependencies --no-daemon || true
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
 
 # 2. Копирование спецификации OpenAPI и исходного кода
 COPY docs/ docs/
 COPY backend/src/ src/
 
 # 3. Генерация контракта и сборка исполняемого JAR
-RUN ./gradlew bootJar -x test --no-daemon
+RUN ./gradlew test bootJar --no-daemon
 
 # ==========================================
 # ЭТАП 2: Финальный легковесный образ (Runtime)
@@ -23,7 +23,9 @@ FROM eclipse-temurin:25-jre-noble AS runtime
 WORKDIR /app
 
 # Создание безопасного непривилегированного пользователя
-RUN groupadd -r spring && useradd -r -g spring spring
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r spring && useradd -r -g spring spring
 USER spring:spring
 
 # Копирование только скомпилированного JAR-файла (без исходников и компилятора)

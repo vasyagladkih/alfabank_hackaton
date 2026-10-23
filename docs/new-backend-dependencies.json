@@ -1,0 +1,48 @@
+[
+  {
+    "artifact": "org.flywaydb:flyway-core:12.4.0",
+    "license": [],
+    "jar_sha256": "c3f93df1f3e0c9d14652adb5ade97401f2ede503859ac693c2af5c06e2797799",
+    "pom_sha256": "31432b9590cfeaf495603eeb7c86e52061a4a8b9cca1331b4df167ed4b2285be",
+    "texts": [
+      "licenses/flyway-core-12.4.0-LICENSE.txt"
+    ]
+  },
+  {
+    "artifact": "org.flywaydb:flyway-database-postgresql:12.4.0",
+    "license": [],
+    "jar_sha256": "abc075a5c3cbf37dc64b28fec7e2398fb14f31109f7ab6271854738797407b85",
+    "pom_sha256": "e61221d4404382f791988a2ccd9bed83a1ea0b4be4d2d3d906ce4485ee7fa658",
+    "texts": []
+  },
+  {
+    "artifact": "org.springframework.boot:spring-boot-flyway:4.1.1",
+    "license": [
+      [
+        "Apache License, Version 2.0",
+        "https://www.apache.org/licenses/LICENSE-2.0"
+      ]
+    ],
+    "jar_sha256": "61db32d08f2b1b04cf006e916575da22ecee0a2e0bb0604aca26c04f7bd4aa0e",
+    "pom_sha256": "663ffdb1eb8c74da80c8c2c261482a38357bba9521929ab427dff19efad88151",
+    "texts": [
+      "licenses/spring-boot-flyway-4.1.1-LICENSE.txt",
+      "licenses/spring-boot-flyway-4.1.1-NOTICE.txt"
+    ]
+  },
+  {
+    "artifact": "org.springframework.boot:spring-boot-starter-flyway:4.1.1",
+    "license": [
+      [
+        "Apache License, Version 2.0",
+        "https://www.apache.org/licenses/LICENSE-2.0"
+      ]
+    ],
+    "jar_sha256": "d9a454f49cc844b1c2940f645f659c506322d02444912422a19ba619de60e6c7",
+    "pom_sha256": "9df409ce25ab14579ee362608c382e30cd1844f34d8260e7b51ac082f7c36cb4",
+    "texts": [
+      "licenses/spring-boot-starter-flyway-4.1.1-LICENSE.txt",
+      "licenses/spring-boot-starter-flyway-4.1.1-NOTICE.txt"
+    ]
+  }
+]

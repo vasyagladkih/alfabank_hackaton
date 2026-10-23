@@ -3,6 +3,8 @@ dist/
 coverage/
 test-results/
 playwright-report/
+playwright-fullstack-report/
+fullstack-results/
 .vite/
 .env
 .env.*

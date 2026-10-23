@@ -57,6 +57,7 @@ describe('role routes and session lifecycle', () => {
     }));
     renderApp('/client');
     await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(2));
+    expect(screen.getByRole('link', { name: 'Текущие заявки (2)' })).toHaveAttribute('href', '#current-applications');
     expect(screen.getByText('Заявка №42 в обработке', { exact: true })).toBeVisible();
     expect(screen.getByText('Заявка №43 в обработке', { exact: true })).toBeVisible();
     await waitFor(() => {
@@ -67,6 +68,7 @@ describe('role routes and session lifecycle', () => {
         if (status === 'REJECTED') expect(banner).toHaveTextContent('Высокая долговая нагрузка');
       }
     }, { timeout: 4000 });
+    expect(screen.getByRole('link', { name: 'Текущие заявки (2)' })).toBeVisible();
   });
 
   it.each(['MANUAL_REVIEW', 'OFFER_PROPOSED'] as const)('keeps the banner when a restored %s application finishes', async (status) => {
@@ -76,7 +78,9 @@ describe('role routes and session lifecycle', () => {
       : [{ ...application, status, version: 1 }])));
     renderApp('/client');
     await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(1));
+    expect(screen.getByRole('link', { name: 'Текущие заявки (1)' })).toBeVisible();
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Одобрено'), { timeout: 4000 });
+    expect(screen.getByRole('link', { name: 'Текущие заявки (1)' })).toBeVisible();
   });
 
   it.each([

@@ -90,7 +90,7 @@ export function createApiClient({ token, onAuthError, baseUrl = import.meta.env.
         return `/api/v1/employee/applications?${query.toString()}`;
       };
       if (status !== 'ALL') return request(path(status), isApplicationList, { signal });
-      // The API defaults an omitted filter to PROCESSING. ALL is never sent to the server.
+      // An omitted filter returns every status. ALL is a UI value and is never sent to the server.
       const controller = new AbortController();
       const abort = () => controller.abort();
       signal?.addEventListener('abort', abort, { once: true });

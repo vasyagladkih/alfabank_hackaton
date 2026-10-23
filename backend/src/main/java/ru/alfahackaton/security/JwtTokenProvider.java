@@ -1,7 +1,9 @@
 package ru.alfahackaton.security;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -9,94 +11,109 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.Base64;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+/** Small HS256 adapter for demo sessions; unsigned placeholder tokens are never accepted. */
 @Component
 public class JwtTokenProvider {
+    private static final String ISSUER = "alfa-credit-demo";
+    private static final String AUDIENCE = "alfa-credit-ui";
+    private static final Set<String> ROLES = Set.of("CLIENT", "EMPLOYEE");
+    private final byte[] secret;
+    private final long expirationSeconds;
+    private final ObjectMapper mapper = new ObjectMapper()
+            .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION)
+            .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
-    private final String secret;
-    private final long expirationMs;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public JwtTokenProvider(
-            @Value("${jwt.secret:REPLACE_WITH_LOCAL_DEMO_KEY_NOT_A_REAL_SECRET}") String secret,
-            @Value("${jwt.expiration-ms:86400000}") long expirationMs
-    ) {
-        this.secret = secret;
-        this.expirationMs = expirationMs;
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret,
+                            @Value("${jwt.expiration-ms:86400000}") long expirationMs) {
+        if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < 32
+                || secret.startsWith("REPLACE_WITH_") || secret.startsWith("CHANGE_ME")) {
+            throw new IllegalArgumentException("JWT_SECRET must be explicitly configured with at least 32 bytes; placeholders are not accepted");
+        }
+        if (expirationMs < 1000 || expirationMs > 86_400_000) {
+            throw new IllegalArgumentException("JWT lifetime must be between one second and 24 hours");
+        }
+        this.secret = secret.getBytes(StandardCharsets.UTF_8);
+        this.expirationSeconds = expirationMs / 1000;
     }
 
     public String generateToken(Long userId, String username, String role, String inn) {
+        if (userId == null || userId <= 0 || username == null || username.isBlank()
+                || username.length() > 64 || !ROLES.contains(role)) {
+            throw new IllegalArgumentException("Invalid demo identity");
+        }
         try {
-            Map<String, Object> header = Map.of("alg", "HS256", "typ", "JWT");
-            long now = System.currentTimeMillis();
-
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("sub", String.valueOf(userId));
-            payload.put("username", username);
-            payload.put("role", role);
-            if (inn != null) {
-                payload.put("inn", inn);
-            }
-            payload.put("iat", now / 1000);
-            payload.put("exp", (now + expirationMs) / 1000);
-
-            String headerEncoded = base64UrlEncode(objectMapper.writeValueAsBytes(header));
-            String payloadEncoded = base64UrlEncode(objectMapper.writeValueAsBytes(payload));
-
-            String content = headerEncoded + "." + payloadEncoded;
-            String signatureEncoded = sign(content);
-
-            return content + "." + signatureEncoded;
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to generate JWT", e);
+            long now = Instant.now().getEpochSecond();
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("sub", userId.toString()); payload.put("username", username); payload.put("role", role);
+            payload.put("iat", now); payload.put("exp", now + expirationSeconds);
+            payload.put("iss", ISSUER); payload.put("aud", AUDIENCE);
+            if (inn != null) payload.put("inn", inn);
+            String body = encode(mapper.writeValueAsBytes(Map.of("alg", "HS256", "typ", "JWT")))
+                    + "." + encode(mapper.writeValueAsBytes(payload));
+            return body + "." + encode(sign(body));
+        } catch (Exception cause) {
+            throw new IllegalStateException("Unable to issue demo session", cause);
         }
     }
 
-    public boolean validateToken(String token) {
+    /** Validates signature, JOSE header, identity, issuer/audience and expiration exactly once. */
+    public Optional<Map<String, Object>> verify(String token) {
         try {
-            String[] parts = token.split("\\.");
-            if (parts.length != 3) return false;
-            String content = parts[0] + "." + parts[1];
-            String expectedSignature = sign(content);
-
-            if (!MessageDigest.isEqual(parts[2].getBytes(StandardCharsets.UTF_8), expectedSignature.getBytes(StandardCharsets.UTF_8))) {
-                return false;
+            if (token == null || token.length() > 8192) return Optional.empty();
+            String[] parts = token.split("\\.", -1);
+            if (parts.length != 3) return Optional.empty();
+            for (String part : parts) if (!part.matches("[A-Za-z0-9_-]+")) return Optional.empty();
+            byte[] signature = Base64.getUrlDecoder().decode(parts[2]);
+            if (signature.length != 32 || !encode(signature).equals(parts[2])
+                    || !MessageDigest.isEqual(signature, sign(parts[0] + "." + parts[1]))) return Optional.empty();
+            Map<String, Object> header = decode(parts[0]);
+            if (header.size() != 2 || !"HS256".equals(header.get("alg")) || !"JWT".equals(header.get("typ"))) return Optional.empty();
+            Map<String, Object> claims = decode(parts[1]);
+            if (!(claims.get("sub") instanceof String sub) || !sub.matches("[1-9][0-9]{0,18}") || Long.parseLong(sub) <= 0) return Optional.empty();
+            if (!(claims.get("role") instanceof String role) || !ROLES.contains(role)) return Optional.empty();
+            if (!(claims.get("username") instanceof String username) || username.isBlank() || username.length() > 64) return Optional.empty();
+            if (!ISSUER.equals(claims.get("iss")) || !AUDIENCE.equals(claims.get("aud"))) return Optional.empty();
+            Long issued = integerClaim(claims.get("iat"));
+            Long expires = integerClaim(claims.get("exp"));
+            long now = Instant.now().getEpochSecond();
+            if (issued == null || expires == null || issued < 0 || issued > now + 30
+                    || expires <= now || expires <= issued || expires - issued > expirationSeconds) return Optional.empty();
+            if (claims.containsKey("nbf")) {
+                Long notBefore = integerClaim(claims.get("nbf"));
+                if (notBefore == null || notBefore < 0 || notBefore > now || notBefore >= expires) return Optional.empty();
             }
-
-            Map<String, Object> claims = parsePayload(parts[1]);
-            Number exp = (Number) claims.get("exp");
-            return exp == null || exp.longValue() >= System.currentTimeMillis() / 1000;
-        } catch (Exception e) {
-            return false;
+            return Optional.of(Map.copyOf(claims));
+        } catch (Exception ignored) {
+            return Optional.empty();
         }
     }
+
+    public boolean validateToken(String token) { return verify(token).isPresent(); }
 
     public Map<String, Object> getClaims(String token) {
-        try {
-            String[] parts = token.split("\\.");
-            return parsePayload(parts[1]);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid JWT token", e);
-        }
+        return verify(token).orElseThrow(() -> new IllegalArgumentException("Invalid JWT token"));
     }
 
-    private Map<String, Object> parsePayload(String payloadEncoded) throws Exception {
-        byte[] bytes = Base64.getUrlDecoder().decode(payloadEncoded);
-        return objectMapper.readValue(bytes, new TypeReference<>() {});
+    private static Long integerClaim(Object value) {
+        return value instanceof Integer || value instanceof Long ? ((Number) value).longValue() : null;
     }
 
-    private String sign(String content) throws Exception {
+    private Map<String, Object> decode(String part) throws Exception {
+        return mapper.readValue(Base64.getUrlDecoder().decode(part), new TypeReference<>() {});
+    }
+
+    private byte[] sign(String content) throws Exception {
         Mac mac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        mac.init(secretKeySpec);
-        byte[] hmac = mac.doFinal(content.getBytes(StandardCharsets.UTF_8));
-        return base64UrlEncode(hmac);
+        mac.init(new SecretKeySpec(secret, "HmacSHA256"));
+        return mac.doFinal(content.getBytes(StandardCharsets.UTF_8));
     }
 
-    private String base64UrlEncode(byte[] bytes) {
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-    }
+    private static String encode(byte[] bytes) { return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes); }
 }

@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run check:api && npm run lint && npm test && npm run build"
+    "check": "npm run check:api && npm run lint && npm test && npm run build",
+    "test:fullstack": "playwright test --config playwright.fullstack.config.ts"
   },
   "dependencies": {
     "@alfalab/core-components-button": "13.2.4",

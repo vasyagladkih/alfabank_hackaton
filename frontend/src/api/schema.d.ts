@@ -76,8 +76,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Список заявок в обработке для сотрудника банка
-         * @description Возвращает реестр заявок. По умолчанию отображает заявки в статусе PROCESSING.
+         * Реестр заявок для сотрудника банка
+         * @description Возвращает все заявки при отсутствии status; указанный status фильтрует реестр. Поиск — буквальная подстрока ID, компании или ИНН.
          */
         get: operations["getEmployeeApplications"];
         put?: never;
@@ -130,6 +130,23 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["respondToOffer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Готовность demo API и PostgreSQL */
+        get: operations["getHealth"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -408,6 +425,10 @@ export interface components {
             assessment?: components["schemas"]["RiskAssessment"] | null;
             allowedActions: components["schemas"]["EmployeeDecisionType"][];
             audit: components["schemas"]["AuditEvent"][];
+        };
+        HealthResponse: {
+            /** @enum {string} */
+            status: "UP" | "DOWN";
         };
     };
     responses: never;
@@ -838,6 +859,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description База доступна. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+            /** @description База временно недоступна; технические детали не раскрываются. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
                 };
             };
         };

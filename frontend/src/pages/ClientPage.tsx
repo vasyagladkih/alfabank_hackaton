@@ -30,12 +30,13 @@ export function ClientPage() {
       <Typography.TitleResponsive tag="h1" view="medium" font="system" defaultMargins={false}>Кредит для вашего бизнеса</Typography.TitleResponsive>
       <Typography.Text tag="p" view="primary-medium" color="secondary" defaultMargins={false}>Подайте заявку и следите за решением в личном кабинете.</Typography.Text>
     </div>
-    <div className="result-list">{active.map((application) => <div className="application-progress" key={application.id}>
-      <ApplicationResult application={application} issue={pollIssues[application.id]} retry={() => retryPolling(application.id)} />
-      {application.status === 'OFFER_PROPOSED' && <ClientOfferResponse application={application} onUpdated={update} />}
-    </div>)}</div>
+    <nav className="client-section-nav" aria-label="Разделы кредитного кабинета">
+      <Button view="text" size={40} href="#new-application">Новая заявка</Button>
+      <Button view="text" size={40} href="#current-applications">Текущие заявки ({active.length})</Button>
+      <Button view="text" size={40} href="#application-history">История</Button>
+    </nav>
     <div className="client-grid">
-      <section className="panel form-panel">
+      <section id="new-application" className="panel form-panel" aria-labelledby="application-form-title" tabIndex={-1}>
         <ApplicationForm onCreated={(application) => {
           update(application);
           setTrackedIds((current) => new Set([...current, application.id]));
@@ -57,7 +58,15 @@ export function ClientPage() {
         </div>
       </aside>
     </div>
-    <section className="panel history-panel" aria-labelledby="history-title">
+    <section id="current-applications" className="current-applications" aria-labelledby="current-applications-title" tabIndex={-1}>
+      <Typography.Title tag="h2" id="current-applications-title" view="small" font="system" defaultMargins={false}>Текущие заявки</Typography.Title>
+      <div className="result-list">{active.map((application) => <div className="application-progress" key={application.id}>
+        <ApplicationResult application={application} issue={pollIssues[application.id]} retry={() => retryPolling(application.id)} />
+        {application.status === 'OFFER_PROPOSED' && <ClientOfferResponse application={application} onUpdated={update} />}
+      </div>)}</div>
+      {!loading && !error && active.length === 0 && <Typography.Text tag="p" view="primary-medium" color="secondary">Сейчас нет текущих заявок.</Typography.Text>}
+    </section>
+    <section id="application-history" className="panel history-panel" aria-labelledby="history-title" tabIndex={-1}>
       <div className="section-toolbar">
         <div className="section-heading"><Typography.Title tag="h2" id="history-title" view="small" font="system" defaultMargins={false}>История заявок</Typography.Title>
           <Typography.Text view="primary-small" color="secondary">Ваши заявки и результаты рассмотрения</Typography.Text></div>

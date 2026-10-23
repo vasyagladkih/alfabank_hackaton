@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -24,17 +24,30 @@ services:
     container_name: alfabank_backend
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: alfadb
       DB_USER: postgres
       DB_PASSWORD: postgres
-      JWT_SECRET: REPLACE_WITH_LOCAL_DEMO_KEY_NOT_A_REAL_SECRET
+      JWT_SECRET: ${JWT_SECRET:?Copy .env.example to .env and configure the explicit demo signing key}
+      DEMO_MODE: "true"
+      AUTH_PROVIDER: mock
+      DATA_PROVIDER: mock
+      DEMO_SEED_ENABLED: "true"
+      DEMO_AS_OF: "2026-10-23"
+      DEMO_PROCESSING_ENABLED: ${DEMO_PROCESSING_ENABLED:-true}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
   frontend:
     build:
@@ -43,9 +56,15 @@ services:
     container_name: alfabank_frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "127.0.0.1:3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 volumes:
   postgres_data:

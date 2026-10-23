@@ -195,6 +195,48 @@ test('refresh resumes a processing application and logout stops future polling',
   expect(api.calls.polls).toEqual([42]);
 });
 
+test('client keeps the form before every active application and offers keyboard section navigation', async ({ page, api }, testInfo) => {
+  await page.clock.install();
+  api.history = [
+    ...Array.from({ length: 6 }, (_, index) => ({ ...applications.MANUAL_REVIEW, id: 100 + index })),
+    applications.OFFER_PROPOSED,
+    applications.APPROVED,
+  ];
+  api.pollReply = (id) => ({ body: api.history.find((application) => application.id === id) });
+  await openAs(page, api, sessions.client_good, '/client');
+  const navigation = page.getByRole('navigation', { name: 'Разделы кредитного кабинета', exact: true });
+  const form = page.getByRole('region', { name: 'Новая заявка', exact: true });
+  const current = page.getByRole('region', { name: 'Текущие заявки', exact: true });
+  const history = page.getByRole('region', { name: 'История заявок', exact: true })
+    .filter({ has: page.getByRole('heading', { name: 'История заявок', exact: true }) });
+  await expect(current.getByRole('alert')).toHaveCount(7);
+  await expect(current.getByRole('button', { name: 'Принять учебные условия', exact: true })).toBeVisible();
+  await expect(history.getByRole('row')).toHaveCount(9);
+
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.clock.runFor(50);
+    const formBox = await form.boundingBox();
+    const currentBox = await current.boundingBox();
+    const historyBox = await history.boundingBox();
+    expect(formBox!.y + formBox!.height).toBeLessThan(currentBox!.y);
+    expect(currentBox!.y + currentBox!.height).toBeLessThan(historyBox!.y);
+    for (const [name, section] of [
+      ['Текущие заявки (7)', current], ['История', history], ['Новая заявка', form],
+    ] as const) {
+      await navigation.getByRole('link', { name, exact: true }).focus();
+      await page.keyboard.press('Enter');
+      await expect(section).toBeFocused();
+    }
+    await page.keyboard.press('Tab');
+    await expect(page.getByLabel('Сумма кредита, ₽', { exact: true })).toBeFocused();
+    await page.getByRole('heading', { level: 1 }).click();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(page.getByRole('heading', { name: 'Новая заявка', exact: true })).toBeInViewport();
+    await page.screenshot({ path: testInfo.outputPath(`client-many-active-${width}.png`) });
+  }
+});
+
 for (const pendingStatus of ['MANUAL_REVIEW', 'OFFER_PROPOSED'] as const) {
   test(`restored ${pendingStatus} remains visible until its final decision`, async ({ page, api }) => {
     await page.clock.install();

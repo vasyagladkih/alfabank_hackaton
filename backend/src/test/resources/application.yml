@@ -1,4 +1,7 @@
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   datasource:
     url: jdbc:postgresql://localhost:5432/dummy
   sql:
@@ -9,3 +12,6 @@ spring:
 demo:
   processing:
     enabled: false
+
+jwt:
+  secret: TEST_ONLY_ALFA_JWT_KEY_0123456789_not_for_deployment

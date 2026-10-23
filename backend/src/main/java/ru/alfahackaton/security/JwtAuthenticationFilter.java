@@ -35,8 +35,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
 
-            if (jwtTokenProvider.validateToken(token)) {
-                Map<String, Object> claims = jwtTokenProvider.getClaims(token);
+            var verified = jwtTokenProvider.verify(token);
+            if (verified.isPresent()) {
+                Map<String, Object> claims = verified.get();
                 Long userId = Long.valueOf((String) claims.get("sub"));
                 String role = (String) claims.get("role");
 
