@@ -122,9 +122,13 @@ test('dossier and consent remain readable at four widths with no serious or crit
   async function inspect(name: string) {
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.clock.runFor(50);
-      const measured = await page.evaluate(() => ({ viewport: innerWidth, content: document.documentElement.scrollWidth }));
-      expect(measured.content, `${name} at ${width}px must not overflow`).toBeLessThanOrEqual(measured.viewport + 1);
+      const viewport = await page.evaluate(() => innerWidth);
+      // Core's matchMedia update is asynchronous. Advance mocked frames until
+      // its responsive re-render settles, retaining the strict width limit.
+      await expect.poll(async () => {
+        await page.clock.runFor(50);
+        return page.evaluate(() => document.documentElement.scrollWidth);
+      }, { message: `${name} at ${width}px must not overflow`, timeout: 5000 }).toBeLessThanOrEqual(viewport + 1);
       const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
       expect(audit.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? '')),
         `${name} at ${width}px`).toEqual([]);
