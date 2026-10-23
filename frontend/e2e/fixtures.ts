@@ -3,9 +3,12 @@ import type {
   Application,
   ApplicationInput,
   ApplicationStatus,
+  EmployeeDecisionRequest,
+  OfferResponseRequest,
   Session,
   UserCode,
 } from '../src/api/types';
+import { employeeDossier, offeredApplication } from '../src/test/dossier';
 
 // Deliberately test-only: production always uses the real HTTP API.
 export const sessions: Record<UserCode, Session> = {
@@ -113,11 +116,18 @@ export class TestApi {
     create: [] as ApplicationInput[],
     polls: [] as number[],
     employee: [] as ApplicationStatus[],
+    employeeSearch: [] as string[],
+    dossier: [] as number[],
+    decisions: [] as Array<{ id: number; body: EmployeeDecisionRequest }>,
+    offers: [] as Array<{ id: number; body: OfferResponseRequest }>,
   };
   historyReply: () => ApiReply | Promise<ApiReply> = () => ({ body: this.history });
   createReply: ReplyHandler<ApplicationInput> = () => ({ status: 201, body: processingApplication });
   pollReply: ReplyHandler<number> = () => ({ body: processingApplication });
   employeeReply: ReplyHandler<ApplicationStatus> = (status) => ({ body: this.employeeData[status] });
+  dossierReply: ReplyHandler<number> = () => ({ body: employeeDossier });
+  decisionReply: ReplyHandler<{ id: number; body: EmployeeDecisionRequest }> = () => ({ body: { ...employeeDossier, application: offeredApplication, allowedActions: [] } });
+  offerReply: ReplyHandler<{ id: number; body: OfferResponseRequest }> = ({ body }) => ({ body: { ...offeredApplication, status: body.decision === 'ACCEPT' ? 'APPROVED' : 'REJECTED', version: 3 } });
 
   private async fulfill(route: Route, reply: ApiReply) {
     await route.fulfill({ status: reply.status ?? 200, json: reply.body });
@@ -173,13 +183,43 @@ export class TestApi {
         return;
       }
 
+      const offerPath = /^\/api\/v1\/client\/applications\/(\d+)\/offer-response$/.exec(path);
+      if (offerPath) {
+        expect(request.method()).toBe('POST');
+        expect(request.headers()['content-type']).toContain('application/json');
+        const command = { id: Number(offerPath[1]), body: request.postDataJSON() as OfferResponseRequest };
+        this.calls.offers.push(command);
+        await this.fulfill(route, await this.offerReply(command));
+        return;
+      }
+
+      const dossierPath = /^\/api\/v1\/employee\/applications\/(\d+)$/.exec(path);
+      if (dossierPath) {
+        expect(request.method()).toBe('GET');
+        const id = Number(dossierPath[1]);
+        this.calls.dossier.push(id);
+        await this.fulfill(route, await this.dossierReply(id));
+        return;
+      }
+
+      const decisionPath = /^\/api\/v1\/employee\/applications\/(\d+)\/decisions$/.exec(path);
+      if (decisionPath) {
+        expect(request.method()).toBe('POST');
+        expect(request.headers()['content-type']).toContain('application/json');
+        const command = { id: Number(decisionPath[1]), body: request.postDataJSON() as EmployeeDecisionRequest };
+        this.calls.decisions.push(command);
+        await this.fulfill(route, await this.decisionReply(command));
+        return;
+      }
+
       if (path === '/api/v1/employee/applications') {
         expect(request.method()).toBe('GET');
         const status = url.searchParams.get('status') as ApplicationStatus;
         // Omitting status means PROCESSING in the contract; ALL is never an API enum.
         expect(['PROCESSING', 'MANUAL_REVIEW', 'OFFER_PROPOSED', 'APPROVED', 'REJECTED']).toContain(status);
-        expect([...url.searchParams.keys()]).toEqual(['status']);
+        expect([...url.searchParams.keys()]).toEqual(url.searchParams.has('search') ? ['status', 'search'] : ['status']);
         this.calls.employee.push(status);
+        this.calls.employeeSearch.push(url.searchParams.get('search') ?? '');
         await this.fulfill(route, await this.employeeReply(status));
         return;
       }

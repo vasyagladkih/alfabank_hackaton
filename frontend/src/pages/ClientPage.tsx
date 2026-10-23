@@ -9,6 +9,7 @@ import { ApplicationResult } from '../features/applications/ApplicationResult';
 import { ApplicationsTable } from '../features/applications/ApplicationsTable';
 import { useClientApplications } from '../features/applications/useClientApplications';
 import { isAwaitingResolution } from '../features/applications/model';
+import { ClientOfferResponse } from '../features/applications/ClientOfferResponse';
 
 export function ClientPage() {
   const { api } = useAuth();
@@ -29,7 +30,10 @@ export function ClientPage() {
       <Typography.TitleResponsive tag="h1" view="medium" font="system" defaultMargins={false}>Кредит для вашего бизнеса</Typography.TitleResponsive>
       <Typography.Text tag="p" view="primary-medium" color="secondary" defaultMargins={false}>Подайте заявку и следите за решением в личном кабинете.</Typography.Text>
     </div>
-    <div className="result-list">{active.map((application) => <ApplicationResult key={application.id} application={application} issue={pollIssues[application.id]} retry={() => retryPolling(application.id)} />)}</div>
+    <div className="result-list">{active.map((application) => <div className="application-progress" key={application.id}>
+      <ApplicationResult application={application} issue={pollIssues[application.id]} retry={() => retryPolling(application.id)} />
+      {application.status === 'OFFER_PROPOSED' && <ClientOfferResponse application={application} onUpdated={update} />}
+    </div>)}</div>
     <div className="client-grid">
       <section className="panel form-panel">
         <ApplicationForm onCreated={(application) => {
@@ -47,7 +51,7 @@ export function ClientPage() {
           <Typography.Title tag="h2" view="xsmall" font="system" defaultMargins={false}>Как это работает</Typography.Title>
           <ol>
             <li><span className="step-number" aria-hidden="true">1</span><div><strong>Параметры кредита</strong><p>Выберите сумму, срок и цель.</p></div></li>
-            <li><span className="step-number" aria-hidden="true">2</span><div><strong>Обработка заявки</strong><p>Банк проверит данные бизнеса.</p></div></li>
+            <li><span className="step-number" aria-hidden="true">2</span><div><strong>Обработка заявки</strong><p>Демо-конвейер проверит синтетические данные.</p></div></li>
             <li><span className="step-number" aria-hidden="true">3</span><div><strong>Решение в кабинете</strong><p>Статус обновится автоматически.</p></div></li>
           </ol>
         </div>

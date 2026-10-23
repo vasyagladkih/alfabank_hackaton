@@ -1,5 +1,6 @@
-import type { Application, ApplicationInput, Session, StatusFilter, UserCode } from './types';
+import type { Application, ApplicationInput, EmployeeDecisionRequest, EmployeeDossier, OfferResponseRequest, Session, StatusFilter, UserCode } from './types';
 import { isApplication, isApplicationList, isSession } from './validation';
+import { isEmployeeDossier } from './dossierValidation';
 import { APPLICATION_STATUSES, mergeApplications } from '../features/applications/model';
 
 export class ApiError extends Error {
@@ -76,8 +77,19 @@ export function createApiClient({ token, onAuthError, baseUrl = import.meta.env.
       request('/api/v1/client/applications', isApplicationList, { signal }),
     getApplication: (id: number, signal?: AbortSignal): Promise<Application> =>
       request(`/api/v1/client/applications/${encodeURIComponent(id)}`, isApplication, { signal }),
-    async getEmployeeApplications(status: StatusFilter, signal?: AbortSignal): Promise<Application[]> {
-      if (status !== 'ALL') return request(`/api/v1/employee/applications?status=${status}`, isApplicationList, { signal });
+    getEmployeeDossier: (id: number, signal?: AbortSignal): Promise<EmployeeDossier> =>
+      request(`/api/v1/employee/applications/${encodeURIComponent(id)}`, isEmployeeDossier, { signal }),
+    decideApplication: (id: number, input: EmployeeDecisionRequest, signal?: AbortSignal): Promise<EmployeeDossier> =>
+      request(`/api/v1/employee/applications/${encodeURIComponent(id)}/decisions`, isEmployeeDossier, { method: 'POST', body: input, signal }),
+    respondToOffer: (id: number, input: OfferResponseRequest, signal?: AbortSignal): Promise<Application> =>
+      request(`/api/v1/client/applications/${encodeURIComponent(id)}/offer-response`, isApplication, { method: 'POST', body: input, signal }),
+    async getEmployeeApplications(status: StatusFilter, signal?: AbortSignal, search = ''): Promise<Application[]> {
+      const path = (value: string) => {
+        const query = new URLSearchParams({ status: value });
+        if (search.trim()) query.set('search', search.trim());
+        return `/api/v1/employee/applications?${query.toString()}`;
+      };
+      if (status !== 'ALL') return request(path(status), isApplicationList, { signal });
       // The API defaults an omitted filter to PROCESSING. ALL is never sent to the server.
       const controller = new AbortController();
       const abort = () => controller.abort();
@@ -85,7 +97,7 @@ export function createApiClient({ token, onAuthError, baseUrl = import.meta.env.
       if (signal?.aborted) controller.abort();
       try {
         const groups = await Promise.all(APPLICATION_STATUSES.map((value) =>
-          request(`/api/v1/employee/applications?status=${value}`, isApplicationList, { signal: controller.signal })));
+          request(path(value), isApplicationList, { signal: controller.signal })));
         return mergeApplications(...groups);
       } finally {
         controller.abort();

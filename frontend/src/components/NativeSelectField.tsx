@@ -6,7 +6,7 @@ type NativeSelectFieldProps = {
   name?: string;
   label: string;
   value: string;
-  options: ReadonlyArray<{ key: string; content: string }>;
+  options: ReadonlyArray<{ key: string; content: string; disabled?: boolean }>;
   onChange: (value: string) => void;
   size?: 48 | 56;
   disabled?: boolean;
@@ -33,7 +33,7 @@ export function NativeSelectField({ id, name, label, value, options, onChange, s
       onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
       disabled={disabled} required={required} aria-invalid={Boolean(error)}
       aria-describedby={error ? errorId : undefined}>
-      {options.map((option) => <option key={option.key} value={option.key}>{option.content}</option>)}
+      {options.map((option) => <option key={option.key} value={option.key} disabled={option.disabled}>{option.content}</option>)}
     </select>
   </FormControl>;
 }

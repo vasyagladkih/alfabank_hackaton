@@ -59,9 +59,19 @@ public class ApplicationRepository {
     }
 
     public List<ApplicationEntity> findAll(String status) {
-        var query = jdbc.sql(SELECT + (status == null ? "" : " WHERE a.status=:status")
-                + " ORDER BY a.created_at DESC,a.id DESC");
+        return findAll(status, null);
+    }
+
+    public List<ApplicationEntity> findAll(String status, String search) {
+        boolean hasSearch = search != null && !search.isBlank();
+        var query = jdbc.sql(SELECT + " WHERE 1=1 " + (status == null ? "" : " AND a.status=:status ")
+                + (hasSearch ? """
+                    AND (POSITION(LOWER(:search) IN LOWER(COALESCE(s.payload_json->>'companyName',u.company_name,'')))>0
+                      OR POSITION(:search IN COALESCE(s.payload_json->>'inn',u.inn,''))>0
+                      OR POSITION(:search IN CAST(a.id AS TEXT))>0)
+                    """ : "") + " ORDER BY a.created_at DESC,a.id DESC");
         if (status != null) query = query.param("status", status);
+        if (hasSearch) query = query.param("search", search);
         return query.query(ROW).list();
     }
 

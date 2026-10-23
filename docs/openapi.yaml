@@ -1,33 +1,32 @@
 openapi: 3.0.3
 info:
   title: Умный кредитный кабинет ММБ — API
-  description: >
-    Контракт API цифрового кредитного конвейера малого и микробизнеса (Альфа-Банк).
-    Используется для кодогенерации DTO и интерфейсов в бэкенде (Java/Spring Boot)
-    и фронтенде (TypeScript).
-  version: 1.1.0
+  description: 'Контракт API цифрового кредитного конвейера малого и микробизнеса
+    (Альфа-Банк). Используется для кодогенерации DTO и интерфейсов в бэкенде (Java/Spring
+    Boot) и фронтенде (TypeScript).
 
+    '
+  version: 1.2.0
 servers:
-  - url: http://localhost:8080
-    description: Локальный сервер разработки
-
+- url: http://localhost:8080
+  description: Локальный сервер разработки
 tags:
-  - name: auth
-    description: Демо-аутентификация и получение JWT
-  - name: client-applications
-    description: Операции клиента по кредитным заявкам (роль CLIENT)
-  - name: employee-applications
-    description: Операции сотрудника банка / андеррайтера (роль EMPLOYEE)
-
+- name: auth
+  description: Демо-аутентификация и получение JWT
+- name: client-applications
+  description: Операции клиента по кредитным заявкам (роль CLIENT)
+- name: employee-applications
+  description: Операции сотрудника банка / андеррайтера (роль EMPLOYEE)
 paths:
   /api/v1/auth/demo-login:
     post:
       tags:
-        - auth
+      - auth
       summary: Демо-вход под выбранной тестовой ролью
-      description: >
-        Позволяет переключиться между ролями (хороший клиент, плохой клиент, сотрудник банка)
-        и получить подписанный JWT токен для последующих запросов.
+      description: 'Позволяет переключиться между ролями (хороший клиент, плохой клиент,
+        сотрудник банка) и получить подписанный JWT токен для последующих запросов.
+
+        '
       operationId: demoLogin
       requestBody:
         required: true
@@ -48,18 +47,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /api/v1/client/applications:
     post:
       tags:
-        - client-applications
+      - client-applications
       summary: Создание и отправка новой заявки на кредит
-      description: >
-        Клиент отправляет параметры заявки. Бэкенд сохраняет заявку в статусе PROCESSING,
-        асинхронно инициирует скоринг и мгновенно возвращает ID созданной заявки.
+      description: 'Клиент отправляет параметры заявки. Бэкенд сохраняет заявку в
+        статусе PROCESSING, асинхронно инициирует скоринг и мгновенно возвращает ID
+        созданной заявки.
+
+        '
       operationId: createApplication
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -91,15 +91,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
     get:
       tags:
-        - client-applications
+      - client-applications
       summary: Получение списка всех заявок текущего клиента
       description: Возвращает историю и текущие статусы заявок авторизованного клиента.
       operationId: getClientApplications
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       responses:
         '200':
           description: Список заявок клиента
@@ -121,25 +120,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /api/v1/client/applications/{id}:
     get:
       tags:
-        - client-applications
+      - client-applications
       summary: Получение текущего статуса конкретной заявки клиента (для polling)
-      description: Используется фронтендом клиента для циклического опроса статуса обработки заявки.
+      description: Используется фронтендом клиента для циклического опроса статуса
+        обработки заявки.
       operationId: getApplicationById
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: Идентификатор кредитной заявки
-          schema:
-            type: integer
-            format: int64
-            example: 42
+      - name: id
+        in: path
+        required: true
+        description: Идентификатор кредитной заявки
+        schema:
+          type: integer
+          format: int64
+          example: 42
       responses:
         '200':
           description: Актуальная информация и статус заявки
@@ -165,23 +164,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /api/v1/employee/applications:
     get:
       tags:
-        - employee-applications
+      - employee-applications
       summary: Список заявок в обработке для сотрудника банка
-      description: Возвращает реестр заявок. По умолчанию отображает заявки в статусе PROCESSING.
+      description: Возвращает реестр заявок. По умолчанию отображает заявки в статусе
+        PROCESSING.
       operationId: getEmployeeApplications
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       parameters:
-        - name: status
-          in: query
-          required: false
-          description: Фильтр по статусу заявки
-          schema:
-            $ref: '#/components/schemas/ApplicationStatus'
+      - name: status
+        in: query
+        required: false
+        description: Фильтр по статусу заявки
+        schema:
+          $ref: '#/components/schemas/ApplicationStatus'
+      - name: search
+        in: query
+        required: false
+        description: Подстрока ID, названия компании или ИНН; до 120 символов.
+        schema:
+          type: string
+          maxLength: 120
       responses:
         '200':
           description: Список заявок для мониторинга андеррайтером
@@ -203,7 +209,166 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+  /api/v1/employee/applications/{id}:
+    get:
+      tags:
+      - employee-applications
+      operationId: getEmployeeDossier
+      security:
+      - BearerAuth: []
+      parameters:
+      - &id001
+        name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        '200':
+          description: Актуальная заявка / досье. Точный повтор команды возвращает
+            сохранённый ответ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDossier'
+        '400':
+          description: Некорректные параметры учебной команды.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Требуется авторизация.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав или чужая заявка.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка отсутствует.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Состояние или версия изменились; повторный ключ с другим содержимым.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/employee/applications/{id}/decisions:
+    post:
+      tags:
+      - employee-applications
+      operationId: decideApplication
+      security:
+      - BearerAuth: []
+      parameters:
+      - *id001
+      responses:
+        '200':
+          description: Актуальная заявка / досье. Точный повтор команды возвращает
+            сохранённый ответ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDossier'
+        '400':
+          description: Некорректные параметры учебной команды.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Требуется авторизация.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав или чужая заявка.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка отсутствует.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Состояние или версия изменились; повторный ключ с другим содержимым.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeDecisionRequest'
+  /api/v1/client/applications/{id}/offer-response:
+    post:
+      tags:
+      - client-applications
+      operationId: respondToOffer
+      security:
+      - BearerAuth: []
+      parameters:
+      - *id001
+      responses:
+        '200':
+          description: Актуальная заявка / досье. Точный повтор команды возвращает
+            сохранённый ответ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+        '400':
+          description: Некорректные параметры учебной команды.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Требуется авторизация.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав или чужая заявка.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка отсутствует.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Состояние или версия изменились; повторный ключ с другим содержимым.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferResponseRequest'
 components:
   securitySchemes:
     BearerAuth:
@@ -211,39 +376,35 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Передайте JWT токен в формате "Bearer <token>"
-
   schemas:
     UserCode:
       type: string
       description: Предопределенный код тестового пользователя для демо-входа
       enum:
-        - client_good
-        - client_bad
-        - bank_employee
+      - client_good
+      - client_bad
+      - bank_employee
       example: client_good
-
     UserRole:
       type: string
       description: Роль пользователя в системе для RBAC
       enum:
-        - CLIENT
-        - EMPLOYEE
+      - CLIENT
+      - EMPLOYEE
       example: CLIENT
-
     DemoLoginRequest:
       type: object
       required:
-        - userCode
+      - userCode
       properties:
         userCode:
           $ref: '#/components/schemas/UserCode'
-
     UserProfile:
       type: object
       required:
-        - id
-        - username
-        - role
+      - id
+      - username
+      - role
       properties:
         id:
           type: integer
@@ -259,13 +420,12 @@ components:
           example: ООО "Ромашка"
         inn:
           type: string
-          example: "7701234567"
-
+          example: '7701234567'
     DemoLoginResponse:
       type: object
       required:
-        - token
-        - user
+      - token
+      - user
       properties:
         token:
           type: string
@@ -273,34 +433,31 @@ components:
           example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMDEiLCJyb2xlIjoiUk9MRV9DTElFTlQifQ...
         user:
           $ref: '#/components/schemas/UserProfile'
-
     LoanPurpose:
       type: string
       description: Цель привлечения кредитного финансирования
       enum:
-        - WORKING_CAPITAL       # Пополнение оборотных средств
-        - EQUIPMENT             # Приобретение оборудования и транспорта
-        - BUSINESS_EXPANSION    # Масштабирование бизнеса / аренда / маркетинг
-        - REFINANCING           # Рефинансирование задолженности
+      - WORKING_CAPITAL
+      - EQUIPMENT
+      - BUSINESS_EXPANSION
+      - REFINANCING
       example: WORKING_CAPITAL
-
     ApplicationStatus:
       type: string
       description: Статус заявки в кредитном конвейере
       enum:
-        - PROCESSING            # В обработке (скоринг в фоновом режиме)
-        - MANUAL_REVIEW         # Учебное рассмотрение сотрудником
-        - OFFER_PROPOSED        # Ожидание demo-согласия клиента
-        - APPROVED              # Одобрено
-        - REJECTED              # Отклонено (с указанием причины)
+      - PROCESSING
+      - MANUAL_REVIEW
+      - OFFER_PROPOSED
+      - APPROVED
+      - REJECTED
       example: PROCESSING
-
     CreateApplicationRequest:
       type: object
       required:
-        - amount
-        - termMonths
-        - purpose
+      - amount
+      - termMonths
+      - purpose
       properties:
         amount:
           type: integer
@@ -318,17 +475,16 @@ components:
           example: 12
         purpose:
           $ref: '#/components/schemas/LoanPurpose'
-
     ApplicationResponse:
       type: object
       required:
-        - id
-        - amount
-        - termMonths
-        - purpose
-        - status
-        - createdAt
-        - version
+      - id
+      - amount
+      - termMonths
+      - purpose
+      - status
+      - createdAt
+      - version
       properties:
         id:
           type: integer
@@ -342,7 +498,7 @@ components:
         inn:
           type: string
           description: ИНН компании-заемщика
-          example: "7701234567"
+          example: '7701234567'
         amount:
           type: integer
           format: int64
@@ -361,34 +517,38 @@ components:
           type: integer
           format: int64
           minimum: 0
-          description: Монотонная версия заявки; увеличивается при каждом изменении состояния.
+          description: Монотонная версия заявки; увеличивается при каждом изменении
+            состояния.
         decisionSummary:
           allOf:
-            - $ref: '#/components/schemas/DecisionSummary'
+          - $ref: '#/components/schemas/DecisionSummary'
           nullable: true
         offer:
           allOf:
-            - $ref: '#/components/schemas/OfferTerms'
+          - $ref: '#/components/schemas/OfferTerms'
           nullable: true
         rejectionReason:
           type: string
           nullable: true
           description: Причина отказа (заполняется при status == REJECTED)
-          example: "Превышен показатель предельной долговой нагрузки (ПДН > 80%)"
+          example: Превышен показатель предельной долговой нагрузки (ПДН > 80%)
         createdAt:
           type: string
           format: date-time
           description: Дата и время подачи заявки
-          example: "2026-10-22T14:30:00Z"
+          example: '2026-10-22T14:30:00Z'
         updatedAt:
           type: string
           format: date-time
           description: Дата и время последнего изменения статуса
-          example: "2026-10-22T14:30:05Z"
-
+          example: '2026-10-22T14:30:05Z'
     DecisionSummary:
       type: object
-      required: [ruleVersion, assessedAt, explanation, demoOnly]
+      required:
+      - ruleVersion
+      - assessedAt
+      - explanation
+      - demoOnly
       properties:
         ruleVersion:
           type: string
@@ -400,12 +560,17 @@ components:
           description: Объяснение учебного результата, не реальное кредитное решение.
         demoOnly:
           type: boolean
-          enum: [true]
-
+          enum:
+          - true
     OfferTerms:
       type: object
-      description: Учебные условия. Не оферта, не договор, не выдача средств. Исходная сумма заявки остаётся в amount заявки.
-      required: [amount, termMonths, annualRate, monthlyPayment]
+      description: Учебные условия. Не оферта, не договор, не выдача средств. Исходная
+        сумма заявки остаётся в amount заявки.
+      required:
+      - amount
+      - termMonths
+      - annualRate
+      - monthlyPayment
       properties:
         amount:
           type: integer
@@ -419,19 +584,19 @@ components:
           maximum: 60
         annualRate:
           type: string
-          pattern: '^[0-9]+(\.[0-9]+)?$'
-          description: Десятичная строка годовой demo-ставки в процентах (например 16.50).
+          pattern: ^[0-9]+(\.[0-9]+)?$
+          description: Десятичная строка годовой demo-ставки в процентах (например
+            16.50).
         monthlyPayment:
           type: string
-          pattern: '^[0-9]+\.[0-9]{2}$'
+          pattern: ^[0-9]+\.[0-9]{2}$
           description: Рассчитанный сервером учебный платёж в рублях, точность 2 знака.
-
     ErrorResponse:
       type: object
       required:
-        - code
-        - message
-        - timestamp
+      - code
+      - message
+      - timestamp
       properties:
         code:
           type: string
@@ -444,4 +609,292 @@ components:
         timestamp:
           type: string
           format: date-time
-          example: "2026-10-22T14:30:00Z"
+          example: '2026-10-22T14:30:00Z'
+    EmployeeDecisionType:
+      type: string
+      enum:
+      - APPROVE
+      - REJECT
+      - COUNTEROFFER
+    EmployeeDecisionRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expectedVersion
+      - requestId
+      - type
+      - rationale
+      properties:
+        expectedVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        requestId:
+          type: string
+          format: uuid
+          description: Ключ повтора в пределах заявки и пользователя; тот же UUID с другим содержимым в этой заявке даёт 409.
+        type:
+          $ref: '#/components/schemas/EmployeeDecisionType'
+        rationale:
+          type: string
+          minLength: 3
+          maxLength: 1000
+        offerAmount:
+          type: integer
+          format: int64
+          minimum: 100000
+          maximum: 50000000
+    OfferResponseRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expectedVersion
+      - requestId
+      - decision
+      properties:
+        expectedVersion:
+          type: integer
+          format: int64
+          minimum: 0
+        requestId:
+          type: string
+          format: uuid
+          description: Ключ повтора в пределах заявки и пользователя; тот же UUID с другим содержимым в этой заявке даёт 409.
+        decision:
+          type: string
+          enum:
+          - ACCEPT
+          - REJECT
+    DossierFact:
+      type: object
+      required:
+      - code
+      - label
+      - source
+      properties:
+        code: &id002
+          type: string
+        label: *id002
+        value:
+          type: string
+          nullable: true
+        unit:
+          type: string
+          nullable: true
+        source: *id002
+    DossierSource:
+      type: object
+      required:
+      - code
+      - label
+      - demoOnly
+      - freshness
+      properties:
+        code: *id002
+        label: *id002
+        version:
+          type: string
+          nullable: true
+        observedOn:
+          type: string
+          format: date
+          nullable: true
+        demoOnly:
+          type: boolean
+          enum:
+          - true
+        freshness:
+          type: string
+          enum:
+          - FRESH
+          - STALE
+          - MISSING
+          - INVALID
+    MonthlyTurnover:
+      type: object
+      required:
+      - month
+      properties:
+        month:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}$
+        turnover: &id003
+          type: string
+          nullable: true
+          pattern: ^-?[0-9]+(\.[0-9]+)?$
+    ScoreContribution:
+      type: object
+      required:
+      - code
+      - label
+      - value
+      - points
+      - maximum
+      - explanation
+      properties:
+        code: *id002
+        label: *id002
+        value: *id002
+        points:
+          type: integer
+          minimum: 0
+        maximum:
+          type: integer
+          minimum: 0
+        explanation: *id002
+    RuleFinding:
+      type: object
+      required:
+      - code
+      - severity
+      - message
+      properties:
+        code: *id002
+        severity:
+          type: string
+          enum:
+          - HARD_STOP
+          - DATA_QUALITY
+          - WARNING
+          - DECISION
+        message: *id002
+    RiskAssessment:
+      type: object
+      required:
+      - ruleVersion
+      - asOf
+      - outcome
+      - maxScore
+      - evidenceComplete
+      - eligibleForManualApproval
+      - components
+      - findings
+      properties:
+        ruleVersion: *id002
+        asOf:
+          type: string
+          format: date
+        outcome:
+          $ref: '#/components/schemas/ApplicationStatus'
+        score:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 850
+        maxScore:
+          type: integer
+          minimum: 0
+        evidenceComplete:
+          type: boolean
+        eligibleForManualApproval:
+          type: boolean
+        annualRate: *id003
+        monthlyIncome: *id003
+        existingDebtPayment: *id003
+        requestedPayment: *id003
+        debtRatio: *id003
+        affordableAmount:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 0
+          maximum: 50000000
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoreContribution'
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleFinding'
+    AuditEvent:
+      type: object
+      required:
+      - id
+      - eventType
+      - actorRole
+      - toStatus
+      - createdAt
+      - version
+      properties:
+        id:
+          type: integer
+          format: int64
+        eventType: *id002
+        actorRole:
+          type: string
+          enum:
+          - SYSTEM
+          - EMPLOYEE
+          - CLIENT
+        fromStatus:
+          allOf:
+          - $ref: '#/components/schemas/ApplicationStatus'
+          nullable: true
+        toStatus:
+          $ref: '#/components/schemas/ApplicationStatus'
+        rationale:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+          minimum: 0
+    EmployeeDossier:
+      type: object
+      required:
+      - application
+      - demoOnly
+      - facts
+      - cashflows
+      - sources
+      - allowedActions
+      - audit
+      properties:
+        application:
+          $ref: '#/components/schemas/ApplicationResponse'
+        demoOnly:
+          type: boolean
+          enum:
+          - true
+        snapshotCapturedAt:
+          type: string
+          format: date-time
+          nullable: true
+        snapshotAsOf:
+          type: string
+          format: date
+          nullable: true
+        snapshotOrigin:
+          type: string
+          nullable: true
+        snapshotSha256:
+          type: string
+          nullable: true
+        facts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DossierFact'
+        cashflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyTurnover'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DossierSource'
+        assessment:
+          allOf:
+          - $ref: '#/components/schemas/RiskAssessment'
+          nullable: true
+        allowedActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDecisionType'
+        audit:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'

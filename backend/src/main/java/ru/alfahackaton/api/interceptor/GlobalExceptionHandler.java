@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.alfahackaton.dto.ErrorResponse;
+import ru.alfahackaton.service.exception.ApplicationConflictException;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
         ErrorResponse error = new ErrorResponse("BAD_REQUEST", e.getMessage(), OffsetDateTime.now(ZoneId.systemDefault()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(ApplicationConflictException.class)
+    public ResponseEntity<ErrorResponse> handleApplicationConflict(ApplicationConflictException e) {
+        ErrorResponse error = new ErrorResponse("CONFLICT", e.getMessage(), OffsetDateTime.now());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -1,5 +1,6 @@
 import { Table } from '@alfalab/core-components-table';
 import { Status } from '@alfalab/core-components-status';
+import { Button } from '@alfalab/core-components-button';
 import type { Application, ApplicationStatus } from '../../api/types';
 import { formatDate, formatMoney, PURPOSE_LABELS, STATUS_LABELS } from './model';
 
@@ -9,7 +10,7 @@ export function ApplicationStatusBadge({ status }: { status: ApplicationStatus }
   return <Status color={colors[status]} view="muted-alt" className="readable-status" uppercase={false} size={24}>{STATUS_LABELS[status]}</Status>;
 }
 
-export function ApplicationsTable({ applications, employee = false }: { applications: Application[]; employee?: boolean }) {
+export function ApplicationsTable({ applications, employee = false, onOpen }: { applications: Application[]; employee?: boolean; onOpen?: (id: number) => void }) {
   const label = employee ? 'Реестр кредитных заявок' : 'История заявок';
   return <div className="table-scroll" role="region" aria-label={label} tabIndex={0}>
     <Table className="applications-table" wrapper={false} aria-label={label}>
@@ -25,7 +26,9 @@ export function ApplicationsTable({ applications, employee = false }: { applicat
       ]}</Table.THead>
       <Table.TBody>
         {applications.map((application) => <Table.TRow key={application.id}>{[
-          <Table.TCell key="id"><span className="application-id">№{application.id}</span></Table.TCell>,
+          <Table.TCell key="id">{employee && onOpen
+            ? <Button id={`open-dossier-${application.id}`} view="text" size={40} className="application-open" aria-label={`Открыть досье заявки №${application.id}`} onClick={() => onOpen(application.id)}>№{application.id}</Button>
+            : <span className="application-id">№{application.id}</span>}</Table.TCell>,
           ...(employee ? [<Table.TCell key="borrower"><span className="borrower-name">{application.companyName || 'Компания не указана'}</span><span className="table-secondary">{application.inn || 'ИНН не указан'}</span></Table.TCell>] : []),
           <Table.TCell key="amount" className="money-cell">{formatMoney(application.amount)}</Table.TCell>,
           <Table.TCell key="term" className="nowrap">{application.termMonths} мес.</Table.TCell>,

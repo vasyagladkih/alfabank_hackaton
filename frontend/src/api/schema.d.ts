@@ -88,6 +88,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/employee/applications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getEmployeeDossier"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employee/applications/{id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["decideApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/client/applications/{id}/offer-response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["respondToOffer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -248,6 +296,118 @@ export interface components {
              * @example 2026-10-22T14:30:00Z
              */
             timestamp: string;
+        };
+        /** @enum {string} */
+        EmployeeDecisionType: "APPROVE" | "REJECT" | "COUNTEROFFER";
+        EmployeeDecisionRequest: {
+            /** Format: int64 */
+            expectedVersion: number;
+            /**
+             * Format: uuid
+             * @description Ключ повтора в пределах заявки и пользователя; тот же UUID с другим содержимым в этой заявке даёт 409.
+             */
+            requestId: string;
+            type: components["schemas"]["EmployeeDecisionType"];
+            rationale: string;
+            /** Format: int64 */
+            offerAmount?: number;
+        };
+        OfferResponseRequest: {
+            /** Format: int64 */
+            expectedVersion: number;
+            /**
+             * Format: uuid
+             * @description Ключ повтора в пределах заявки и пользователя; тот же UUID с другим содержимым в этой заявке даёт 409.
+             */
+            requestId: string;
+            /** @enum {string} */
+            decision: "ACCEPT" | "REJECT";
+        };
+        DossierFact: {
+            code: string;
+            label: string;
+            value?: string | null;
+            unit?: string | null;
+            source: string;
+        };
+        DossierSource: {
+            code: string;
+            label: string;
+            version?: string | null;
+            /** Format: date */
+            observedOn?: string | null;
+            /** @enum {boolean} */
+            demoOnly: true;
+            /** @enum {string} */
+            freshness: "FRESH" | "STALE" | "MISSING" | "INVALID";
+        };
+        MonthlyTurnover: {
+            month: string;
+            turnover?: string | null;
+        };
+        ScoreContribution: {
+            code: string;
+            label: string;
+            value: string;
+            points: number;
+            maximum: number;
+            explanation: string;
+        };
+        RuleFinding: {
+            code: string;
+            /** @enum {string} */
+            severity: "HARD_STOP" | "DATA_QUALITY" | "WARNING" | "DECISION";
+            message: string;
+        };
+        RiskAssessment: {
+            ruleVersion: string;
+            /** Format: date */
+            asOf: string;
+            outcome: components["schemas"]["ApplicationStatus"];
+            score?: number | null;
+            maxScore: number;
+            evidenceComplete: boolean;
+            eligibleForManualApproval: boolean;
+            annualRate?: string | null;
+            monthlyIncome?: string | null;
+            existingDebtPayment?: string | null;
+            requestedPayment?: string | null;
+            debtRatio?: string | null;
+            /** Format: int64 */
+            affordableAmount?: number | null;
+            components: components["schemas"]["ScoreContribution"][];
+            findings: components["schemas"]["RuleFinding"][];
+        };
+        AuditEvent: {
+            /** Format: int64 */
+            id: number;
+            eventType: string;
+            /** @enum {string} */
+            actorRole: "SYSTEM" | "EMPLOYEE" | "CLIENT";
+            fromStatus?: components["schemas"]["ApplicationStatus"] | null;
+            toStatus: components["schemas"]["ApplicationStatus"];
+            rationale?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: int64 */
+            version: number;
+        };
+        EmployeeDossier: {
+            application: components["schemas"]["ApplicationResponse"];
+            /** @enum {boolean} */
+            demoOnly: true;
+            /** Format: date-time */
+            snapshotCapturedAt?: string | null;
+            /** Format: date */
+            snapshotAsOf?: string | null;
+            snapshotOrigin?: string | null;
+            snapshotSha256?: string | null;
+            facts: components["schemas"]["DossierFact"][];
+            cashflows: components["schemas"]["MonthlyTurnover"][];
+            sources: components["schemas"]["DossierSource"][];
+            assessment?: components["schemas"]["RiskAssessment"] | null;
+            allowedActions: components["schemas"]["EmployeeDecisionType"][];
+            audit: components["schemas"]["AuditEvent"][];
         };
     };
     responses: never;
@@ -435,6 +595,8 @@ export interface operations {
             query?: {
                 /** @description Фильтр по статусу заявки */
                 status?: components["schemas"]["ApplicationStatus"];
+                /** @description Подстрока ID, названия компании или ИНН; до 120 символов. */
+                search?: string;
             };
             header?: never;
             path?: never;
@@ -462,6 +624,215 @@ export interface operations {
             };
             /** @description Доступ запрещен (требуется роль EMPLOYEE) */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmployeeDossier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Актуальная заявка / досье. Точный повтор команды возвращает сохранённый ответ. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDossier"];
+                };
+            };
+            /** @description Некорректные параметры учебной команды. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется авторизация. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав или чужая заявка. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Заявка отсутствует. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Состояние или версия изменились; повторный ключ с другим содержимым. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    decideApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployeeDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Актуальная заявка / досье. Точный повтор команды возвращает сохранённый ответ. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDossier"];
+                };
+            };
+            /** @description Некорректные параметры учебной команды. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется авторизация. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав или чужая заявка. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Заявка отсутствует. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Состояние или версия изменились; повторный ключ с другим содержимым. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    respondToOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferResponseRequest"];
+            };
+        };
+        responses: {
+            /** @description Актуальная заявка / досье. Точный повтор команды возвращает сохранённый ответ. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationResponse"];
+                };
+            };
+            /** @description Некорректные параметры учебной команды. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется авторизация. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав или чужая заявка. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Заявка отсутствует. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Состояние или версия изменились; повторный ключ с другим содержимым. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
