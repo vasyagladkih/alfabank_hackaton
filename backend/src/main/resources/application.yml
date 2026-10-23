@@ -8,9 +8,11 @@ spring:
     driver-class-name: org.postgresql.Driver
   sql:
     init:
-      mode: always
-      schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
+      mode: never
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
 
 jwt:
   secret: "REPLACE_WITH_LOCAL_DEMO_KEY_NOT_A_REAL_SECRET"
