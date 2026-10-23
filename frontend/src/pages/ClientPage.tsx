@@ -8,6 +8,7 @@ import { ApplicationForm } from '../features/applications/ApplicationForm';
 import { ApplicationResult } from '../features/applications/ApplicationResult';
 import { ApplicationsTable } from '../features/applications/ApplicationsTable';
 import { useClientApplications } from '../features/applications/useClientApplications';
+import { isAwaitingResolution } from '../features/applications/model';
 
 export function ClientPage() {
   const { api } = useAuth();
@@ -15,11 +16,11 @@ export function ClientPage() {
   const [trackedIds, setTrackedIds] = useState<Set<number>>(() => new Set());
   useEffect(() => {
     setTrackedIds((current) => {
-      const pending = applications.filter((item) => item.status === 'PROCESSING' && !current.has(item.id));
+      const pending = applications.filter((item) => isAwaitingResolution(item.status) && !current.has(item.id));
       return pending.length > 0 ? new Set([...current, ...pending.map((item) => item.id)]) : current;
     });
   }, [applications]);
-  const active = applications.filter((item) => item.status === 'PROCESSING' || trackedIds.has(item.id));
+  const active = applications.filter((item) => isAwaitingResolution(item.status) || trackedIds.has(item.id));
 
   return <>
     <IdentityBar />

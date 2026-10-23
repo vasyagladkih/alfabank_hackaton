@@ -5,7 +5,7 @@ info:
     Контракт API цифрового кредитного конвейера малого и микробизнеса (Альфа-Банк).
     Используется для кодогенерации DTO и интерфейсов в бэкенде (Java/Spring Boot)
     и фронтенде (TypeScript).
-  version: 1.0.0
+  version: 1.1.0
 
 servers:
   - url: http://localhost:8080
@@ -289,6 +289,8 @@ components:
       description: Статус заявки в кредитном конвейере
       enum:
         - PROCESSING            # В обработке (скоринг в фоновом режиме)
+        - MANUAL_REVIEW         # Учебное рассмотрение сотрудником
+        - OFFER_PROPOSED        # Ожидание demo-согласия клиента
         - APPROVED              # Одобрено
         - REJECTED              # Отклонено (с указанием причины)
       example: PROCESSING
@@ -326,6 +328,7 @@ components:
         - purpose
         - status
         - createdAt
+        - version
       properties:
         id:
           type: integer
@@ -354,6 +357,19 @@ components:
           $ref: '#/components/schemas/LoanPurpose'
         status:
           $ref: '#/components/schemas/ApplicationStatus'
+        version:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Монотонная версия заявки; увеличивается при каждом изменении состояния.
+        decisionSummary:
+          allOf:
+            - $ref: '#/components/schemas/DecisionSummary'
+          nullable: true
+        offer:
+          allOf:
+            - $ref: '#/components/schemas/OfferTerms'
+          nullable: true
         rejectionReason:
           type: string
           nullable: true
@@ -369,6 +385,46 @@ components:
           format: date-time
           description: Дата и время последнего изменения статуса
           example: "2026-10-22T14:30:05Z"
+
+    DecisionSummary:
+      type: object
+      required: [ruleVersion, assessedAt, explanation, demoOnly]
+      properties:
+        ruleVersion:
+          type: string
+        assessedAt:
+          type: string
+          format: date-time
+        explanation:
+          type: string
+          description: Объяснение учебного результата, не реальное кредитное решение.
+        demoOnly:
+          type: boolean
+          enum: [true]
+
+    OfferTerms:
+      type: object
+      description: Учебные условия. Не оферта, не договор, не выдача средств. Исходная сумма заявки остаётся в amount заявки.
+      required: [amount, termMonths, annualRate, monthlyPayment]
+      properties:
+        amount:
+          type: integer
+          format: int64
+          minimum: 100000
+          maximum: 50000000
+        termMonths:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 60
+        annualRate:
+          type: string
+          pattern: '^[0-9]+(\.[0-9]+)?$'
+          description: Десятичная строка годовой demo-ставки в процентах (например 16.50).
+        monthlyPayment:
+          type: string
+          pattern: '^[0-9]+\.[0-9]{2}$'
+          description: Рассчитанный сервером учебный платёж в рублях, точность 2 знака.
 
     ErrorResponse:
       type: object

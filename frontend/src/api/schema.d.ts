@@ -140,7 +140,7 @@ export interface components {
          * @example PROCESSING
          * @enum {string}
          */
-        ApplicationStatus: "PROCESSING" | "APPROVED" | "REJECTED";
+        ApplicationStatus: "PROCESSING" | "MANUAL_REVIEW" | "OFFER_PROPOSED" | "APPROVED" | "REJECTED";
         CreateApplicationRequest: {
             /**
              * Format: int64
@@ -188,6 +188,13 @@ export interface components {
             purpose: components["schemas"]["LoanPurpose"];
             status: components["schemas"]["ApplicationStatus"];
             /**
+             * Format: int64
+             * @description Монотонная версия заявки; увеличивается при каждом изменении состояния.
+             */
+            version: number;
+            decisionSummary?: components["schemas"]["DecisionSummary"] | null;
+            offer?: components["schemas"]["OfferTerms"] | null;
+            /**
              * @description Причина отказа (заполняется при status == REJECTED)
              * @example Превышен показатель предельной долговой нагрузки (ПДН > 80%)
              */
@@ -204,6 +211,26 @@ export interface components {
              * @example 2026-10-22T14:30:05Z
              */
             updatedAt?: string;
+        };
+        DecisionSummary: {
+            ruleVersion: string;
+            /** Format: date-time */
+            assessedAt: string;
+            /** @description Объяснение учебного результата, не реальное кредитное решение. */
+            explanation: string;
+            /** @enum {boolean} */
+            demoOnly: true;
+        };
+        /** @description Учебные условия. Не оферта, не договор, не выдача средств. Исходная сумма заявки остаётся в amount заявки. */
+        OfferTerms: {
+            /** Format: int64 */
+            amount: number;
+            /** Format: int32 */
+            termMonths: number;
+            /** @description Десятичная строка годовой demo-ставки в процентах (например 16.50). */
+            annualRate: string;
+            /** @description Рассчитанный сервером учебный платёж в рублях, точность 2 знака. */
+            monthlyPayment: string;
         };
         ErrorResponse: {
             /**

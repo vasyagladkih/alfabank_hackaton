@@ -55,4 +55,14 @@ describe('client history and polling together', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
     expect(polls.filter((id) => id === 42)).toHaveLength(2);
   });
+
+  it.each(['MANUAL_REVIEW', 'OFFER_PROPOSED'] as const)('resumes a restored %s application until its final response', async (status) => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => jsonResponse(url.endsWith('/42')
+      ? { ...application, status: 'APPROVED', version: 3 }
+      : [{ ...application, status, version: 1 }])));
+    await act(async () => { render(<Harness api={createApiClient({ token: 'test-token' })} />); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+    expect(screen.getByRole('alert')).toHaveTextContent('Одобрено');
+    expect(screen.getByLabelText('Ошибки опроса')).toBeEmptyDOMElement();
+  });
 });

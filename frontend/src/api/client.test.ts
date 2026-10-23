@@ -41,14 +41,15 @@ describe('HTTP API contract', () => {
       if (url.endsWith('status=PROCESSING')) return jsonResponse([application]);
       if (url.endsWith('status=APPROVED')) return jsonResponse([{ ...application, status: 'APPROVED', updatedAt: '2026-10-22T14:31:00Z' }]);
       if (url.endsWith('status=REJECTED')) return jsonResponse([{ ...application, id: 43, status: 'REJECTED', createdAt: '2026-10-22T14:32:00Z' }]);
+      if (url.endsWith('status=MANUAL_REVIEW') || url.endsWith('status=OFFER_PROPOSED')) return jsonResponse([]);
       throw new Error(`Unexpected unfiltered request: ${url}`);
     });
     vi.stubGlobal('fetch', fetch);
     const result = await createApiClient({ token: 'token' }).getEmployeeApplications('ALL');
     expect(result.map(({ id, status }) => ({ id, status }))).toEqual([{ id: 43, status: 'REJECTED' }, { id: 42, status: 'APPROVED' }]);
-    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(fetch).toHaveBeenCalledTimes(5);
   });
-  it.each(['PROCESSING', 'APPROVED', 'REJECTED'] as const)('passes the %s filter explicitly', async (status) => {
+  it.each(['PROCESSING', 'MANUAL_REVIEW', 'OFFER_PROPOSED', 'APPROVED', 'REJECTED'] as const)('passes the %s filter explicitly', async (status) => {
     const fetch = vi.fn().mockResolvedValue(jsonResponse([]));
     vi.stubGlobal('fetch', fetch);
     await createApiClient({ token: 'token' }).getEmployeeApplications(status);

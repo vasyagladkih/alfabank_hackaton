@@ -21,7 +21,7 @@ const cards: Record<UserCode, string> = {
 };
 const headings = { CLIENT: 'Кредит для вашего бизнеса', EMPLOYEE: 'Заявки на финансирование' };
 const statusLabels: Record<ApplicationStatus, string> = {
-  PROCESSING: 'В обработке', APPROVED: 'Одобрено', REJECTED: 'Отклонено',
+  PROCESSING: 'В обработке', MANUAL_REVIEW: 'На рассмотрении сотрудника', OFFER_PROPOSED: 'Предложены новые условия', APPROVED: 'Одобрено', REJECTED: 'Отклонено',
 };
 
 function action(page: Page, name: string) {
@@ -135,6 +135,7 @@ for (const finalStatus of ['APPROVED', 'REJECTED'] as const) {
     const terminal = {
       ...processingApplication,
       status: finalStatus,
+      version: 1,
       updatedAt: '2026-10-22T14:30:02Z',
       rejectionReason: finalStatus === 'REJECTED' ? applications.REJECTED.rejectionReason : null,
     };
@@ -194,15 +195,37 @@ test('refresh resumes a processing application and logout stops future polling',
   expect(api.calls.polls).toEqual([42]);
 });
 
+for (const pendingStatus of ['MANUAL_REVIEW', 'OFFER_PROPOSED'] as const) {
+  test(`restored ${pendingStatus} remains visible until its final decision`, async ({ page, api }) => {
+    await page.clock.install();
+    const pending = applications[pendingStatus];
+    api.history = [pending];
+    api.pollReply = (id) => {
+      expect(id).toBe(pending.id);
+      return { body: { ...pending, status: 'APPROVED', version: 3 } };
+    };
+    await openAs(page, api, sessions.client_good, '/client');
+    const banner = page.getByRole('alert');
+    await expect(banner).toHaveCount(1);
+    await expect(banner).toContainText(statusLabels[pendingStatus]);
+    const response = page.waitForResponse((item) => new URL(item.url()).pathname === `/api/v1/client/applications/${pending.id}`);
+    await page.clock.fastForward(2000);
+    await (await response).finished();
+    await expect(banner).toContainText('Одобрено');
+    await page.clock.fastForward(6000);
+    expect(api.calls.polls).toEqual([pending.id]);
+  });
+}
+
 test('employee ALL explicitly aggregates, deduplicates, sorts, filters, and refreshes', async ({ page, api }) => {
-  // The same ID can move status while the three ALL requests are in flight.
+  // The same ID can move status while the explicit ALL requests are in flight.
   api.employeeData.PROCESSING.push(processingApplication);
   await openAs(page, api, sessions.bank_employee, '/employee');
   await expect(page.getByRole('heading', { name: headings.EMPLOYEE, level: 1 })).toBeVisible();
   await selectOption(page, 'Статус заявки', 'ALL', 'Все');
   const rows = page.getByRole('table').locator('tbody tr');
   await expect(rows).toHaveCount(3);
-  expect(new Set(api.calls.employee)).toEqual(new Set(['PROCESSING', 'APPROVED', 'REJECTED']));
+  expect(new Set(api.calls.employee)).toEqual(new Set(['PROCESSING', 'MANUAL_REVIEW', 'OFFER_PROPOSED', 'APPROVED', 'REJECTED']));
   await expect(rows.nth(0).getByRole('cell').first()).toContainText('43');
   await expect(rows.nth(1).getByRole('cell').first()).toContainText('42');
   await expect(rows.nth(2).getByRole('cell').first()).toContainText('41');

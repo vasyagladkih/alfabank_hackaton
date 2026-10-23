@@ -52,7 +52,7 @@ describe('role routes and session lifecycle', () => {
     vi.stubGlobal('fetch', vi.fn(async (url: string) => {
       const item = pending.find(({ id }) => url.endsWith(`/applications/${id}`));
       return item
-        ? jsonResponse({ ...item, status, rejectionReason: status === 'REJECTED' ? 'Высокая долговая нагрузка' : null })
+        ? jsonResponse({ ...item, status, version: 1, rejectionReason: status === 'REJECTED' ? 'Высокая долговая нагрузка' : null })
         : jsonResponse([...pending, { ...application, id: 41, status: 'APPROVED' }]);
     }));
     renderApp('/client');
@@ -67,6 +67,16 @@ describe('role routes and session lifecycle', () => {
         if (status === 'REJECTED') expect(banner).toHaveTextContent('Высокая долговая нагрузка');
       }
     }, { timeout: 4000 });
+  });
+
+  it.each(['MANUAL_REVIEW', 'OFFER_PROPOSED'] as const)('keeps the banner when a restored %s application finishes', async (status) => {
+    storeSession();
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => jsonResponse(url.endsWith('/42')
+      ? { ...application, status: 'APPROVED', version: 3 }
+      : [{ ...application, status, version: 1 }])));
+    renderApp('/client');
+    await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(1));
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Одобрено'), { timeout: 4000 });
   });
 
   it.each([

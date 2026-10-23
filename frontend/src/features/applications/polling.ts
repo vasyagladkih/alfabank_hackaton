@@ -1,5 +1,6 @@
 import type { Application } from '../../api/types';
 import { ApiError, isAbortError } from '../../api/client';
+import { isTerminal } from './model';
 
 export interface PollOptions {
   id: number;
@@ -32,7 +33,7 @@ export async function pollApplication({ id, signal, load, onUpdate, onError }: P
       consecutiveFailures = 0;
       onError(null, false);
       onUpdate(application);
-      if (application.status !== 'PROCESSING') return;
+      if (isTerminal(application.status)) return;
     } catch (error) {
       if (signal.aborted || isAbortError(error)) return;
       consecutiveFailures += 1;

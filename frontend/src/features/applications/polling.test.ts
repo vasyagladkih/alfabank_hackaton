@@ -89,4 +89,23 @@ describe('serial application polling', () => {
     expect(onError).toHaveBeenLastCalledWith(error, false);
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it('continues polling through manual review and an offer until the owner response is final', async () => {
+    const states: Application[] = [
+      { ...application, status: 'MANUAL_REVIEW', version: 1 },
+      { ...application, status: 'OFFER_PROPOSED', version: 2 },
+      { ...application, status: 'APPROVED', version: 3 },
+    ];
+    const updates: string[] = [];
+    let next = 0;
+    const done = pollApplication({
+      id: 42, signal: new AbortController().signal,
+      load: async () => states[next++]!,
+      onUpdate: ({ status }) => updates.push(status), onError: vi.fn(),
+    });
+    await vi.advanceTimersByTimeAsync(6000);
+    await done;
+    expect(updates).toEqual(['MANUAL_REVIEW', 'OFFER_PROPOSED', 'APPROVED']);
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });

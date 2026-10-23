@@ -22,5 +22,14 @@ server:
   port: 8080
 
 demo:
+  as-of: ${DEMO_AS_OF:2026-10-23}
+  data-provider: ${DATA_PROVIDER:mock}
   seed:
     enabled: ${DEMO_SEED_ENABLED:false}
+  processing:
+    enabled: ${DEMO_PROCESSING_ENABLED:true}
+    delay-ms: ${DEMO_PROCESSING_DELAY_MS:1000}
+    initial-delay-ms: ${DEMO_PROCESSING_INITIAL_DELAY_MS:2000}
+    batch-size: ${DEMO_PROCESSING_BATCH_SIZE:8}
+    max-attempts: ${DEMO_PROCESSING_MAX_ATTEMPTS:3}
+    retry-delay-ms: ${DEMO_PROCESSING_RETRY_DELAY_MS:1000}

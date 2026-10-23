@@ -16,6 +16,7 @@ export const application: Application = {
   termMonths: 12,
   purpose: 'WORKING_CAPITAL',
   status: 'PROCESSING',
+  version: 0,
   rejectionReason: null,
   createdAt: '2026-10-22T14:30:00Z',
   updatedAt: '2026-10-22T14:30:00Z',

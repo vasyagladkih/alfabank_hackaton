@@ -6,3 +6,6 @@ spring:
       mode: never
   flyway:
     enabled: false
+demo:
+  processing:
+    enabled: false

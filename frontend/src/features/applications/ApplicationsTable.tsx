@@ -3,7 +3,7 @@ import { Status } from '@alfalab/core-components-status';
 import type { Application, ApplicationStatus } from '../../api/types';
 import { formatDate, formatMoney, PURPOSE_LABELS, STATUS_LABELS } from './model';
 
-const colors = { PROCESSING: 'blue', APPROVED: 'green', REJECTED: 'red' } as const;
+const colors = { PROCESSING: 'blue', MANUAL_REVIEW: 'orange', OFFER_PROPOSED: 'blue', APPROVED: 'green', REJECTED: 'red' } as const;
 
 export function ApplicationStatusBadge({ status }: { status: ApplicationStatus }) {
   return <Status color={colors[status]} view="muted-alt" className="readable-status" uppercase={false} size={24}>{STATUS_LABELS[status]}</Status>;

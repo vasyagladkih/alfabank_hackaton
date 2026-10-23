@@ -32,6 +32,7 @@ export const applications: Record<ApplicationStatus, Application> = {
     termMonths: 6,
     purpose: 'WORKING_CAPITAL',
     status: 'PROCESSING',
+    version: 0,
     rejectionReason: null,
     createdAt: '2026-10-22T12:00:00Z',
     updatedAt: '2026-10-22T12:00:00Z',
@@ -44,6 +45,7 @@ export const applications: Record<ApplicationStatus, Application> = {
     termMonths: 12,
     purpose: 'EQUIPMENT',
     status: 'APPROVED',
+    version: 1,
     rejectionReason: null,
     createdAt: '2026-10-22T13:00:00Z',
     updatedAt: '2026-10-22T14:00:00Z',
@@ -56,15 +58,32 @@ export const applications: Record<ApplicationStatus, Application> = {
     termMonths: 24,
     purpose: 'REFINANCING',
     status: 'REJECTED',
+    version: 1,
     rejectionReason: 'Текущая долговая нагрузка превышает допустимый уровень.',
     createdAt: '2026-10-22T14:00:00Z',
     updatedAt: '2026-10-22T14:01:00Z',
+  },
+  MANUAL_REVIEW: {
+    id: 44, companyName: 'ООО «Демо рассмотрение»', inn: '0000000044',
+    amount: 1500000, termMonths: 12, purpose: 'WORKING_CAPITAL',
+    status: 'MANUAL_REVIEW', version: 1,
+    createdAt: '2026-10-22T14:30:00Z', updatedAt: '2026-10-22T14:30:01Z',
+    decisionSummary: { ruleVersion: 'demo-v1', assessedAt: '2026-10-22T14:30:01Z', explanation: 'Требуется рассмотрение сотрудником.', demoOnly: true },
+  },
+  OFFER_PROPOSED: {
+    id: 45, companyName: 'ООО «Демо предложение»', inn: '0000000045',
+    amount: 1500000, termMonths: 12, purpose: 'EQUIPMENT',
+    status: 'OFFER_PROPOSED', version: 2,
+    offer: { amount: 900000, termMonths: 12, annualRate: '18.50', monthlyPayment: '82724.12' },
+    createdAt: '2026-10-22T14:35:00Z', updatedAt: '2026-10-22T14:35:01Z',
+    decisionSummary: { ruleVersion: 'demo-v1', assessedAt: '2026-10-22T14:35:01Z', explanation: 'Предложена меньшая сумма.', demoOnly: true },
   },
 };
 
 export const processingApplication: Application = {
   ...applications.APPROVED,
   status: 'PROCESSING',
+  version: 0,
   updatedAt: applications.APPROVED.createdAt,
 };
 
@@ -83,6 +102,8 @@ export class TestApi {
   history: Application[] = [];
   employeeData: Record<ApplicationStatus, Application[]> = {
     PROCESSING: [applications.PROCESSING],
+    MANUAL_REVIEW: [],
+    OFFER_PROPOSED: [],
     APPROVED: [applications.APPROVED],
     REJECTED: [applications.REJECTED],
   };
@@ -156,7 +177,7 @@ export class TestApi {
         expect(request.method()).toBe('GET');
         const status = url.searchParams.get('status') as ApplicationStatus;
         // Omitting status means PROCESSING in the contract; ALL is never an API enum.
-        expect(['PROCESSING', 'APPROVED', 'REJECTED']).toContain(status);
+        expect(['PROCESSING', 'MANUAL_REVIEW', 'OFFER_PROPOSED', 'APPROVED', 'REJECTED']).toContain(status);
         expect([...url.searchParams.keys()]).toEqual(['status']);
         this.calls.employee.push(status);
         await this.fulfill(route, await this.employeeReply(status));

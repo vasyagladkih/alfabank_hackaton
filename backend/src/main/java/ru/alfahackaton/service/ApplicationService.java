@@ -2,118 +2,80 @@ package ru.alfahackaton.service;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 import ru.alfahackaton.dto.ApplicationResponse;
 import ru.alfahackaton.dto.ApplicationStatus;
 import ru.alfahackaton.dto.CreateApplicationRequest;
-import ru.alfahackaton.dto.LoanPurpose;
 import ru.alfahackaton.persistance.entity.ApplicationEntity;
-import ru.alfahackaton.persistance.entity.UserEntity;
 import ru.alfahackaton.persistance.repository.ApplicationRepository;
+import ru.alfahackaton.persistance.repository.EvidenceRepository;
+import ru.alfahackaton.persistance.repository.ProcessingJobRepository;
 import ru.alfahackaton.persistance.repository.UserRepository;
+import ru.alfahackaton.service.exception.ApplicationNotFoundException;
 
+import java.time.Clock;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ApplicationService {
+    private final ApplicationRepository applications;
+    private final UserRepository users;
+    private final SnapshotService snapshots;
+    private final ProcessingJobRepository jobs;
+    private final EvidenceRepository evidence;
+    private final ApplicationMapper mapper;
+    private final TransactionTemplate transactions;
+    private final Clock clock;
 
-    private final ApplicationRepository applicationRepository;
-    private final UserRepository userRepository;
-
-    public ApplicationService(ApplicationRepository applicationRepository, UserRepository userRepository) {
-        this.applicationRepository = applicationRepository;
-        this.userRepository = userRepository;
+    public ApplicationService(ApplicationRepository applications, UserRepository users, SnapshotService snapshots,
+                              ProcessingJobRepository jobs, EvidenceRepository evidence, ApplicationMapper mapper,
+                              PlatformTransactionManager transactionManager, Clock clock) {
+        this.applications = applications;
+        this.users = users;
+        this.snapshots = snapshots;
+        this.jobs = jobs;
+        this.evidence = evidence;
+        this.mapper = mapper;
+        this.transactions = new TransactionTemplate(transactionManager);
+        this.transactions.setIsolationLevel(TransactionDefinition.ISOLATION_REPEATABLE_READ);
+        this.clock = clock;
     }
 
     public ApplicationResponse createApplication(CreateApplicationRequest request, Long currentUserId) {
-        UserEntity user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-
-        OffsetDateTime now = OffsetDateTime.now(ZoneId.systemDefault());
-        ApplicationEntity entity = new ApplicationEntity(
-                null,
-                currentUserId,
-                request.getAmount(),
-                request.getTermMonths(),
-                request.getPurpose().getValue(),
-                ApplicationStatus.PROCESSING.getValue(),
-                null,
-                now,
-                now,
-                user.companyName(),
-                user.inn()
-        );
-
-        ApplicationEntity saved = applicationRepository.save(entity);
-
-        CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(3000);
-                String finalStatus;
-                String rejectionReason = null;
-
-                // Бизнес-логика скоринга: отказ для тестового ИНН плохой компании или суммы > 30 млн
-                if ("7702999999".equals(user.inn()) || request.getAmount() > 30_000_000L) {
-                    finalStatus = ApplicationStatus.REJECTED.getValue();
-                    rejectionReason = "Превышен показатель предельной долговой нагрузки (ПДН > 80%)";
-                } else {
-                    finalStatus = ApplicationStatus.APPROVED.getValue();
-                }
-
-                applicationRepository.updateStatus(saved.id(), finalStatus, rejectionReason);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        if (request == null || request.getAmount() == null || request.getAmount() < 100000 || request.getAmount() > 50000000
+                || request.getTermMonths() == null || request.getTermMonths() < 1 || request.getTermMonths() > 60 || request.getPurpose() == null) {
+            throw new IllegalArgumentException("Сумма, срок и цель должны соответствовать демонстрационному продукту");
+        }
+        return transactions.execute(tx -> {
+            var user = users.findById(currentUserId).orElseThrow(() -> new AccessDeniedException("Демо-пользователь недоступен"));
+            if (!"CLIENT".equals(user.role())) throw new AccessDeniedException("Требуется роль клиента");
+            OffsetDateTime now = OffsetDateTime.now(clock);
+            var saved = applications.save(new ApplicationEntity(null, currentUserId, request.getAmount(), request.getTermMonths(),
+                    request.getPurpose().getValue(), "PROCESSING", null, now, now, user.companyName(), user.inn()));
+            snapshots.capture(saved, "DEMO_PROFILE");
+            evidence.appendAudit(saved.id(), "CREATED", "APPLICATION_CREATED", "CLIENT", currentUserId,
+                    null, "PROCESSING", 0, "Учебная заявка создана; зафиксированы входы mock-провайдеров.", "{\"demoOnly\":true}", now);
+            jobs.enqueue(saved.id(), now);
+            return mapper.toDto(saved);
         });
-
-        return toDto(saved);
     }
 
     public ApplicationResponse getApplicationById(Long applicationId, Long currentUserId, String currentRole) {
-        ApplicationEntity entity = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
-
-        if (("ROLE_CLIENT".equals(currentRole) || "CLIENT".equals(currentRole)) && !entity.userId().equals(currentUserId)) {
-                throw new AccessDeniedException("Доступ к чужой заявке запрещен");
-            }
-
-        return toDto(entity);
+        var application = applications.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
+        if (!("CLIENT".equals(currentRole) || "ROLE_CLIENT".equals(currentRole)) || !application.userId().equals(currentUserId)) {
+            throw new AccessDeniedException("Доступ к чужой заявке запрещён");
+        }
+        return mapper.toDto(application);
     }
 
     public List<ApplicationResponse> getClientApplications(Long currentUserId) {
-        return applicationRepository.findByUserId(currentUserId)
-                .stream()
-                .map(this::toDto)
-                .toList();
+        return applications.findByUserId(currentUserId).stream().map(mapper::toDto).toList();
     }
 
     public List<ApplicationResponse> getEmployeeApplications(ApplicationStatus status) {
-        String filter = status != null ? status.getValue() : null;
-        return applicationRepository.findAll(filter)
-                .stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    private ApplicationResponse toDto(ApplicationEntity entity) {
-        LoanPurpose purposeEnum = LoanPurpose.fromValue(entity.purpose());
-        ApplicationStatus statusEnum = ApplicationStatus.fromValue(entity.status());
-
-        ApplicationResponse response = new ApplicationResponse(
-                entity.id(),
-                entity.amount(),
-                entity.termMonths(),
-                purposeEnum,
-                statusEnum,
-                entity.createdAt()
-        );
-        response.setCompanyName(entity.companyName());
-        response.setInn(entity.inn());
-        response.setRejectionReason(entity.rejectionReason());
-        response.setUpdatedAt(entity.updatedAt());
-
-        return response;
+        return applications.findAll(status == null ? null : status.getValue()).stream().map(mapper::toDto).toList();
     }
 }
