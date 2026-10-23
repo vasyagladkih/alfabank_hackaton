@@ -31,7 +31,7 @@ services:
       DB_NAME: alfadb
       DB_USER: postgres
       DB_PASSWORD: postgres
-      JWT_SECRET: alfa-hackaton-2026-super-secret-key-with-minimum-256-bits-length-security
+      JWT_SECRET: REPLACE_WITH_LOCAL_DEMO_KEY_NOT_A_REAL_SECRET
     depends_on:
       postgres:
         condition: service_healthy

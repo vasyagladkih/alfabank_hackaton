@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JwtTokenProvider(
-            @Value("${jwt.secret:alfa-hackaton-2026-super-secret-key-with-minimum-256-bits-length-security}") String secret,
+            @Value("${jwt.secret:REPLACE_WITH_LOCAL_DEMO_KEY_NOT_A_REAL_SECRET}") String secret,
             @Value("${jwt.expiration-ms:86400000}") long expirationMs
     ) {
         this.secret = secret;
