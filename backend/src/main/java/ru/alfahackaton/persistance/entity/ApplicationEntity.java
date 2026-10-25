@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 
 /**
  * Сущность кредитной заявки на базе Spring Data JDBC.
+ * Содержит параметры кредита, текущий статус и итоговое решение кредитного скоринга.
  */
 @Table("applications")
 public record ApplicationEntity(
@@ -18,6 +19,12 @@ public record ApplicationEntity(
         String purpose,
         String status,
         String rejectionReason,
+        String reviewReasonType,
+        Integer scoringScore,
+        Double calculatedPdnPercent,
+        Long maxLimitRub,
+        Long approvedAmount,
+        Double approvedRate,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
         @ReadOnlyProperty String companyName,
@@ -32,8 +39,28 @@ public record ApplicationEntity(
             String status,
             String rejectionReason,
             OffsetDateTime createdAt,
-            OffsetDateTime updatedAt
+            OffsetDateTime updatedAt,
+            String companyName,
+            String inn
     ) {
-        this(id, userId, amount, termMonths, purpose, status, rejectionReason, createdAt, updatedAt, null, null);
+        this(
+                id,
+                userId,
+                amount,
+                termMonths,
+                purpose,
+                status,
+                rejectionReason,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                createdAt,
+                updatedAt,
+                companyName,
+                inn
+        );
     }
 }

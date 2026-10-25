@@ -15,9 +15,8 @@ public interface ApplicationMapper {
 
     @Mapping(target = "purpose", expression = "java(mapPurpose(entity.purpose()))")
     @Mapping(target = "status", expression = "java(mapStatus(entity.status()))")
+    @Mapping(target = "schedule", ignore = true)
     ApplicationResponse toDto(ApplicationEntity entity);
-
-    List<ApplicationResponse> toDtoList(List<ApplicationEntity> entities);
 
     default LoanPurpose mapPurpose(String purpose) {
         return purpose != null ? LoanPurpose.fromValue(purpose) : null;

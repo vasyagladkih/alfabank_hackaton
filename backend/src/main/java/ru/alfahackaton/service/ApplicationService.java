@@ -1,89 +1,83 @@
 package ru.alfahackaton.service;
 
-import org.springframework.security.access.AccessDeniedException;
+import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
+import ru.alfahackaton.api.models.BorrowerDossier;
+import ru.alfahackaton.api.models.DecisionResult;
+import ru.alfahackaton.dto.ApplicationDetailsResponse;
+import ru.alfahackaton.dto.ApplicationPageResponse;
 import ru.alfahackaton.dto.ApplicationResponse;
 import ru.alfahackaton.dto.ApplicationStatus;
+import ru.alfahackaton.dto.BkiSnapshotDto;
 import ru.alfahackaton.dto.CreateApplicationRequest;
+import ru.alfahackaton.dto.FnsSnapshotDto;
+import ru.alfahackaton.dto.ReviewReasonCode;
+import ru.alfahackaton.dto.ScoringMetricsDto;
+import ru.alfahackaton.dto.SignApplicationRequest;
+import ru.alfahackaton.dto.UserProfile;
+import ru.alfahackaton.dto.UserRole;
+import ru.alfahackaton.event.ApplicationCreatedEvent;
 import ru.alfahackaton.mapper.ApplicationMapper;
+import ru.alfahackaton.persistance.entity.ApplicationBkiSnapshotEntity;
 import ru.alfahackaton.persistance.entity.ApplicationEntity;
+import ru.alfahackaton.persistance.entity.ApplicationFnsSnapshotEntity;
 import ru.alfahackaton.persistance.entity.UserEntity;
+import ru.alfahackaton.persistance.repository.ApplicationBkiSnapshotRepository;
+import ru.alfahackaton.persistance.repository.ApplicationFnsSnapshotRepository;
 import ru.alfahackaton.persistance.repository.ApplicationRepository;
 import ru.alfahackaton.persistance.repository.UserRepository;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.StructuredTaskScope;
 
+/**
+ * Основной сервис кредитного конвейера.
+ * Обеспечивает оркестрацию создания заявок, параллельного обогащения через Structured Concurrency,
+ * скоринга, подписания и предоставления данных клиенту и сотрудникам банка.
+ */
 @Service
 @Transactional(readOnly = true)
+@AllArgsConstructor
 public class ApplicationService {
+
+    private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
 
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
-    private final TransactionTemplate transactionTemplate;
+    private final ApplicationFnsSnapshotRepository fnsSnapshotRepository;
+    private final ApplicationBkiSnapshotRepository bkiSnapshotRepository;
+    private final FnsEnrichmentService fnsEnrichmentService;
+    private final BkiEnrichmentService bkiEnrichmentService;
+    private final DecisionEngine decisionEngine;
+    private final PaymentScheduleService paymentScheduleService;
     private final ApplicationMapper mapper;
-
-    public ApplicationService(
-            ApplicationRepository applicationRepository,
-            UserRepository userRepository,
-            TransactionTemplate transactionTemplate, ApplicationMapper mapper
-    ) {
-        this.applicationRepository = applicationRepository;
-        this.userRepository = userRepository;
-        this.transactionTemplate = transactionTemplate;
-        this.mapper = mapper;
-    }
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ApplicationResponse createApplication(CreateApplicationRequest request, Long currentUserId) {
-
         UserEntity user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь #" + currentUserId + " не найден"));
 
         OffsetDateTime now = OffsetDateTime.now(ZoneId.systemDefault());
 
         ApplicationEntity entity = new ApplicationEntity(
-                null,
-                currentUserId,
-                request.getAmount(),
-                request.getTermMonths(),
-                request.getPurpose().getValue(),
+                null, currentUserId, request.getAmount(),
+                request.getTermMonths(), request.getPurpose().getValue(),
                 ApplicationStatus.PROCESSING.getValue(),
-                null,
-                now,
-                now,
-                user.companyName(),
-                user.inn()
+                null, now, now,
+                user.companyName(), user.inn()
         );
 
         ApplicationEntity saved = applicationRepository.save(entity);
-
-        CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(3000);
-                String finalStatus;
-                String rejectionReason = null;
-
-                // Бизнес-логика скоринга: отказ для тестового ИНН плохой компании или суммы > 30 млн
-                if ("7702999999".equals(user.inn()) || request.getAmount() > 30_000_000L) {
-                    finalStatus = ApplicationStatus.REJECTED.getValue();
-                    rejectionReason = "Превышен показатель предельной долговой нагрузки (ПДН > 80%)";
-                } else {
-                    finalStatus = ApplicationStatus.APPROVED.getValue();
-                }
-
-                String effectiveRejectionReason = rejectionReason;
-                transactionTemplate.executeWithoutResult(status ->
-                        applicationRepository.updateStatus(saved.id(), finalStatus, effectiveRejectionReason)
-                );
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+        eventPublisher.publishEvent(new ApplicationCreatedEvent(saved.id(), user.inn()));
 
         ApplicationResponse response = mapper.toDto(saved);
         if (response.getCompanyName() == null) response.setCompanyName(user.companyName());
@@ -91,29 +85,270 @@ public class ApplicationService {
         return response;
     }
 
-    public ApplicationResponse getApplicationById(Long applicationId, Long currentUserId, String currentRole) {
-        ApplicationEntity entity = applicationRepository.findById(applicationId)
+    /**
+     * Оркестрация асинхронного скоринга заявки с использованием Structured Concurrency.
+     */
+    public void processApplication(Long applicationId) {
+        ApplicationEntity application = applicationRepository.findWithUserById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
 
-        if (("ROLE_CLIENT".equals(currentRole) || "CLIENT".equals(currentRole)) && !entity.userId().equals(currentUserId)) {
-            throw new AccessDeniedException("Доступ к чужой заявке запрещен");
+        if (!ApplicationStatus.PROCESSING.getValue().equals(application.status())) {
+            log.info("Заявка #{} уже обработана, статус: {}", applicationId, application.status());
+            return;
         }
 
-        return mapper.toDto(entity);
+        UserEntity user = userRepository.findById(application.userId())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь #" + application.userId() + " не найден"));
+
+        String inn = user.inn();
+
+        // Параллельный сбор сведений через Structured Concurrency (Java 25 JEP 480)
+        try (var scope = StructuredTaskScope.open(
+                StructuredTaskScope.Joiner.awaitAll(),
+                cfg -> cfg.withTimeout(Duration.ofMillis(1500))
+        )) {
+            scope.fork(() -> fnsEnrichmentService.enrich(applicationId, inn));
+            scope.fork(() -> bkiEnrichmentService.enrich(applicationId, inn));
+
+            try {
+                scope.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Прерывание Structured Concurrency скоринга по заявке #{}", applicationId);
+            } catch (Exception e) {
+                log.warn("Исключение при ожидании Structured Concurrency по заявке #{}: {}", applicationId, e.getMessage());
+            }
+        }
+
+        // Извлечение сохраненных снимков из БД
+        ApplicationFnsSnapshotEntity fnsSnapshot = fnsSnapshotRepository.findLatestByApplicationId(applicationId).orElse(null);
+        ApplicationBkiSnapshotEntity bkiSnapshot = bkiSnapshotRepository.findLatestByApplicationId(applicationId).orElse(null);
+
+        BorrowerDossier dossier = new BorrowerDossier(user, application, fnsSnapshot, bkiSnapshot);
+        DecisionResult decision = decisionEngine.evaluate(dossier);
+
+        log.info("Решение по заявке #{}: статус = {}, причина = {}",
+                applicationId, decision.status(), decision.rejectionReason());
+
+        applicationRepository.updateDecision(
+                application.id(),
+                decision.status(),
+                decision.rejectionReason(),
+                decision.reviewReasonType(),
+                decision.scoringScore(),
+                decision.calculatedPdnPercent(),
+                decision.maxLimitRub(),
+                decision.approvedAmount(),
+                decision.approvedRate()
+        );
+    }
+
+    public ApplicationResponse getClientApplication(Long applicationId, Long currentUserId) {
+        ApplicationEntity entity = applicationRepository.findByIdAndUserId(applicationId, currentUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
+
+        ApplicationResponse response = mapper.toDto(entity);
+        attachScheduleIfApproved(response, entity);
+        return response;
     }
 
     public List<ApplicationResponse> getClientApplications(Long currentUserId) {
         return applicationRepository.findByUserId(currentUserId)
                 .stream()
-                .map(mapper::toDto)
+                .map(entity -> {
+                    ApplicationResponse response = mapper.toDto(entity);
+                    attachScheduleIfApproved(response, entity);
+                    return response;
+                })
                 .toList();
     }
 
-    public List<ApplicationResponse> getEmployeeApplications(ApplicationStatus status) {
-        String filter = status != null ? status.getValue() : null;
-        return applicationRepository.findAll(filter)
-                .stream()
-                .map(mapper::toDto)
+    /**
+     * Подписание кредитного договора заемщиком (ПЭП).
+     */
+    @Transactional
+    public ApplicationResponse signApplication(Long applicationId, SignApplicationRequest request, Long currentUserId) {
+        ApplicationEntity entity = applicationRepository.findByIdAndUserId(applicationId, currentUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
+
+        if (!ApplicationStatus.APPROVED.getValue().equals(entity.status())) {
+            throw new IllegalStateException("Подписание возможно только для заявки в статусе APPROVED");
+        }
+
+        if (request.getConfirmTerms() == null || !request.getConfirmTerms()) {
+            throw new IllegalArgumentException("Требуется подтверждение согласия с условиями кредитования");
+        }
+
+        if (request.getSmsCode() == null || request.getSmsCode().isBlank()) {
+            throw new IllegalArgumentException("Код подтверждения не может быть пустым");
+        }
+
+        applicationRepository.updateStatus(applicationId, ApplicationStatus.SIGNED.getValue(), null, null);
+
+        ApplicationEntity updated = applicationRepository.findByIdAndUserId(applicationId, currentUserId)
+                .orElseThrow();
+
+        ApplicationResponse response = mapper.toDto(updated);
+        attachScheduleIfApproved(response, updated);
+        return response;
+    }
+
+    /**
+     * Пагинированный реестр заявок для сотрудника банка.
+     */
+    public ApplicationPageResponse getEmployeeApplicationsPaged(ApplicationStatus statusFilter, int page, int size) {
+        int limit = Math.max(1, size);
+        long offset = (long) Math.max(0, page) * limit;
+
+        List<ApplicationEntity> entities;
+        long totalElements;
+
+        if (statusFilter != null) {
+            String status = statusFilter.getValue();
+            entities = applicationRepository.findByStatusPaged(status, limit, offset);
+            totalElements = applicationRepository.countByStatus(status);
+        } else {
+            entities = applicationRepository.findAllPaged(limit, offset);
+            totalElements = applicationRepository.count();
+        }
+
+        List<ApplicationResponse> items = entities.stream()
+                .map(entity -> {
+                    ApplicationResponse resp = mapper.toDto(entity);
+                    attachScheduleIfApproved(resp, entity);
+                    return resp;
+                })
                 .toList();
+
+        int totalPages = (int) Math.ceil((double) totalElements / limit);
+
+        ApplicationPageResponse pageResponse = new ApplicationPageResponse();
+        pageResponse.setItems(items);
+        pageResponse.setPage(page);
+        pageResponse.setSize(limit);
+        pageResponse.setTotalElements(totalElements);
+        pageResponse.setTotalPages(totalPages);
+        return pageResponse;
+    }
+
+    /**
+     * Полное кредитное досье заявки для сотрудника банка (андеррайтера).
+     */
+    public ApplicationDetailsResponse getEmployeeApplicationDetails(Long applicationId) {
+        ApplicationEntity app = applicationRepository.findWithUserById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
+
+        UserEntity user = userRepository.findById(app.userId())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь #" + app.userId() + " не найден"));
+
+        ApplicationFnsSnapshotEntity fns = fnsSnapshotRepository.findLatestByApplicationId(applicationId).orElse(null);
+        ApplicationBkiSnapshotEntity bki = bkiSnapshotRepository.findLatestByApplicationId(applicationId).orElse(null);
+
+        ApplicationDetailsResponse details = new ApplicationDetailsResponse();
+        details.setId(app.id());
+        details.setCompanyName(app.companyName() != null ? app.companyName() : user.companyName());
+        details.setInn(app.inn() != null ? app.inn() : user.inn());
+        details.setAmount(app.amount());
+        details.setTermMonths(app.termMonths());
+        details.setPurpose(mapper.mapPurpose(app.purpose()));
+        details.setStatus(mapper.mapStatus(app.status()));
+        details.setRejectionReason(app.rejectionReason());
+        details.setApprovedAmount(app.approvedAmount());
+        details.setApprovedRate(app.approvedRate());
+        details.setCreatedAt(app.createdAt());
+        details.setUpdatedAt(app.updatedAt());
+
+        if (app.reviewReasonType() != null) {
+            details.setReviewReasonCode(ReviewReasonCode.fromValue(app.reviewReasonType()));
+        }
+        boolean canRetry = ApplicationStatus.MANUAL_REVIEW.getValue().equals(app.status())
+                && ReviewReasonCode.TECH_FAILURE.getValue().equals(app.reviewReasonType());
+        details.setCanRetry(canRetry);
+
+        // Пользователь
+        UserProfile userProfile = new UserProfile();
+        userProfile.setId(user.id());
+        userProfile.setUsername(user.username());
+        userProfile.setRole(UserRole.fromValue(user.role()));
+        userProfile.setCompanyName(user.companyName());
+        userProfile.setInn(user.inn());
+        details.setUser(userProfile);
+
+        // ФНС
+        if (fns != null) {
+            FnsSnapshotDto fnsDto = new FnsSnapshotDto();
+            fnsDto.setInn(fns.inn());
+            fnsDto.setCompanyName(fns.companyName());
+            fnsDto.setStateStatus(fns.stateStatus());
+            fnsDto.setTaxBlocksExist(fns.taxBlocksExist());
+            fnsDto.setBusinessAgeMonths(fns.businessAgeMonths());
+            fnsDto.setCreatedAt(fns.createdAt());
+            details.setFns(fnsDto);
+        }
+
+        // БКИ
+        if (bki != null) {
+            BkiSnapshotDto bkiDto = new BkiSnapshotDto();
+            bkiDto.setInn(bki.inn());
+            bkiDto.setBkiScore(bki.bkiScore());
+            bkiDto.setMonthlyPaymentRub(bki.monthlyPaymentRub());
+            bkiDto.setCurrentOverdueDays(bki.currentOverdueDays());
+            bkiDto.setCntOverdueOver90d(bki.cntOverdueOver90d());
+            bkiDto.setRiskBucket(bki.riskBucket());
+            bkiDto.setCreatedAt(bki.createdAt());
+            details.setBki(bkiDto);
+        }
+
+        // Скоринг метрики
+        ScoringMetricsDto scoring = new ScoringMetricsDto();
+        scoring.setScoringScore(app.scoringScore());
+        scoring.setCalculatedPdnPercent(app.calculatedPdnPercent());
+        scoring.setMaxLimitRub(app.maxLimitRub());
+        details.setScoring(scoring);
+
+        // График платежей
+        if (ApplicationStatus.APPROVED.getValue().equals(app.status()) || ApplicationStatus.SIGNED.getValue().equals(app.status())) {
+            details.setSchedule(paymentScheduleService.calculateSchedule(
+                    app.approvedAmount(),
+                    app.termMonths(),
+                    app.approvedRate(),
+                    LocalDate.now()
+            ));
+        }
+
+        return details;
+    }
+
+
+    @Transactional
+    public ApplicationResponse retryApplication(Long applicationId) {
+        ApplicationEntity app = applicationRepository.findWithUserById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
+
+        if (!ApplicationStatus.MANUAL_REVIEW.getValue().equals(app.status())
+                || !ReviewReasonCode.TECH_FAILURE.getValue().equals(app.reviewReasonType())) {
+            throw new IllegalStateException("Перезапуск возможен только при техническом сбое внешних сервисов");
+        }
+
+        applicationRepository.updateStatus(applicationId, ApplicationStatus.PROCESSING.getValue(), null, null);
+
+        processApplication(applicationId);
+
+        ApplicationEntity updated = applicationRepository.findWithUserById(applicationId).orElseThrow();
+        ApplicationResponse response = mapper.toDto(updated);
+        attachScheduleIfApproved(response, updated);
+        return response;
+    }
+
+    private void attachScheduleIfApproved(ApplicationResponse response, ApplicationEntity entity) {
+        if (ApplicationStatus.APPROVED.getValue().equals(entity.status())
+                || ApplicationStatus.SIGNED.getValue().equals(entity.status())) {
+            response.setSchedule(paymentScheduleService.calculateSchedule(
+                    entity.approvedAmount(),
+                    entity.termMonths(),
+                    entity.approvedRate(),
+                    LocalDate.now()
+            ));
+        }
     }
 }

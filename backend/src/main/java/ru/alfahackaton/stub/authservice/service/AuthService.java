@@ -31,11 +31,8 @@ public class AuthService {
 
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден: " + username));
-
         String token = stubTokenService.generateToken(user.id(), user.username(), user.role(), user.inn());
-
         UserProfile profile = userMapper.toDto(user);
-
         return new DemoLoginResponse(token, profile);
     }
 }

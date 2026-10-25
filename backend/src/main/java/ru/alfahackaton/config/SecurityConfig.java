@@ -1,4 +1,4 @@
-package ru.alfahackaton.security;
+package ru.alfahackaton.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.security.interfaces.RSAPublicKey;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Конфигурация безопасности кредитного сервиса как OAuth 2.0 Resource Server.
@@ -42,15 +43,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        AuthenticationEntryPoint authEntryPoint = (request, response, authException) -> {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        AuthenticationEntryPoint authEntryPoint = (_, response, _) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             String json = String.format("{\"code\":\"UNAUTHORIZED\",\"message\":\"Требуется авторизация\",\"timestamp\":\"%s\"}", OffsetDateTime.now());
             response.getWriter().write(json);
         };
 
-        AccessDeniedHandler accessDeniedHandler = (request, response, accessDeniedException) -> {
+        AccessDeniedHandler accessDeniedHandler = (_, response, _) -> {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json;charset=UTF-8");
             String json = String.format("{\"code\":\"FORBIDDEN\",\"message\":\"Доступ ограничен: недостаточно прав\",\"timestamp\":\"%s\"}", OffsetDateTime.now());
@@ -62,7 +63,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**", "/error").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/api/v1/stubs/**", "/error").permitAll()
                         .requestMatchers("/api/v1/client/**").hasRole("CLIENT")
                         .requestMatchers("/api/v1/employee/**").hasRole("EMPLOYEE")
                         .anyRequest().authenticated()
@@ -91,8 +92,8 @@ public class SecurityConfig {
     public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
             String role = jwt.getClaimAsString("role");
-            String authority = role != null && role.startsWith("ROLE_") ? role : "ROLE_" + (role != null ? role : "CLIENT");
-            Long userId = Long.valueOf(jwt.getSubject());
+            String authority = role != null && role.startsWith("ROLE_") ? role : "ROLE_" + (role != null ? role : "CLIENT"); // TODO
+            Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject()));
             return new UsernamePasswordAuthenticationToken(
                     userId,
                     jwt.getTokenValue(),

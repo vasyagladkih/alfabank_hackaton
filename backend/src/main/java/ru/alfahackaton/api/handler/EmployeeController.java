@@ -1,16 +1,23 @@
 package ru.alfahackaton.api.handler;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.alfahackaton.dto.ApplicationDetailsResponse;
+import ru.alfahackaton.dto.ApplicationPageResponse;
 import ru.alfahackaton.dto.ApplicationResponse;
 import ru.alfahackaton.dto.ApplicationStatus;
 import ru.alfahackaton.service.ApplicationService;
 
-import java.util.List;
-
+/**
+ * REST-контроллер операций сотрудника банка (андеррайтера).
+ */
 @RestController
+@PreAuthorize("hasRole('EMPLOYEE')")
 public class EmployeeController {
 
     private final ApplicationService applicationService;
@@ -20,10 +27,28 @@ public class EmployeeController {
     }
 
     @GetMapping("/api/v1/employee/applications")
-    public ResponseEntity<List<ApplicationResponse>> getEmployeeApplications(
-            @RequestParam(value = "status", required = false) ApplicationStatus status
+    public ResponseEntity<ApplicationPageResponse> getEmployeeApplications(
+            @RequestParam(value = "status", required = false) ApplicationStatus status,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-        List<ApplicationResponse> responses = applicationService.getEmployeeApplications(status);
-        return ResponseEntity.ok(responses);
+        ApplicationPageResponse response = applicationService.getEmployeeApplicationsPaged(status, page, size);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/v1/employee/applications/{id}")
+    public ResponseEntity<ApplicationDetailsResponse> getEmployeeApplicationDetails(
+            @PathVariable("id") Long id
+    ) {
+        ApplicationDetailsResponse details = applicationService.getEmployeeApplicationDetails(id);
+        return ResponseEntity.ok(details);
+    }
+
+    @PostMapping("/api/v1/employee/applications/{id}/retry")
+    public ResponseEntity<ApplicationResponse> retryApplication(
+            @PathVariable("id") Long id
+    ) {
+        ApplicationResponse response = applicationService.retryApplication(id);
+        return ResponseEntity.ok(response);
     }
 }

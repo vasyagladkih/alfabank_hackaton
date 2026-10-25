@@ -33,6 +33,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	compileOnly("org.projectlombok:lombok:1.18.48")
+	annotationProcessor("org.projectlombok:lombok:1.18.48")
 }
 
 def specCandidate = [
@@ -58,7 +60,16 @@ openApiGenerate {
 sourceSets.main.java.srcDirs += "$projectDir/build/generated/src/main/java"
 compileJava.dependsOn tasks.openApiGenerate
 
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += ['--enable-preview']
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
+	jvmArgs += ['--enable-preview']
+}
+
+tasks.named('bootRun') {
+	jvmArgs += ['--enable-preview']
 }
 

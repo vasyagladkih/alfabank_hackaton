@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.OffsetDateTime;
 
 /**
- * Сущность пользователя системы.
+ * Сущность пользователя системы и финансовых показателей РКО.
  */
 @Table("users")
 public record UserEntity(
@@ -15,5 +15,9 @@ public record UserEntity(
         String role,
         String companyName,
         String inn,
+        Long avgMonthlyTurnoverRub,
+        Long annualTurnoverRub,
+        Long currentBalanceRub,
+        Integer monthsWithBank,
         OffsetDateTime createdAt
 ) {}

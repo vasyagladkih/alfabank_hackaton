@@ -50,6 +50,12 @@ class AlfahackatonApplicationTests {
     @MockitoBean
     private ApplicationRepository applicationRepository;
 
+    @MockitoBean
+    private ru.alfahackaton.persistance.repository.ApplicationFnsSnapshotRepository fnsSnapshotRepository;
+
+    @MockitoBean
+    private ru.alfahackaton.persistance.repository.ApplicationBkiSnapshotRepository bkiSnapshotRepository;
+
     @TestConfiguration
     static class TestConfig {
         @Bean
