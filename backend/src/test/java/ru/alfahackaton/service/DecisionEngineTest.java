@@ -187,6 +187,80 @@ class DecisionEngineTest {
     }
 
     @Test
+    @DisplayName("Неполные критические данные ФНС требуют TECH_FAILURE вместо автоодобрения")
+    void testIncompleteFnsLeadsToTechFailure() {
+        UserEntity user = createGoodUser();
+        ApplicationEntity app = createApplication(1_500_000L, 12);
+        OffsetDateTime now = OffsetDateTime.now();
+        ApplicationBkiSnapshotEntity bki = new ApplicationBkiSnapshotEntity(1L, 1L, user.inn(), 750, 0L, 0, 0, "CURRENT (0 DPD)", now);
+        ApplicationFnsSnapshotEntity[] snapshots = {
+                new ApplicationFnsSnapshotEntity(1L, 1L, user.inn(), "ООО", null, false, 36, now),
+                new ApplicationFnsSnapshotEntity(1L, 1L, user.inn(), "ООО", "  ", false, 36, now),
+                new ApplicationFnsSnapshotEntity(1L, 1L, user.inn(), "ООО", "ACTIVE", null, 36, now),
+                new ApplicationFnsSnapshotEntity(1L, 1L, user.inn(), null, null, null, null, now)
+        };
+
+        for (ApplicationFnsSnapshotEntity fns : snapshots) {
+            DecisionResult result = decisionEngine.evaluate(new BorrowerDossier(user, app, fns, bki));
+
+            assertEquals(ApplicationStatus.MANUAL_REVIEW.getValue(), result.status(), fns.toString());
+            assertEquals(ReviewReasonCode.TECH_FAILURE.getValue(), result.reviewReasonType());
+            assertTrue(result.rejectionReason().contains("ФНС"));
+            assertNull(result.approvedAmount());
+            assertNull(result.approvedRate());
+        }
+    }
+
+    @Test
+    @DisplayName("Неполные критические данные БКИ требуют TECH_FAILURE вместо автоодобрения")
+    void testIncompleteBkiLeadsToTechFailure() {
+        UserEntity user = createGoodUser();
+        ApplicationEntity app = createApplication(1_500_000L, 12);
+        OffsetDateTime now = OffsetDateTime.now();
+        ApplicationFnsSnapshotEntity fns = new ApplicationFnsSnapshotEntity(1L, 1L, user.inn(), "ООО", "ACTIVE", false, 36, now);
+        ApplicationBkiSnapshotEntity[] snapshots = {
+                new ApplicationBkiSnapshotEntity(1L, 1L, user.inn(), 750, null, 0, 0, "CURRENT (0 DPD)", now),
+                new ApplicationBkiSnapshotEntity(1L, 1L, user.inn(), 750, 0L, null, 0, "CURRENT (0 DPD)", now),
+                new ApplicationBkiSnapshotEntity(1L, 1L, user.inn(), 750, 0L, 0, null, "CURRENT (0 DPD)", now),
+                new ApplicationBkiSnapshotEntity(1L, 1L, user.inn(), null, null, null, null, null, now)
+        };
+
+        for (ApplicationBkiSnapshotEntity bki : snapshots) {
+            DecisionResult result = decisionEngine.evaluate(new BorrowerDossier(user, app, fns, bki));
+
+            assertEquals(ApplicationStatus.MANUAL_REVIEW.getValue(), result.status(), bki.toString());
+            assertEquals(ReviewReasonCode.TECH_FAILURE.getValue(), result.reviewReasonType());
+            assertTrue(result.rejectionReason().contains("БКИ"));
+            assertNull(result.approvedAmount());
+            assertNull(result.approvedRate());
+        }
+    }
+
+    @Test
+    @DisplayName("Известные стоп-факторы сохраняют приоритет над неполными данными реестров")
+    void testKnownStopFactorsTakePriorityOverIncompleteData() {
+        UserEntity user = createGoodUser();
+        ApplicationEntity app = createApplication(1_500_000L, 12);
+        OffsetDateTime now = OffsetDateTime.now();
+        ApplicationFnsSnapshotEntity emptyFns = new ApplicationFnsSnapshotEntity(1L, 1L, user.inn(), null, null, null, null, now);
+        ApplicationBkiSnapshotEntity emptyBki = new ApplicationBkiSnapshotEntity(1L, 1L, user.inn(), null, null, null, null, null, now);
+        ApplicationFnsSnapshotEntity bankrupt = new ApplicationFnsSnapshotEntity(1L, 1L, user.inn(), "ООО", "BANKRUPT", null, null, now);
+        ApplicationBkiSnapshotEntity defaulted = new ApplicationBkiSnapshotEntity(1L, 1L, user.inn(), null, null, null, 1, null, now);
+        BorrowerDossier[] dossiers = {
+                new BorrowerDossier(user, app, bankrupt, emptyBki),
+                new BorrowerDossier(user, app, emptyFns, defaulted)
+        };
+
+        for (BorrowerDossier dossier : dossiers) {
+            DecisionResult result = decisionEngine.evaluate(dossier);
+
+            assertEquals(ApplicationStatus.REJECTED.getValue(), result.status());
+            assertNull(result.reviewReasonType());
+            assertNull(result.approvedAmount());
+        }
+    }
+
+    @Test
     @DisplayName("Превышение ПДН (> 80%) при непосильной кредитной нагрузке приводит к отказу REJECTED")
     void testExcessivePdnRejection() {
         UserEntity user = createGoodUser();
