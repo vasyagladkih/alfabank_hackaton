@@ -85,8 +85,10 @@ class StubsIntegrationTest {
                         .content("{\"inn\":\"7701234567\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.inn").value("7701234567"))
+                .andExpect(jsonPath("$.companyName").value("ООО \"Ромашка\""))
                 .andExpect(jsonPath("$.stateStatus").value("ACTIVE"))
-                .andExpect(jsonPath("$.hasTaxBlocks").value(false));
+                .andExpect(jsonPath("$.hasTaxBlocks").value(false))
+                .andExpect(jsonPath("$.businessAgeMonths").value(36));
     }
 
     @Test
@@ -118,7 +120,9 @@ class StubsIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.inn").value("7701234567"))
                 .andExpect(jsonPath("$.bkiScore").value(750))
-                .andExpect(jsonPath("$.monthlyPaymentRub").value(50000));
+                .andExpect(jsonPath("$.monthlyPaymentRub").value(50000))
+                .andExpect(jsonPath("$.currentOverdueDays").value(0))
+                .andExpect(jsonPath("$.cntOverdue90").value(0));
     }
 
     @Test

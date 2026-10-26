@@ -101,6 +101,8 @@ class EmployeeControllerIntegrationTest {
                 .andExpect(jsonPath("$.size").value(10))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.items[0].id").value(42));
+
+        Mockito.verify(applicationService).getEmployeeApplicationsPaged(null, 0, 10);
     }
 
     @Test
@@ -122,9 +124,13 @@ class EmployeeControllerIntegrationTest {
                         .header("Authorization", "Bearer " + employeeToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(42))
+                .andExpect(jsonPath("$.companyName").value("ООО Ромашка"))
+                .andExpect(jsonPath("$.inn").value("7701234567"))
                 .andExpect(jsonPath("$.status").value("MANUAL_REVIEW"))
                 .andExpect(jsonPath("$.reviewReasonCode").value("TECH_FAILURE"))
                 .andExpect(jsonPath("$.canRetry").value(true));
+
+        Mockito.verify(applicationService).getEmployeeApplicationDetails(42L);
     }
 
     @Test
@@ -143,6 +149,8 @@ class EmployeeControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(42))
                 .andExpect(jsonPath("$.status").value("PROCESSING"));
+
+        Mockito.verify(applicationService).retryApplication(42L);
     }
 
     @Test
@@ -204,6 +212,8 @@ class EmployeeControllerIntegrationTest {
 
         mockMvc.perform(post("/api/v1/employee/applications/999/retry")
                         .header("Authorization", "Bearer " + employeeToken))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Заявка #999 не найдена"));
     }
 }

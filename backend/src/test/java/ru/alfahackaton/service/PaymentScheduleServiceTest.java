@@ -93,4 +93,37 @@ class PaymentScheduleServiceTest {
         assertEquals(101_000L, item.getTotalPayment());
         assertEquals(0L, item.getRemainingDebt());
     }
+
+    @Test
+    @DisplayName("Максимальный срок 60 месяцев: точная сходимость графика в 0 без накопления погрешности")
+    void testMaximumTerm60MonthsScheduleZeroBalance() {
+        long amount = 50_000_000L;
+        int termMonths = 60;
+        double rate = 23.5;
+        LocalDate startDate = LocalDate.of(2026, 1, 1);
+
+        PaymentSchedule schedule = service.calculateSchedule(amount, termMonths, rate, startDate);
+
+        assertNotNull(schedule);
+        assertEquals(termMonths, schedule.getItems().size());
+        assertTrue(schedule.getMonthlyPayment() > 0);
+        assertTrue(schedule.getTotalInterest() > 0);
+        assertEquals(amount + schedule.getTotalInterest(), schedule.getTotalPayout());
+
+        long sumPrincipal = 0L;
+        for (int i = 0; i < schedule.getItems().size(); i++) {
+            PaymentScheduleItem item = schedule.getItems().get(i);
+            sumPrincipal += item.getPrincipalPayment();
+            assertTrue(item.getTotalPayment() > 0);
+            assertTrue(item.getInterestPayment() >= 0);
+            assertEquals(item.getTotalPayment(), item.getPrincipalPayment() + item.getInterestPayment());
+            if (i < schedule.getItems().size() - 1) {
+                assertEquals(schedule.getMonthlyPayment(), item.getTotalPayment());
+            }
+        }
+
+        assertEquals(amount, sumPrincipal);
+        assertEquals(0L, schedule.getItems().getLast().getRemainingDebt());
+        assertEquals(LocalDate.of(2031, 1, 1), schedule.getItems().getLast().getPaymentDate());
+    }
 }

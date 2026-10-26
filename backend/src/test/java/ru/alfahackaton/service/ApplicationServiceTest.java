@@ -14,6 +14,7 @@ import ru.alfahackaton.dto.CreateApplicationRequest;
 import ru.alfahackaton.dto.LoanPurpose;
 import ru.alfahackaton.dto.ReviewReasonCode;
 import ru.alfahackaton.dto.SignApplicationRequest;
+import ru.alfahackaton.dto.UserRole;
 import ru.alfahackaton.event.ApplicationCreatedEvent;
 import ru.alfahackaton.mapper.ApplicationMapper;
 import ru.alfahackaton.persistance.entity.ApplicationBkiSnapshotEntity;
@@ -122,6 +123,17 @@ class ApplicationServiceTest {
 
         assertNotNull(actualResponse);
         assertEquals(ApplicationStatus.PROCESSING, actualResponse.getStatus());
+
+        ArgumentCaptor<ApplicationEntity> appCaptor = ArgumentCaptor.forClass(ApplicationEntity.class);
+        verify(applicationRepository).save(appCaptor.capture());
+        ApplicationEntity capturedApp = appCaptor.getValue();
+        assertEquals(userId, capturedApp.userId());
+        assertEquals(1_000_000L, capturedApp.amount());
+        assertEquals(12, capturedApp.termMonths());
+        assertEquals(LoanPurpose.WORKING_CAPITAL.getValue(), capturedApp.purpose());
+        assertEquals(ApplicationStatus.PROCESSING.getValue(), capturedApp.status());
+        assertEquals("ООО \"Ромашка\"", capturedApp.companyName());
+        assertEquals("7701234567", capturedApp.inn());
 
         ArgumentCaptor<ApplicationCreatedEvent> eventCaptor = ArgumentCaptor.forClass(ApplicationCreatedEvent.class);
         verify(eventPublisher).publishEvent(eventCaptor.capture());
@@ -346,22 +358,52 @@ class ApplicationServiceTest {
                 ApplicationStatus.PROCESSING.getValue(), null,
                 OffsetDateTime.now(), OffsetDateTime.now(), "ООО \"Ромашка\"", inn
         );
+        ApplicationEntity approvedApp = new ApplicationEntity(
+                appId, userId, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.APPROVED.getValue(), null, null,
+                100, 36.8, 2_000_000L, 1_000_000L, 18.8,
+                OffsetDateTime.now(), OffsetDateTime.now(), "ООО \"Ромашка\"", inn
+        );
+
+        ApplicationFnsSnapshotEntity fns = new ApplicationFnsSnapshotEntity(1L, appId, inn, "ООО \"Ромашка\"", "ACTIVE", false, 36, OffsetDateTime.now());
+        ApplicationBkiSnapshotEntity bki = new ApplicationBkiSnapshotEntity(1L, appId, inn, 750, 0L, 0, 0, "CURRENT (0 DPD)", OffsetDateTime.now());
 
         when(applicationRepository.findWithUserById(appId))
                 .thenReturn(Optional.of(techFailApp))
                 .thenReturn(Optional.of(processingApp))
-                .thenReturn(Optional.of(techFailApp));
+                .thenReturn(Optional.of(approvedApp));
         when(applicationRepository.markAsProcessingIfEligibleForRetry(appId)).thenReturn(1);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(fnsEnrichmentService.enrich(appId, inn)).thenReturn(fns);
+        when(bkiEnrichmentService.enrich(appId, inn)).thenReturn(bki);
+        when(fnsSnapshotRepository.findLatestByApplicationId(appId)).thenReturn(Optional.of(fns));
+        when(bkiSnapshotRepository.findLatestByApplicationId(appId)).thenReturn(Optional.of(bki));
 
         ApplicationResponse responseDto = new ApplicationResponse();
         responseDto.setId(appId);
-        when(mapper.toDto(any(ApplicationEntity.class))).thenReturn(responseDto);
+        responseDto.setStatus(ApplicationStatus.APPROVED);
+        when(mapper.toDto(approvedApp)).thenReturn(responseDto);
 
         ApplicationResponse result = applicationService.retryApplication(appId);
 
         assertNotNull(result);
+        assertEquals(appId, result.getId());
+        assertEquals(ApplicationStatus.APPROVED, result.getStatus());
+
         verify(applicationRepository).markAsProcessingIfEligibleForRetry(appId);
+        verify(fnsEnrichmentService).enrich(appId, inn);
+        verify(bkiEnrichmentService).enrich(appId, inn);
+        verify(applicationRepository).updateDecision(
+                eq(appId),
+                eq(ApplicationStatus.APPROVED.getValue()),
+                isNull(),
+                isNull(),
+                eq(100),
+                eq(24.8),
+                eq(2_013_666L),
+                eq(1_000_000L),
+                eq(18.8)
+        );
     }
 
     @Test
@@ -412,15 +454,26 @@ class ApplicationServiceTest {
 
         assertNotNull(details);
         assertEquals(appId, details.getId());
+        assertEquals("ООО \"Ромашка\"", details.getCompanyName());
         assertEquals("7701234567", details.getInn());
+        assertEquals(1_500_000L, details.getAmount());
+        assertEquals(12, details.getTermMonths());
+        assertEquals(LoanPurpose.WORKING_CAPITAL, details.getPurpose());
+        assertEquals(ApplicationStatus.MANUAL_REVIEW, details.getStatus());
         assertEquals(ReviewReasonCode.TECH_FAILURE, details.getReviewReasonCode());
         // Так как статус MANUAL_REVIEW и причина TECH_FAILURE, кнопка canRetry обязана быть true!
         assertTrue(details.getCanRetry());
         assertNotNull(details.getUser());
         assertEquals("client_good", details.getUser().getUsername());
+        assertEquals("ООО \"Ромашка\"", details.getUser().getCompanyName());
+        assertEquals("7701234567", details.getUser().getInn());
+        assertEquals(UserRole.CLIENT, details.getUser().getRole());
         assertNotNull(details.getFns());
+        assertEquals("7701234567", details.getFns().getInn());
         assertEquals("ACTIVE", details.getFns().getStateStatus());
+        assertEquals(36, details.getFns().getBusinessAgeMonths());
         assertNotNull(details.getBki());
+        assertEquals("7701234567", details.getBki().getInn());
         assertEquals(750, details.getBki().getBkiScore());
         assertEquals("CURRENT (0 DPD)", details.getBki().getRiskBucket());
     }
@@ -634,9 +687,14 @@ class ApplicationServiceTest {
 
         assertNotNull(response);
         assertEquals(appId, response.getId());
+        assertEquals(ApplicationStatus.APPROVED, response.getStatus());
         // Проверяем, что для APPROVED сгенерирован и прикреплен график платежей
         assertNotNull(response.getSchedule());
         assertEquals(12, response.getSchedule().getItems().size());
+        assertEquals(138_092L, response.getSchedule().getMonthlyPayment());
+        assertEquals(157_100L, response.getSchedule().getTotalInterest());
+        assertEquals(1_657_100L, response.getSchedule().getTotalPayout());
+        assertEquals(0L, response.getSchedule().getItems().getLast().getRemainingDebt());
     }
 
     @Test
@@ -808,5 +866,47 @@ class ApplicationServiceTest {
 
         assertEquals(1, successCount.get(), "Ровно один вызов retry должен преуспеть");
         assertEquals(1, failureCount.get(), "Второй одновременный вызов retry должен получить отказ");
+    }
+
+    @Test
+    @DisplayName("signApplication: если атомарный CAS markAsSignedIfApproved вернул 0 (конфликт), бросает IllegalStateException")
+    void testSignApplicationCasConflictThrowsException() {
+        Long appId = 42L;
+        Long userId = 101L;
+        ApplicationEntity approvedApp = new ApplicationEntity(
+                appId, userId, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.APPROVED.getValue(), null, null,
+                85, 34.0, 3_000_000L, 1_000_000L, 18.5,
+                OffsetDateTime.now(), OffsetDateTime.now(), "ООО \"Ромашка\"", "7701234567"
+        );
+        when(applicationRepository.findByIdAndUserId(appId, userId)).thenReturn(Optional.of(approvedApp));
+        when(applicationRepository.markAsSignedIfApproved(appId)).thenReturn(0);
+
+        SignApplicationRequest request = new SignApplicationRequest();
+        request.setConfirmTerms(true);
+        request.setSmsCode("1234");
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> applicationService.signApplication(appId, request, userId));
+        assertTrue(ex.getMessage().contains("уже подписана"));
+    }
+
+    @Test
+    @DisplayName("retryApplication: если атомарный CAS markAsProcessingIfEligibleForRetry вернул 0 (конфликт), бросает IllegalStateException")
+    void testRetryApplicationCasConflictThrowsException() {
+        Long appId = 44L;
+        ApplicationEntity techFailApp = new ApplicationEntity(
+                appId, 101L, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.MANUAL_REVIEW.getValue(), "Сбой ФНС",
+                ReviewReasonCode.TECH_FAILURE.getValue(),
+                null, null, null, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "ООО \"Ромашка\"", "7701234567"
+        );
+        when(applicationRepository.findWithUserById(appId)).thenReturn(Optional.of(techFailApp));
+        when(applicationRepository.markAsProcessingIfEligibleForRetry(appId)).thenReturn(0);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> applicationService.retryApplication(appId));
+        assertTrue(ex.getMessage().contains("уже обрабатывается"));
     }
 }
