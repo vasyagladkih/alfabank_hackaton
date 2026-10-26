@@ -1,5 +1,6 @@
 package ru.alfahackaton.api.handler;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,7 +43,7 @@ public class UserController {
     @PostMapping("/api/v1/client/applications")
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<ApplicationResponse> createApplication(
-            @RequestBody CreateApplicationRequest request,
+            @Valid @RequestBody CreateApplicationRequest request,
             @AuthenticationPrincipal Long currentUserId
     ) {
         ApplicationResponse response = applicationService.createApplication(request, currentUserId);

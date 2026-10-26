@@ -5,6 +5,7 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.alfahackaton.persistance.entity.ApplicationEntity;
 
 import java.util.List;
@@ -76,6 +77,7 @@ public interface ApplicationRepository extends CrudRepository<ApplicationEntity,
     long countByStatus(@Param("status") String status);
 
     @Modifying
+    @Transactional
     @Query("""
             UPDATE applications
             SET status = :status,
@@ -102,6 +104,7 @@ public interface ApplicationRepository extends CrudRepository<ApplicationEntity,
     );
 
     @Modifying
+    @Transactional
     @Query("""
             UPDATE applications
             SET status = :status,
@@ -116,4 +119,28 @@ public interface ApplicationRepository extends CrudRepository<ApplicationEntity,
             @Param("rejectionReason") String rejectionReason,
             @Param("reviewReasonType") String reviewReasonType
     );
+
+    @Modifying
+    @Transactional
+    @Query("""
+            UPDATE applications
+            SET status = 'SIGNED',
+                updated_at = NOW()
+            WHERE id = :id AND status = 'APPROVED'
+            """)
+    int markAsSignedIfApproved(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("""
+            UPDATE applications
+            SET status = 'PROCESSING',
+                rejection_reason = NULL,
+                review_reason_type = NULL,
+                updated_at = NOW()
+            WHERE id = :id
+              AND status = 'MANUAL_REVIEW'
+              AND review_reason_type = 'TECH_FAILURE'
+            """)
+    int markAsProcessingIfEligibleForRetry(@Param("id") Long id);
 }

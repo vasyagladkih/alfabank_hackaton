@@ -37,7 +37,6 @@ public class FnsEnrichmentService {
      * @param inn           ИНН организации
      * @return сохраненный снимок ФНС либо null при технической недоступности
      */
-    @Transactional
     public ApplicationFnsSnapshotEntity enrich(Long applicationId, String inn) {
         log.info("Запуск обогащения ФНС по заявке #{} (ИНН {})", applicationId, inn);
         FnsDto dto = fnsClientService.getData(inn);

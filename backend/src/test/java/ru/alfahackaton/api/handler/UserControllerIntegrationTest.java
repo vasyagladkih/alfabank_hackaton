@@ -37,6 +37,10 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
+import org.mockito.ArgumentCaptor;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -112,6 +116,7 @@ class UserControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("mock-jwt-token-xyz"))
+                .andExpect(jsonPath("$.user.id").value(101))
                 .andExpect(jsonPath("$.user.username").value("client_good"))
                 .andExpect(jsonPath("$.user.role").value("CLIENT"));
     }
@@ -143,6 +148,58 @@ class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.amount").value(1500000))
                 .andExpect(jsonPath("$.status").value("PROCESSING"));
+
+        ArgumentCaptor<CreateApplicationRequest> reqCaptor = ArgumentCaptor.forClass(CreateApplicationRequest.class);
+        Mockito.verify(applicationService).createApplication(reqCaptor.capture(), eq(101L));
+        assertEquals(1_500_000L, reqCaptor.getValue().getAmount());
+        assertEquals(12, reqCaptor.getValue().getTermMonths());
+        assertEquals(LoanPurpose.WORKING_CAPITAL, reqCaptor.getValue().getPurpose());
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/client/applications: срок вне диапазона 1–60 месяцев отклоняется до сервиса")
+    void testCreateApplicationRejectsInvalidTerm() throws Exception {
+        String clientToken = stubTokenService.generateToken(101L, "client_user", "CLIENT", "7701234567");
+
+        for (int termMonths : List.of(0, -1, 61)) {
+            CreateApplicationRequest request = new CreateApplicationRequest();
+            request.setAmount(1_500_000L);
+            request.setTermMonths(termMonths);
+            request.setPurpose(LoanPurpose.WORKING_CAPITAL);
+
+            mockMvc.perform(post("/api/v1/client/applications")
+                            .header("Authorization", "Bearer " + clientToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                    .andExpect(jsonPath("$.message").value("Некорректные параметры запроса"));
+        }
+
+        Mockito.verifyNoInteractions(applicationService);
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/client/applications: сумма вне диапазона 100 000–50 000 000 рублей отклоняется до сервиса")
+    void testCreateApplicationRejectsInvalidAmount() throws Exception {
+        String clientToken = stubTokenService.generateToken(101L, "client_user", "CLIENT", "7701234567");
+
+        for (long amount : List.of(99_999L, 50_000_001L)) {
+            CreateApplicationRequest request = new CreateApplicationRequest();
+            request.setAmount(amount);
+            request.setTermMonths(12);
+            request.setPurpose(LoanPurpose.WORKING_CAPITAL);
+
+            mockMvc.perform(post("/api/v1/client/applications")
+                            .header("Authorization", "Bearer " + clientToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                    .andExpect(jsonPath("$.message").value("Некорректные параметры запроса"));
+        }
+
+        Mockito.verifyNoInteractions(applicationService);
     }
 
     @Test
@@ -196,6 +253,8 @@ class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.status").value("APPROVED"))
                 .andExpect(jsonPath("$.approvedAmount").value(1500000))
                 .andExpect(jsonPath("$.approvedRate").value(18.8));
+
+        Mockito.verify(applicationService).getClientApplication(10L, 101L);
     }
 
     @Test
@@ -214,6 +273,8 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(10))
                 .andExpect(jsonPath("$[0].status").value("PROCESSING"));
+
+        Mockito.verify(applicationService).getClientApplications(101L);
     }
 
     @Test
@@ -239,6 +300,11 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.status").value("SIGNED"));
+
+        ArgumentCaptor<SignApplicationRequest> signReqCaptor = ArgumentCaptor.forClass(SignApplicationRequest.class);
+        Mockito.verify(applicationService).signApplication(eq(10L), signReqCaptor.capture(), eq(101L));
+        assertTrue(signReqCaptor.getValue().getConfirmTerms());
+        assertEquals("1234", signReqCaptor.getValue().getSmsCode());
     }
 
     @Test
@@ -257,6 +323,8 @@ class UserControllerIntegrationTest {
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Код подтверждения не может быть пустым"));
     }
 }

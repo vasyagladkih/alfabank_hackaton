@@ -68,12 +68,16 @@ public class DecisionEngine {
             }
         }
 
-        // 3. Проверка доступности внешних реестров (технический сбой)
-        if (fns == null || bki == null) {
-            String missing = (fns == null ? "ФНС " : "") + (bki == null ? "БКИ " : "");
+        // 3. Проверка доступности и полноты критических данных внешних реестров
+        boolean fnsUnavailable = fns == null || fns.stateStatus() == null || fns.stateStatus().isBlank()
+                || fns.taxBlocksExist() == null;
+        boolean bkiUnavailable = bki == null || bki.monthlyPaymentRub() == null
+                || bki.currentOverdueDays() == null || bki.cntOverdueOver90d() == null;
+        if (fnsUnavailable || bkiUnavailable) {
+            String missing = (fnsUnavailable ? "ФНС " : "") + (bkiUnavailable ? "БКИ " : "");
             return new DecisionResult(
                     ApplicationStatus.MANUAL_REVIEW.getValue(),
-                    "Требуется ручной андеррайтинг: внешний реестр (" + missing.trim() + ") временно недоступен",
+                    "Требуется ручной андеррайтинг: данные внешнего реестра (" + missing.trim() + ") недоступны или неполны",
                     ReviewReasonCode.TECH_FAILURE.getValue(),
                     null, null, null, null, null
             );
