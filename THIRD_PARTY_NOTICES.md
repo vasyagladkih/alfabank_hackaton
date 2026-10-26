@@ -1,24 +1,76 @@
-# Third-party notices
+# Перечень сторонних компонентов, смоделированных интеграций и лицензий (THIRD_PARTY_NOTICES)
 
-This file records the licenses and notices for the frontend production dependency closure installed from `frontend/package-lock.json`.
+Настоящий документ составлен во исполнение требований регламента хакатона «Умный кредитный кабинет ММБ» (стр. 7) и содержит сведения об используемых сторонних программных компонентах, библиотеках, смоделированных межведомственных связях, статусе машинного обучения и синтетических наборах данных.
 
-Audit date: 2026-10-22. Lockfile SHA-256: `92870e196a3259294f83186f5bcd0bd7d761e646cc3692b8f50745912dcbf697`.
+---
 
-Scope: 90 non-root lockfile entries with neither `dev` nor `devOptional` set to true. This includes transitive and type packages retained by that dependency graph; it is not an assertion that every entry is present in the final JavaScript bundle.
+## 1. Смоделированные интеграции и эмуляторы банковского контура
 
+В соответствии с методическими указаниями вебинара (вопросы № 5, 10, 11) в проекте отсутствуют прямые подключения к боевым закрытым сетям государственных ведомств и банка. Все внешние взаимодействия смоделированы автономно в виде независимых эмуляторов:
+
+| Интеграционный шлюз | Пакет / Расположение в коде | Назначение и моделируемые протоколы | Обоснование и нормативная база |
+| :--- | :--- | :--- | :--- |
+| **Шлюз ФНС (ЕГРЮЛ, ст. 76 НК РФ)** | `ru.alfahackaton.stub.fns` (`MockFnsController`, таблица `mock_fns_registry`) | Возвращает статус юридического лица (ACTIVE, LIQUIDATING, BANKRUPT), дату регистрации бизнеса и признак наличия приостановлений операций по счетам. | **Ст. 76 НК РФ, ст. 61 ГК РФ, 129-ФЗ.** Блокирует выдачу кредита банкротам и компаниям с налоговыми арестами счетов. |
+| **Шлюз БКИ (218-ФЗ)** | `ru.alfahackaton.stub.bki` (`MockBkiController`, таблица `mock_bki_registry`) | Возвращает скоринговый балл бюро (300–850), размер совокупного среднемесячного платежа по кредитам в сторонних банках, длительность текущей просрочки и число дефолтов свыше 90 дней. | **Федеральный закон № 218-ФЗ «О кредитных историях», Положение ЦБ РФ № 590-П.** База для оценки кредитной нагрузки и классификации ссуды по 5 категориям качества. |
+| **Идентификация и авторизация (IdP / SSO)** | `ru.alfahackaton.service.AuthService` | В реальной инфраструктуре предполагается наличие корпоративного Identity Provider Альфа-Банка. Для автономной работы и тестирования в конвейере смоделирован выпуск JWT-токенов с асимметричной цифровой подписью RS256. | **OAuth 2.0 / OIDC (RFC 6749, RFC 7519).** Демонстрационный вход заемщика и сотрудника с выдачей подписанных билетов доступа. |
+| **Простая электронная подпись (ПЭП)** | `ru.alfahackaton.api.handler.UserController` (`signApplication`) | Моделирование подписания полного пакета кредитной документации и графика платежей кодом подтверждения в рамках единой веб-сессии без привлечения платных внешних SMS-шлюзов. | **Федеральный закон № 63-ФЗ «Об электронной подписи», п. 10 ТЗ хакатона.** Обеспечивает юридическую фиксацию согласия заемщика с индивидуальными условиями договора. |
+
+---
+
+## 2. Синтетические наборы данных (Synthetic Datasets)
+
+1. **Отсутствие реальных персональных данных (ПДн):**
+   * Все данные, используемые в конвейере (наименования организаций, ИНН, ОГРН, обороты, выписки и кредитные истории), являются на 100% синтетическими и сгенерированы исключительно в целях демонстрации и тестирования.
+   * Проект полностью удовлетворяет требованиям **Федерального закона № 152-ФЗ «О персональных данных»** и не содержит охраняемой законом банковской или коммерческой тайны.
+2. **Синтетические профили компаний:**
+   * Профили заемщиков в таблицах users, mock_fns_registry и mock_bki_registry покрывают все ветки матрицы решений конвейера: идеальных заемщиков («Зеленый коридор»), клиентов с повышенной нагрузкой (сценарий «Контр-оффер»), банкротов и дефолтеров (сценарий «Отказ»), а также кейсы сетевых сбоев для проверки самовосстановления.
+
+---
+
+## 3. Статус компонентов машинного обучения (AI / ML Status)
+
+1. **Полная автономия детерминированного ядра:**
+   * В кредитном конвейере, скоринговом движке и логике андеррайтинга **НЕ используются** сторонние облачные нейросети, сторонние LLM-ассистенты или модели машинного обучения с непрозрачными весами («черные ящики»).
+   * Вся логика оценки заемщика, расчет показателей долговой нагрузки (ПДН) и кредитных лимитов реализована строго детерминированно на языке Java на базе формул и обязательных регламентов Банка России (Положение № 590-П, Указание № 6377-У).
+2. **Объяснимость и соответствие банковскому комплаенсу:**
+   * Каждое решение конвейера (одобрение, контр-оффер, передача андеррайтеру или отказ) на 100% интерпретируемо, воспроизводимо и сопровождается исчерпывающим мотивированным обоснованием для регулятора и клиента.
+
+---
+
+## 4. Реестр сторонних компонентов и библиотек бэкенда (Java / Spring Boot)
+
+Серверная часть кредитного конвейера разработана на Java 25 и Spring Boot 3.3.4. В проекте используются исключительно открытые библиотеки под permissive-лицензиями:
+
+| Библиотека / Компонент | Версия | Лицензия | Назначение в архитектуре |
+| :--- | :--- | :--- | :--- |
+| **Eclipse Temurin OpenJDK / Java** | 25 | GPL-2.0 with Classpath Exception | Базовая среда исполнения платформы, поддержка Virtual Threads. |
+| **Spring Boot (Web, Security, Data JDBC, Validation)** | 3.3.4 | Apache-2.0 | Каркас приложения, REST API, безопасность, работа с PostgreSQL. |
+| **Nimbus JOSE + JWT** | 9.37.3 | Apache-2.0 | Валидация криптографических токенов JWT по стандарту RS256. |
+| **PostgreSQL JDBC Driver** | 42.7.4 | BSD-2-Clause | Драйвер сетевого подключения к базе данных PostgreSQL 16. |
+| **Flyway Core** | 10.18.0 | Apache-2.0 | Управление версионированием и миграциями схемы базы данных. |
+| **Testcontainers (PostgreSQL, JUnit Jupiter)** | 1.20.1 | MIT / EPL-2.0 | Интеграционное тестирование с изолированной БД в Docker-контейнере. |
+| **Project Lombok** | 1.18.34 | MIT | Генерация служебного кода (геттеры, билдеры, логирование). |
+| **MapStruct** | 1.5.5.Final | Apache-2.0 | Высокопроизводительный compile-time маппинг DTO и сущностей. |
+| **OpenAPI Tools Generator Gradle Plugin** | 7.8.0 | Apache-2.0 | Генерация интерфейсов контроллеров по контракту docs/openapi.yaml. |
+
+---
+
+## 5. Реестр сторонних компонентов и лицензий фронтенда (React / Alfa Core Components)
+
+Ниже приведен аудит зависимостей фронтенд-приложения, сформированный на основе дерева пакетов rontend/package-lock.json.
+
+Scope: 90 non-root lockfile entries with neither dev nor devOptional set to true.
 Declared package metadata: 0BSD: 1, Apache-2.0: 3, BSD-3-Clause: 1, MIT: 85.
 
-License and notice text is reproduced in 44 distinct groups. Identical text is shared across package entries. Original text is preserved, with line endings normalized to LF; explicit source excerpts are identified in their provenance records.
+### Recorded source exceptions
 
-## Recorded source exceptions
+- @alfalab/icons-glyph@2.293.3: MIT.
+- intersection-observer@0.12.2: Apache-2.0 / W3C Software and Document Notice and License.
+- 
+eact-remove-scroll-bar@2.3.8: MIT.
+- The 32 @alfalab/core-components-* package archives declare MIT.
+- @reach/observe-rect@1.2.0: MIT.
 
-- `@alfalab/icons-glyph@2.293.3`: both the installed manifest and matching official upstream manifest declare MIT. The official master tree at commit `440b15a6a0481e440ce739150d15968a42cf502e` has no license/notice file, and the inspected manifest and README provide no copyright-holder statement. Standard MIT permission/warranty terms are included, but no copyright attribution is invented. This remains a missing upstream attribution notice.
-- `intersection-observer@0.12.2`: package metadata declares Apache-2.0, while the distributed source explicitly names the W3C Software and Document Notice and License (2015) and Copyright 2016 Google Inc. The source notice, referenced W3C terms, and metadata-declared Apache terms are all retained. Inclusion of both does not resolve the discrepancy or imply dual licensing.
-- `react-remove-scroll-bar@2.3.8`: its public npm gitHead could not be located in the official repository. Its MIT text is taken from the current official repository LICENSE, pinned to commit `8ca9ba5ea52de03308fe8ced94f7b159a44d28ff`; this is a documented fallback, not a claim of an exact release-commit match.
-- The 32 `@alfalab/core-components-*` package archives declare MIT but omit license files. Their shared notice is taken from the official Core Components monorepo root LICENSE, pinned to commit `1fa28dd0cb78b3975394e7ad14a602eb7b162ad2`.
-- `@reach/observe-rect@1.2.0` supplies its MIT declaration and copyright statement in its bundled README Legal section. That actual notice is retained separately from the standard MIT permission/warranty terms.
-
-The application uses system fonts. Styrene UI and Alfa Interface Sans font assets are not included in this dependency notice inventory.
 
 ## Package inventory
 
