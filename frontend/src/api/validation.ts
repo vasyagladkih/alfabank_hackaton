@@ -1,4 +1,4 @@
-import type { Application, Session, UserProfile } from './types';
+import type { Application, ApplicationPage, Session, UserProfile } from './types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -26,7 +26,7 @@ export function isApplication(value: unknown): value is Application {
     && Number.isSafeInteger(value.amount)
     && Number.isSafeInteger(value.termMonths)
     && ['WORKING_CAPITAL', 'EQUIPMENT', 'BUSINESS_EXPANSION', 'REFINANCING'].includes(String(value.purpose))
-    && ['PROCESSING', 'APPROVED', 'REJECTED'].includes(String(value.status))
+    && typeof value.status === 'string' && ['PROCESSING', 'MANUAL_REVIEW', 'APPROVED', 'SIGNED', 'REJECTED'].includes(value.status)
     && typeof value.createdAt === 'string' && Number.isFinite(Date.parse(value.createdAt))
     && (value.updatedAt === undefined || (typeof value.updatedAt === 'string' && Number.isFinite(Date.parse(value.updatedAt))))
     && (value.companyName === undefined || typeof value.companyName === 'string')
@@ -36,4 +36,13 @@ export function isApplication(value: unknown): value is Application {
 
 export function isApplicationList(value: unknown): value is Application[] {
   return Array.isArray(value) && value.every(isApplication);
+}
+
+export function isApplicationPage(value: unknown): value is ApplicationPage {
+  return isRecord(value)
+    && isApplicationList(value.items)
+    && Number.isSafeInteger(value.page) && Number(value.page) >= 0
+    && Number.isSafeInteger(value.size) && Number(value.size) > 0
+    && Number.isSafeInteger(value.totalElements) && Number(value.totalElements) >= 0
+    && Number.isSafeInteger(value.totalPages) && Number(value.totalPages) >= 0;
 }

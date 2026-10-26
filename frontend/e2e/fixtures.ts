@@ -60,6 +60,30 @@ export const applications: Record<ApplicationStatus, Application> = {
     createdAt: '2026-10-22T14:00:00Z',
     updatedAt: '2026-10-22T14:01:00Z',
   },
+  MANUAL_REVIEW: {
+    id: 44,
+    companyName: 'ООО «Вектор»',
+    inn: '7705556677',
+    amount: 1_200_000,
+    termMonths: 18,
+    purpose: 'BUSINESS_EXPANSION',
+    status: 'MANUAL_REVIEW',
+    rejectionReason: null,
+    createdAt: '2026-10-22T15:00:00Z',
+    updatedAt: '2026-10-22T15:01:00Z',
+  },
+  SIGNED: {
+    id: 45,
+    companyName: 'ООО «Маяк»',
+    inn: '7706667788',
+    amount: 800_000,
+    termMonths: 12,
+    purpose: 'EQUIPMENT',
+    status: 'SIGNED',
+    rejectionReason: null,
+    createdAt: '2026-10-22T16:00:00Z',
+    updatedAt: '2026-10-22T16:05:00Z',
+  },
 };
 
 export const processingApplication: Application = {
@@ -69,6 +93,7 @@ export const processingApplication: Application = {
 };
 
 export interface ApiReply { status?: number; body: unknown }
+interface EmployeeQuery { status: ApplicationStatus | null; page: number; size: number }
 type ReplyHandler<T> = (value: T) => ApiReply | Promise<ApiReply>;
 
 export function apiError(status: number, message: string): ApiReply {
@@ -85,18 +110,31 @@ export class TestApi {
     PROCESSING: [applications.PROCESSING],
     APPROVED: [applications.APPROVED],
     REJECTED: [applications.REJECTED],
+    MANUAL_REVIEW: [applications.MANUAL_REVIEW],
+    SIGNED: [applications.SIGNED],
   };
   calls = {
     login: [] as UserCode[],
     history: 0,
     create: [] as ApplicationInput[],
     polls: [] as number[],
-    employee: [] as ApplicationStatus[],
+    employee: [] as EmployeeQuery[],
   };
   historyReply: () => ApiReply | Promise<ApiReply> = () => ({ body: this.history });
   createReply: ReplyHandler<ApplicationInput> = () => ({ status: 201, body: processingApplication });
   pollReply: ReplyHandler<number> = () => ({ body: processingApplication });
-  employeeReply: ReplyHandler<ApplicationStatus> = (status) => ({ body: this.employeeData[status] });
+  employeeReply: ReplyHandler<EmployeeQuery> = ({ status, page, size }) => {
+    const items = status === null ? Object.values(this.employeeData).flat() : this.employeeData[status];
+    return {
+      body: {
+        items: items.slice(page * size, (page + 1) * size),
+        page,
+        size,
+        totalElements: items.length,
+        totalPages: Math.ceil(items.length / size),
+      },
+    };
+  };
 
   private async fulfill(route: Route, reply: ApiReply) {
     await route.fulfill({ status: reply.status ?? 200, json: reply.body });
@@ -154,12 +192,14 @@ export class TestApi {
 
       if (path === '/api/v1/employee/applications') {
         expect(request.method()).toBe('GET');
-        const status = url.searchParams.get('status') as ApplicationStatus;
-        // Omitting status means PROCESSING in the contract; ALL is never an API enum.
-        expect(['PROCESSING', 'APPROVED', 'REJECTED']).toContain(status);
-        expect([...url.searchParams.keys()]).toEqual(['status']);
-        this.calls.employee.push(status);
-        await this.fulfill(route, await this.employeeReply(status));
+        const status = url.searchParams.get('status') as ApplicationStatus | null;
+        expect([null, ...Object.keys(applications)]).toContain(status);
+        expect([...url.searchParams.keys()].sort()).toEqual(status === null ? ['page', 'size'] : ['page', 'size', 'status']);
+        expect(url.searchParams.get('page')).toMatch(/^\d+$/);
+        expect(url.searchParams.get('size')).toBe('10');
+        const query = { status, page: Number(url.searchParams.get('page')), size: Number(url.searchParams.get('size')) };
+        this.calls.employee.push(query);
+        await this.fulfill(route, await this.employeeReply(query));
         return;
       }
 

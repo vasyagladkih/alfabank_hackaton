@@ -21,7 +21,8 @@ const cards: Record<UserCode, string> = {
 };
 const headings = { CLIENT: 'Кредит для вашего бизнеса', EMPLOYEE: 'Заявки на финансирование' };
 const statusLabels: Record<ApplicationStatus, string> = {
-  PROCESSING: 'В обработке', APPROVED: 'Одобрено', REJECTED: 'Отклонено',
+  PROCESSING: 'В обработке', MANUAL_REVIEW: 'На ручной проверке', APPROVED: 'Одобрено',
+  SIGNED: 'Договор подписан', REJECTED: 'Отклонено',
 };
 
 function action(page: Page, name: string) {
@@ -194,54 +195,148 @@ test('refresh resumes a processing application and logout stops future polling',
   expect(api.calls.polls).toEqual([42]);
 });
 
-test('employee ALL explicitly aggregates, deduplicates, sorts, filters, and refreshes', async ({ page, api }) => {
-  // The same ID can move status while the three ALL requests are in flight.
-  api.employeeData.PROCESSING.push(processingApplication);
+test('employee ALL uses one paginated request, preserves server order, filters, and refreshes', async ({ page, api }) => {
   await openAs(page, api, sessions.bank_employee, '/employee');
   await expect(page.getByRole('heading', { name: headings.EMPLOYEE, level: 1 })).toBeVisible();
-  await selectOption(page, 'Статус заявки', 'ALL', 'Все');
   const rows = page.getByRole('table').locator('tbody tr');
-  await expect(rows).toHaveCount(3);
-  expect(new Set(api.calls.employee)).toEqual(new Set(['PROCESSING', 'APPROVED', 'REJECTED']));
-  await expect(rows.nth(0).getByRole('cell').first()).toContainText('43');
+  await expect(rows).toHaveCount(5);
+  expect(api.calls.employee).toEqual([{ status: null, page: 0, size: 10 }]);
+  // Deliberately differs from a client-side newest-first sort.
+  await expect(rows.nth(0).getByRole('cell').first()).toContainText('41');
   await expect(rows.nth(1).getByRole('cell').first()).toContainText('42');
-  await expect(rows.nth(2).getByRole('cell').first()).toContainText('41');
+  await expect(rows.nth(2).getByRole('cell').first()).toContainText('43');
+  await expect(rows.nth(3).getByRole('cell').first()).toContainText('44');
+  await expect(rows.nth(4).getByRole('cell').first()).toContainText('45');
   await expect(rows.nth(1)).toContainText('Одобрено');
+  await expect(page.getByText('Найдено заявок: 5', { exact: true })).toBeVisible();
+  await expect(page.getByText('Страница 1 из 1', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Назад', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Далее', exact: true })).toBeDisabled();
 
-  api.employeeData.PROCESSING = [applications.PROCESSING];
-  for (const status of ['PROCESSING', 'APPROVED', 'REJECTED'] as const) {
+  for (const status of ['PROCESSING', 'MANUAL_REVIEW', 'APPROVED', 'SIGNED', 'REJECTED'] as const) {
     const before = api.calls.employee.length;
     await selectOption(page, 'Статус заявки', status, statusLabels[status]);
     await expect(rows).toHaveCount(1);
     await expect(rows.first()).toContainText(applications[status].companyName!);
     await expect(rows.first()).toContainText(statusLabels[status]);
-    expect(api.calls.employee.slice(before)).toEqual([status]);
+    await expect(page.getByText('Найдено заявок: 1', { exact: true })).toBeVisible();
+    expect(api.calls.employee.slice(before)).toEqual([{ status, page: 0, size: 10 }]);
   }
 
   const beforeRefresh = api.calls.employee.length;
-  api.employeeData.REJECTED = [{ ...applications.REJECTED, id: 44, companyName: 'ООО «Новая заявка»' }];
+  api.employeeData.REJECTED = [{ ...applications.REJECTED, id: 46, companyName: 'ООО «Новая заявка»' }];
   await page.getByRole('button', { name: 'Обновить', exact: true }).click();
   await expect(rows).toHaveCount(1);
   await expect(rows.first()).toContainText('ООО «Новая заявка»');
-  expect(api.calls.employee.slice(beforeRefresh)).toEqual(['REJECTED']);
+  expect(api.calls.employee.slice(beforeRefresh)).toEqual([{ status: 'REJECTED', page: 0, size: 10 }]);
+});
+
+test('employee pagination uses server totals, refreshes the current page, and resets on a filter change', async ({ page, api }) => {
+  api.employeeData = {
+    PROCESSING: Array.from({ length: 11 }, (_, index) => ({
+      ...applications.PROCESSING,
+      id: 100 + index,
+      companyName: `ООО «Компания ${index + 1}»`,
+    })),
+    MANUAL_REVIEW: [applications.MANUAL_REVIEW],
+    APPROVED: [],
+    SIGNED: [],
+    REJECTED: [],
+  };
+  await openAs(page, api, sessions.bank_employee, '/employee');
+  const rows = page.getByRole('table').locator('tbody tr');
+  const previous = page.getByRole('button', { name: 'Назад', exact: true });
+  const next = page.getByRole('button', { name: 'Далее', exact: true });
+  await expect(rows).toHaveCount(10);
+  await expect(rows.first()).toContainText('ООО «Компания 1»');
+  await expect(rows.last()).toContainText('ООО «Компания 10»');
+  await expect(page.getByText('Найдено заявок: 12', { exact: true })).toBeVisible();
+  await expect(page.getByText('Страница 1 из 2', { exact: true })).toBeVisible();
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeEnabled();
+  expect(api.calls.employee).toEqual([{ status: null, page: 0, size: 10 }]);
+
+  await next.click();
+  await expect(rows).toHaveCount(2);
+  await expect(rows.first()).toContainText('ООО «Компания 11»');
+  await expect(rows.last()).toContainText(applications.MANUAL_REVIEW.companyName!);
+  await expect(page.getByText('Найдено заявок: 12', { exact: true })).toBeVisible();
+  await expect(page.getByText('Страница 2 из 2', { exact: true })).toBeVisible();
+  await expect(previous).toBeEnabled();
+  await expect(next).toBeDisabled();
+  expect(api.calls.employee).toEqual([
+    { status: null, page: 0, size: 10 },
+    { status: null, page: 1, size: 10 },
+  ]);
+
+  await previous.click();
+  await expect(rows).toHaveCount(10);
+  await expect(page.getByText('Страница 1 из 2', { exact: true })).toBeVisible();
+  expect(api.calls.employee.at(-1)).toEqual({ status: null, page: 0, size: 10 });
+  await next.click();
+  await expect(rows).toHaveCount(2);
+  await expect(page.getByText('Страница 2 из 2', { exact: true })).toBeVisible();
+  expect(api.calls.employee.at(-1)).toEqual({ status: null, page: 1, size: 10 });
+
+  api.employeeData.PROCESSING[10] = { ...applications.PROCESSING, id: 110, companyName: 'ООО «Обновлённая компания»' };
+  const beforeRefresh = api.calls.employee.length;
+  await page.getByRole('button', { name: 'Обновить', exact: true }).click();
+  await expect(rows.first()).toContainText('ООО «Обновлённая компания»');
+  await expect(page.getByText('Страница 2 из 2', { exact: true })).toBeVisible();
+  expect(api.calls.employee.slice(beforeRefresh)).toEqual([{ status: null, page: 1, size: 10 }]);
+
+  const beforeFilter = api.calls.employee.length;
+  await selectOption(page, 'Статус заявки', 'MANUAL_REVIEW', statusLabels.MANUAL_REVIEW);
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText(applications.MANUAL_REVIEW.companyName!);
+  await expect(page.getByText('Найдено заявок: 1', { exact: true })).toBeVisible();
+  await expect(page.getByText('Страница 1 из 1', { exact: true })).toBeVisible();
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeDisabled();
+  expect(api.calls.employee.slice(beforeFilter)).toEqual([{ status: 'MANUAL_REVIEW', page: 0, size: 10 }]);
+
+  const beforeAll = api.calls.employee.length;
+  await selectOption(page, 'Статус заявки', 'ALL', 'Все');
+  await expect(rows).toHaveCount(10);
+  await expect(page.getByText('Найдено заявок: 12', { exact: true })).toBeVisible();
+  expect(api.calls.employee.slice(beforeAll)).toEqual([{ status: null, page: 0, size: 10 }]);
+});
+
+test('an empty employee page shows zero totals and disables both pagination buttons', async ({ page, api }) => {
+  for (const status of Object.keys(api.employeeData) as ApplicationStatus[]) api.employeeData[status] = [];
+  await openAs(page, api, sessions.bank_employee, '/employee');
+  await expect(page.getByText('Заявок с таким статусом пока нет', { exact: true })).toBeVisible();
+  await expect(page.getByRole('table')).toHaveCount(0);
+  await expect(page.getByText('Найдено заявок: 0', { exact: true })).toBeVisible();
+  await expect(page.getByText('Страница 0 из 0', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Назад', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Далее', exact: true })).toBeDisabled();
+  expect(api.calls.employee).toEqual([{ status: null, page: 0, size: 10 }]);
 });
 
 test('an ALL request failure shows an error without a partial registry and refresh recovers', async ({ page, api }) => {
   let fail = true;
-  api.employeeReply = (status) => fail && status === 'APPROVED'
-    ? apiError(500, 'Не удалось получить одобренные заявки.')
-    : { body: api.employeeData[status] };
+  const employeeReply = api.employeeReply;
+  api.employeeReply = (query) => fail
+    ? apiError(500, 'Не удалось получить реестр заявок.')
+    : employeeReply(query);
   await openAs(page, api, sessions.bank_employee, '/employee');
-  await selectOption(page, 'Статус заявки', 'ALL', 'Все');
-  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText('Не удалось получить реестр заявок.');
+  await expect(page.getByRole('table')).toHaveCount(0);
   await expect(page.getByText(applications.PROCESSING.companyName!, { exact: true })).toHaveCount(0);
   await expect(page.getByText(applications.REJECTED.companyName!, { exact: true })).toHaveCount(0);
   await expectSession(page, sessions.bank_employee);
+  expect(api.calls.employee).toEqual([{ status: null, page: 0, size: 10 }]);
 
   fail = false;
   await page.getByRole('button', { name: 'Обновить', exact: true }).click();
-  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(3);
+  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(5);
+  await expect(page.getByText('Найдено заявок: 5', { exact: true })).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
+  expect(api.calls.employee).toEqual([
+    { status: null, page: 0, size: 10 },
+    { status: null, page: 0, size: 10 },
+  ]);
 });
 
 test('all four Core screens are responsive and have no serious or critical axe violations', async ({ page, api }, testInfo) => {
@@ -291,7 +386,7 @@ test('all four Core screens are responsive and have no serious or critical axe v
   await page.getByRole('button', { name: cards.bank_employee, exact: true }).click();
   await expect(page).toHaveURL(/\/employee$/);
   await selectOption(page, 'Статус заявки', 'ALL', 'Все');
-  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(3);
+  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(5);
   await checkScreen('employee');
 });
 

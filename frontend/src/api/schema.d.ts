@@ -68,6 +68,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/client/applications/{id}/sign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Подписание кредитного договора заемщиком
+         * @description Клиент акцептует условия кредита и график платежей простой электронной подписью (ПЭП).
+         */
+        post: operations["signApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/employee/applications": {
         parameters: {
             query?: never;
@@ -76,12 +96,52 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Список заявок в обработке для сотрудника банка
-         * @description Возвращает реестр заявок. По умолчанию отображает заявки в статусе PROCESSING.
+         * Реестр заявок для сотрудника банка с пагинацией
+         * @description Возвращает пагинированный список кредитных заявок с возможностью фильтрации по статусу.
          */
         get: operations["getEmployeeApplications"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employee/applications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Получение детального досье заявки сотрудником банка
+         * @description Возвращает полное кредитное досье (РКО, ФНС, БКИ, риск-метрики, график).
+         */
+        get: operations["getEmployeeApplicationDetails"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employee/applications/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Повторный запуск кредитного конвейера при техническом сбое
+         * @description Переводит заявку из MANUAL_REVIEW обратно в PROCESSING и повторно опрашивает внешние шлюзы.
+         */
+        post: operations["retryApplication"];
         delete?: never;
         options?: never;
         head?: never;
@@ -140,7 +200,7 @@ export interface components {
          * @example PROCESSING
          * @enum {string}
          */
-        ApplicationStatus: "PROCESSING" | "APPROVED" | "REJECTED";
+        ApplicationStatus: "PROCESSING" | "MANUAL_REVIEW" | "APPROVED" | "SIGNED" | "REJECTED";
         CreateApplicationRequest: {
             /**
              * Format: int64
@@ -193,6 +253,19 @@ export interface components {
              */
             rejectionReason?: string | null;
             /**
+             * Format: int64
+             * @description Одобренная сумма кредита в рублях
+             * @example 1200000
+             */
+            approvedAmount?: number | null;
+            /**
+             * Format: double
+             * @description Одобренная процентная ставка в % годовых
+             * @example 18.5
+             */
+            approvedRate?: number | null;
+            schedule?: components["schemas"]["PaymentSchedule"];
+            /**
              * Format: date-time
              * @description Дата и время подачи заявки
              * @example 2026-10-22T14:30:00Z
@@ -221,6 +294,197 @@ export interface components {
              * @example 2026-10-22T14:30:00Z
              */
             timestamp: string;
+        };
+        PaymentScheduleItem: {
+            /**
+             * @description Порядковый номер месяца платежа (1, 2, ...)
+             * @example 1
+             */
+            monthNumber: number;
+            /**
+             * Format: date
+             * @description Дата планового списания аннуитетного платежа
+             * @example 2026-11-25
+             */
+            paymentDate: string;
+            /**
+             * Format: int64
+             * @description Совокупный размер ежемесячного аннуитетного платежа в рублях
+             * @example 139535
+             */
+            totalPayment: number;
+            /**
+             * Format: int64
+             * @description Часть платежа, направляемая на погашение основного долга (тело)
+             * @example 113285
+             */
+            principalPayment: number;
+            /**
+             * Format: int64
+             * @description Часть платежа, направляемая на оплату процентов банка
+             * @example 26250
+             */
+            interestPayment: number;
+            /**
+             * Format: int64
+             * @description Остаток ссудной задолженности после совершения платежа
+             * @example 1386715
+             */
+            remainingDebt: number;
+        };
+        PaymentSchedule: {
+            /**
+             * Format: int64
+             * @description Фиксированный размер регулярного ежемесячного платежа
+             * @example 139535
+             */
+            monthlyPayment: number;
+            /**
+             * Format: int64
+             * @description Совокупная переплата по процентам за весь срок кредитования
+             * @example 174420
+             */
+            totalInterest: number;
+            /**
+             * Format: int64
+             * @description Полная стоимость кредита (тело долга + все проценты)
+             * @example 1674420
+             */
+            totalPayout: number;
+            /** @description Помесячный график аннуитетных платежей */
+            items: components["schemas"]["PaymentScheduleItem"][];
+        };
+        /**
+         * @description Код причины направления кредитной заявки на ручной андеррайтинг
+         * @example TECH_FAILURE
+         * @enum {string}
+         */
+        ReviewReasonCode: "TECH_FAILURE" | "BORDERLINE_SCORE";
+        SignApplicationRequest: {
+            /**
+             * @description Подтверждение согласия заемщика с условиями кредитования и графиком
+             * @example true
+             */
+            confirmTerms: boolean;
+            /**
+             * @description Код подтверждения простой электронной подписи (ПЭП)
+             * @example 1234
+             */
+            smsCode: string;
+        };
+        FnsSnapshotDto: {
+            /** @example 7701234567 */
+            inn?: string;
+            /** @example ООО "Ромашка" */
+            companyName?: string;
+            /** @example ACTIVE */
+            stateStatus?: string;
+            /** @example false */
+            taxBlocksExist?: boolean;
+            /** @example 36 */
+            businessAgeMonths?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        BkiSnapshotDto: {
+            /** @example 7701234567 */
+            inn?: string;
+            /** @example 750 */
+            bkiScore?: number;
+            /**
+             * Format: int64
+             * @example 50000
+             */
+            monthlyPaymentRub?: number;
+            /** @example 0 */
+            currentOverdueDays?: number;
+            /** @example 0 */
+            cntOverdueOver90d?: number;
+            /**
+             * @description Корзина риска (DPD-бакет)
+             * @example CURRENT (0 DPD)
+             */
+            riskBucket?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        ScoringMetricsDto: {
+            /** @example 85 */
+            scoringScore?: number;
+            /**
+             * Format: double
+             * @example 34.2
+             */
+            calculatedPdnPercent?: number;
+            /**
+             * Format: int64
+             * @example 4500000
+             */
+            maxLimitRub?: number;
+        };
+        ApplicationDetailsResponse: {
+            /**
+             * Format: int64
+             * @example 42
+             */
+            id: number;
+            /** @example ООО "Ромашка" */
+            companyName?: string;
+            /** @example 7701234567 */
+            inn?: string;
+            /**
+             * Format: int64
+             * @example 1500000
+             */
+            amount: number;
+            /**
+             * Format: int32
+             * @example 12
+             */
+            termMonths: number;
+            purpose: components["schemas"]["LoanPurpose"];
+            status: components["schemas"]["ApplicationStatus"];
+            /** @example null */
+            rejectionReason?: string | null;
+            /**
+             * Format: int64
+             * @example 1500000
+             */
+            approvedAmount?: number | null;
+            /**
+             * Format: double
+             * @example 18.5
+             */
+            approvedRate?: number | null;
+            reviewReasonCode?: components["schemas"]["ReviewReasonCode"];
+            /**
+             * @description Флаг доступности повторного запуска скорингового конвейера при тех. сбое
+             * @example true
+             */
+            canRetry?: boolean;
+            user?: components["schemas"]["UserProfile"];
+            fns?: components["schemas"]["FnsSnapshotDto"];
+            bki?: components["schemas"]["BkiSnapshotDto"];
+            scoring?: components["schemas"]["ScoringMetricsDto"];
+            schedule?: components["schemas"]["PaymentSchedule"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        ApplicationPageResponse: {
+            items: components["schemas"]["ApplicationResponse"][];
+            /** @example 0 */
+            page: number;
+            /** @example 10 */
+            size: number;
+            /**
+             * Format: int64
+             * @example 42
+             */
+            totalElements: number;
+            /** @example 5 */
+            totalPages: number;
         };
     };
     responses: never;
@@ -403,9 +667,67 @@ export interface operations {
             };
         };
     };
+    signApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Идентификатор кредитной заявки */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignApplicationRequest"];
+            };
+        };
+        responses: {
+            /** @description Заявка успешно подписана клиентом */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationResponse"];
+                };
+            };
+            /** @description Заявка не находится в статусе APPROVED или неверный код подписи */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не авторизован */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Доступ запрещен (чужая заявка) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getEmployeeApplications: {
         parameters: {
             query?: {
+                /** @description Номер страницы (начиная с 0) */
+                page?: number;
+                /** @description Количество элементов на странице */
+                size?: number;
                 /** @description Фильтр по статусу заявки */
                 status?: components["schemas"]["ApplicationStatus"];
             };
@@ -415,13 +737,113 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Список заявок для мониторинга андеррайтером */
+            /** @description Пагинированный список заявок */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApplicationResponse"][];
+                    "application/json": components["schemas"]["ApplicationPageResponse"];
+                };
+            };
+            /** @description Не авторизован */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Доступ запрещен (требуется роль EMPLOYEE) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmployeeApplicationDetails: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Идентификатор кредитной заявки */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Детальное досье кредитной заявки */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDetailsResponse"];
+                };
+            };
+            /** @description Не авторизован */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Доступ запрещен (требуется роль EMPLOYEE) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Заявка не найдена */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    retryApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Идентификатор кредитной заявки */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Конвейер успешно перезапущен */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationResponse"];
+                };
+            };
+            /** @description Заявка не может быть перезапущена (не в статусе MANUAL_REVIEW / TECH_FAILURE) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Не авторизован */
