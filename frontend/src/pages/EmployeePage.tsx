@@ -7,6 +7,7 @@ import { errorMessage, isAbortError } from '../api/client';
 import { IdentityBar } from '../components/Layout';
 import { EmptyState, ErrorNotice, Loading } from '../components/Feedback';
 import { NativeSelectField } from '../components/NativeSelectField';
+import { ApplicationDossier } from '../features/applications/ApplicationDossier';
 import { ApplicationsTable } from '../features/applications/ApplicationsTable';
 import { APPLICATION_STATUSES, STATUS_LABELS } from '../features/applications/model';
 
@@ -16,9 +17,12 @@ export function EmployeePage() {
   const { api } = useAuth();
   const [filter, setFilter] = useState<StatusFilter>('ALL');
   const [page, setPage] = useState(0);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState<{ data: ApplicationPage | null; loading: boolean; error: string | null }>({ data: null, loading: true, error: null });
   const refresh = () => setRevision((value) => value + 1);
+
+  useEffect(() => { setSelectedId(null); }, [api, filter, page]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -53,7 +57,7 @@ export function EmployeePage() {
       {state.loading && <Loading />}
       {state.error && <ErrorNotice title="Не удалось загрузить заявки" message={state.error} retry={refresh} />}
       {state.data && <>
-        {state.data.items.length > 0 ? <ApplicationsTable applications={state.data.items} employee /> :
+        {state.data.items.length > 0 ? <ApplicationsTable applications={state.data.items} employee onSelect={(application) => setSelectedId(application.id)} /> :
           <EmptyState title="Заявок с таким статусом пока нет">Выберите другой статус или обновите реестр позже.</EmptyState>}
         <nav className="section-toolbar" aria-label="Страницы реестра">
           <Typography.Text view="primary-small" color="secondary">Страница {state.data.totalPages === 0 ? 0 : state.data.page + 1} из {state.data.totalPages}</Typography.Text>
@@ -64,5 +68,6 @@ export function EmployeePage() {
         </nav>
       </>}
     </section>
+    {selectedId !== null && <ApplicationDossier key={selectedId} applicationId={selectedId} onUpdated={refresh} />}
   </>;
 }

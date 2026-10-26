@@ -4,15 +4,18 @@ import { Typography } from '@alfalab/core-components-typography';
 import { useAuth } from '../auth/AuthProvider';
 import { IdentityBar } from '../components/Layout';
 import { EmptyState, ErrorNotice, Loading } from '../components/Feedback';
+import { ApplicationAgreement } from '../features/applications/ApplicationAgreement';
 import { ApplicationForm } from '../features/applications/ApplicationForm';
 import { ApplicationResult } from '../features/applications/ApplicationResult';
 import { ApplicationsTable } from '../features/applications/ApplicationsTable';
 import { useClientApplications } from '../features/applications/useClientApplications';
 
 export function ClientPage() {
-  const { api } = useAuth();
+  const { api, session } = useAuth();
   const { applications, loading, error, pollIssues, refresh, update, retryPolling } = useClientApplications(api);
   const [trackedIds, setTrackedIds] = useState<Set<number>>(() => new Set());
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  useEffect(() => { setSelectedId(null); }, [api, session]);
   useEffect(() => {
     setTrackedIds((current) => {
       const pending = applications.filter((item) => item.status === 'PROCESSING' && !current.has(item.id));
@@ -20,6 +23,7 @@ export function ClientPage() {
     });
   }, [applications]);
   const active = applications.filter((item) => item.status === 'PROCESSING' || trackedIds.has(item.id));
+  const selected = applications.find((item) => item.id === selectedId);
 
   return <>
     <IdentityBar />
@@ -60,8 +64,9 @@ export function ClientPage() {
       </div>
       {error && <ErrorNotice title="Не удалось обновить историю" message={error} retry={refresh} />}
       {loading && <Loading />}
-      {applications.length > 0 && <ApplicationsTable applications={applications} />}
+      {applications.length > 0 && <ApplicationsTable applications={applications} onSelect={(application) => setSelectedId(application.id)} />}
       {!loading && !error && applications.length === 0 && <EmptyState title="Заявок пока нет">Отправьте первую заявку — она появится здесь вместе со статусом.</EmptyState>}
     </section>
+    {selected && <ApplicationAgreement key={selected.id} application={selected} onUpdated={update} onRefresh={refresh} />}
   </>;
 }

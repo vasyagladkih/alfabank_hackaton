@@ -1,4 +1,4 @@
-import type { Application, ApplicationPage, Session, UserRole } from '../api/types';
+import type { Application, ApplicationDetails, ApplicationPage, PaymentSchedule, Session, UserRole } from '../api/types';
 
 export const clientSession: Session = {
   token: 'test-client-token',
@@ -23,6 +23,22 @@ export const application: Application = {
 
 export const applicationPage: ApplicationPage = {
   items: [application], page: 0, size: 10, totalElements: 1, totalPages: 1,
+};
+
+export const paymentSchedule: PaymentSchedule = {
+  monthlyPayment: 101542, totalInterest: 1542, totalPayout: 101542,
+  items: [{ monthNumber: 1, paymentDate: '2026-11-22', totalPayment: 101542, principalPayment: 100000, interestPayment: 1542, remainingDebt: 0 }],
+};
+
+export const approvedApplication: Application = {
+  ...application, status: 'APPROVED', termMonths: 1, approvedAmount: 100000, approvedRate: 18.5, schedule: paymentSchedule,
+};
+
+export const applicationDetails: ApplicationDetails = {
+  ...approvedApplication, canRetry: false, user: clientSession.user,
+  fns: { stateStatus: 'ACTIVE', businessAgeMonths: 36, taxBlocksExist: false },
+  bki: { bkiScore: 750, monthlyPaymentRub: 50000, currentOverdueDays: 0, cntOverdueOver90d: 0, riskBucket: 'CURRENT (0 DPD)' },
+  scoring: { scoringScore: 85, calculatedPdnPercent: 34.2, maxLimitRub: 4500000 },
 };
 
 export function storeSession(role: UserRole = 'CLIENT') {
