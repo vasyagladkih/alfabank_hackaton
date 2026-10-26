@@ -5,6 +5,7 @@ import ru.alfahackaton.dto.PaymentSchedule;
 import ru.alfahackaton.dto.PaymentScheduleItem;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class PaymentScheduleService {
             return null;
         }
 
-        LocalDate baseDate = startDate != null ? startDate : LocalDate.now();
+        LocalDate baseDate = startDate != null ? startDate : LocalDate.now(ZoneId.systemDefault());
         double monthlyRate = (approvedRate / 100.0) / 12.0;
         int periods = termMonths;
 

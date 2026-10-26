@@ -1,16 +1,20 @@
 package ru.alfahackaton.api.handler;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.alfahackaton.dto.ApplicationDetailsResponse;
 import ru.alfahackaton.dto.ApplicationPageResponse;
 import ru.alfahackaton.dto.ApplicationResponse;
 import ru.alfahackaton.dto.ApplicationStatus;
+import ru.alfahackaton.dto.ManualApproveRequest;
+import ru.alfahackaton.dto.ManualRejectRequest;
 import ru.alfahackaton.service.ApplicationService;
 
 /**
@@ -49,6 +53,24 @@ public class EmployeeController {
             @PathVariable("id") Long id
     ) {
         ApplicationResponse response = applicationService.retryApplication(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/v1/employee/applications/{id}/approve")
+    public ResponseEntity<ApplicationResponse> approveApplication(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ManualApproveRequest request
+    ) {
+        ApplicationResponse response = applicationService.manualApprove(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/v1/employee/applications/{id}/reject")
+    public ResponseEntity<ApplicationResponse> rejectApplication(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ManualRejectRequest request
+    ) {
+        ApplicationResponse response = applicationService.manualReject(id, request);
         return ResponseEntity.ok(response);
     }
 }

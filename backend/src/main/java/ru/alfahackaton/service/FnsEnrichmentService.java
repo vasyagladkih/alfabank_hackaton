@@ -3,12 +3,12 @@ package ru.alfahackaton.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.alfahackaton.api.models.FnsDto;
 import ru.alfahackaton.persistance.entity.ApplicationFnsSnapshotEntity;
 import ru.alfahackaton.persistance.repository.ApplicationFnsSnapshotRepository;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 
 /**
  * Изолированный сервис обогащения заявки сведениями из ФНС.
@@ -53,7 +53,7 @@ public class FnsEnrichmentService {
                 dto.stateStatus(),
                 dto.hasTaxBlocks(),
                 dto.businessAgeMonths(),
-                OffsetDateTime.now()
+                OffsetDateTime.now(ZoneId.systemDefault())
         );
 
         return fnsSnapshotRepository.save(entity);

@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(RuntimeException e) {
         ErrorResponse error = new ErrorResponse("BAD_REQUEST", e.getMessage(), OffsetDateTime.now(ZoneId.systemDefault()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
