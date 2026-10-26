@@ -25,7 +25,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.security.interfaces.RSAPublicKey;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Конфигурация безопасности кредитного сервиса как OAuth 2.0 Resource Server.
@@ -92,13 +91,20 @@ public class SecurityConfig {
     public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
             String role = jwt.getClaimAsString("role");
-            String authority = role != null && role.startsWith("ROLE_") ? role : "ROLE_" + (role != null ? role : "CLIENT"); // TODO
-            Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject()));
-            return new UsernamePasswordAuthenticationToken(
-                    userId,
-                    jwt.getTokenValue(),
-                    List.of(new SimpleGrantedAuthority(authority))
-            );
+            List<SimpleGrantedAuthority> authorities = (role != null && !role.isBlank())
+                    ? List.of(new SimpleGrantedAuthority(role.startsWith("ROLE_") ? role : "ROLE_" + role))
+                    : List.of();
+
+            String subject = jwt.getSubject();
+            Long userId = null;
+            if (subject != null) {
+                try {
+                    userId = Long.valueOf(subject);
+                } catch (NumberFormatException _) {
+                }
+            }
+
+            return new UsernamePasswordAuthenticationToken(userId, jwt.getTokenValue(), authorities);
         };
     }
 
