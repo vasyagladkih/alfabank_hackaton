@@ -148,6 +148,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/employee/applications/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ручное одобрение кредитной заявки андеррайтером
+         * @description Переводит заявку из статуса MANUAL_REVIEW в APPROVED. Андеррайтер может подтвердить условия скоринга или скорректировать лимит и ставку.
+         */
+        post: operations["approveApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employee/applications/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ручной отказ по кредитной заявке андеррайтером
+         * @description Переводит заявку из статуса MANUAL_REVIEW в REJECTED с фиксацией мотивированной причины отказа.
+         */
+        post: operations["rejectApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -371,6 +411,32 @@ export interface components {
              * @example 1234
              */
             smsCode: string;
+        };
+        ManualApproveRequest: {
+            /**
+             * Format: int64
+             * @description Скорректированная сумма кредита в рублях (опционально, если андеррайтер меняет лимит)
+             * @example 1500000
+             */
+            approvedAmount?: number;
+            /**
+             * Format: double
+             * @description Скорректированная годовая ставка в процентах (опционально)
+             * @example 18.5
+             */
+            approvedRate?: number;
+            /**
+             * @description Обоснование решения андеррайтера
+             * @example Показатели стабильны, предоставлены расширенные выписки РКО
+             */
+            comment: string;
+        };
+        ManualRejectRequest: {
+            /**
+             * @description Мотивированная причина ручного отказа
+             * @example Высокая кредитная нагрузка группы связанных компаний
+             */
+            comment: string;
         };
         FnsSnapshotDto: {
             /** @example 7701234567 */
@@ -857,6 +923,132 @@ export interface operations {
             };
             /** @description Доступ запрещен (требуется роль EMPLOYEE) */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    approveApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Идентификатор кредитной заявки */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualApproveRequest"];
+            };
+        };
+        responses: {
+            /** @description Заявка успешно одобрена андеррайтером */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationResponse"];
+                };
+            };
+            /** @description Некорректные параметры запроса или статус заявки не MANUAL_REVIEW */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не авторизован */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Доступ запрещен (требуется роль EMPLOYEE) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Заявка не найдена */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    rejectApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Идентификатор кредитной заявки */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualRejectRequest"];
+            };
+        };
+        responses: {
+            /** @description Заявка успешно отклонена андеррайтером */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationResponse"];
+                };
+            };
+            /** @description Некорректные параметры запроса или статус заявки не MANUAL_REVIEW */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не авторизован */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Доступ запрещен (требуется роль EMPLOYEE) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Заявка не найдена */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
