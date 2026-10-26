@@ -1,4 +1,4 @@
-import type { Application, Session, UserRole } from '../api/types';
+import type { Application, ApplicationPage, Session, UserRole } from '../api/types';
 
 export const clientSession: Session = {
   token: 'test-client-token',
@@ -19,6 +19,10 @@ export const application: Application = {
   rejectionReason: null,
   createdAt: '2026-10-22T14:30:00Z',
   updatedAt: '2026-10-22T14:30:00Z',
+};
+
+export const applicationPage: ApplicationPage = {
+  items: [application], page: 0, size: 10, totalElements: 1, totalPages: 1,
 };
 
 export function storeSession(role: UserRole = 'CLIENT') {

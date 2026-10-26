@@ -8,7 +8,7 @@ describe('serial application polling', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it.each(['APPROVED', 'REJECTED'] as const)('polls at 2 seconds and stops at %s', async (status) => {
+  it.each(['APPROVED', 'REJECTED', 'MANUAL_REVIEW', 'SIGNED'] as const)('polls at 2 seconds and stops at %s', async (status) => {
     const terminal = { ...application, status, rejectionReason: status === 'REJECTED' ? 'Высокая долговая нагрузка' : null };
     const load = vi.fn().mockResolvedValueOnce(application).mockResolvedValueOnce(terminal);
     const onUpdate = vi.fn();

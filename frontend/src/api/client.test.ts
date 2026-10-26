@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError, createApiClient } from './client';
-import { application, clientSession, deferred, jsonResponse } from '../test/fixtures';
+import { application, applicationPage, clientSession, deferred, jsonResponse } from '../test/fixtures';
 
 describe('HTTP API contract', () => {
   it.each(['client_good', 'client_bad', 'bank_employee'] as const)('posts %s without Authorization', async (userCode) => {
@@ -36,28 +36,46 @@ describe('HTTP API contract', () => {
     await expect(createApiClient({ onAuthError }).demoLogin('client_good')).rejects.toBeInstanceOf(ApiError);
     expect(onAuthError).not.toHaveBeenCalled();
   });
-  it('ALL fetches each explicit status, merges duplicate transitions and sorts newest first', async () => {
-    const fetch = vi.fn(async (url: string) => {
-      if (url.endsWith('status=PROCESSING')) return jsonResponse([application]);
-      if (url.endsWith('status=APPROVED')) return jsonResponse([{ ...application, status: 'APPROVED', updatedAt: '2026-10-22T14:31:00Z' }]);
-      if (url.endsWith('status=REJECTED')) return jsonResponse([{ ...application, id: 43, status: 'REJECTED', createdAt: '2026-10-22T14:32:00Z' }]);
-      throw new Error(`Unexpected unfiltered request: ${url}`);
-    });
+  it('loads ALL with one paged request, omits status and preserves the server response', async () => {
+    const page = { ...applicationPage, items: [application, { ...application, id: 43, status: 'SIGNED', createdAt: '2026-10-22T14:32:00Z' }], page: 2, totalElements: 32, totalPages: 4 };
+    const fetch = vi.fn().mockResolvedValue(jsonResponse(page));
     vi.stubGlobal('fetch', fetch);
-    const result = await createApiClient({ token: 'token' }).getEmployeeApplications('ALL');
-    expect(result.map(({ id, status }) => ({ id, status }))).toEqual([{ id: 43, status: 'REJECTED' }, { id: 42, status: 'APPROVED' }]);
-    expect(fetch).toHaveBeenCalledTimes(3);
-  });
-  it.each(['PROCESSING', 'APPROVED', 'REJECTED'] as const)('passes the %s filter explicitly', async (status) => {
-    const fetch = vi.fn().mockResolvedValue(jsonResponse([]));
-    vi.stubGlobal('fetch', fetch);
-    await createApiClient({ token: 'token' }).getEmployeeApplications(status);
-    expect(fetch.mock.calls[0]![0]).toBe(`/api/v1/employee/applications?status=${status}`);
+    expect(await createApiClient({ token: 'token' }).getEmployeeApplications('ALL', 2, 10)).toEqual(page);
+    expect(fetch.mock.calls[0]![0]).toBe('/api/v1/employee/applications?page=2&size=10');
     expect(fetch).toHaveBeenCalledTimes(1);
   });
-  it('fails ALL instead of presenting an incomplete registry', async () => {
-    vi.stubGlobal('fetch', vi.fn(async (url: string) => url.endsWith('status=APPROVED') ? jsonResponse({ message: 'Unavailable' }, 503) : jsonResponse([application])));
-    await expect(createApiClient({ token: 'token' }).getEmployeeApplications('ALL')).rejects.toMatchObject({ status: 503 });
+  it.each(['PROCESSING', 'MANUAL_REVIEW', 'APPROVED', 'SIGNED', 'REJECTED'] as const)('passes the %s filter explicitly with pagination', async (status) => {
+    const fetch = vi.fn().mockResolvedValue(jsonResponse(applicationPage));
+    vi.stubGlobal('fetch', fetch);
+    await createApiClient({ token: 'token' }).getEmployeeApplications(status, 1, 20);
+    expect(fetch.mock.calls[0]![0]).toBe(`/api/v1/employee/applications?page=1&size=20&status=${status}`);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+  it.each([
+    { body: [] },
+    { body: { ...applicationPage, totalPages: undefined } },
+    { body: { ...applicationPage, page: -1 } },
+    { body: { ...applicationPage, items: [{ ...application, status: 'UNKNOWN' }] } },
+  ])('rejects an invalid employee page response %#', async ({ body }) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(body)));
+    await expect(createApiClient({ token: 'token' }).getEmployeeApplications('ALL', 0, 10)).rejects.toMatchObject({ status: 502, code: 'INVALID_RESPONSE' });
+  });
+  it('accepts an empty registry page', async () => {
+    const empty = { ...applicationPage, items: [], totalElements: 0, totalPages: 0 };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(empty)));
+    expect(await createApiClient().getEmployeeApplications('ALL', 0, 10)).toEqual(empty);
+  });
+  it('cancels an employee page request and ignores its late response', async () => {
+    const response = deferred<Response>();
+    const fetch = vi.fn<typeof globalThis.fetch>(() => response.promise);
+    vi.stubGlobal('fetch', fetch);
+    const controller = new AbortController();
+    const result = createApiClient().getEmployeeApplications('ALL', 0, 10, controller.signal);
+    const signal = fetch.mock.calls[0]![1]!.signal as AbortSignal;
+    controller.abort();
+    expect(signal.aborted).toBe(true);
+    response.resolve(jsonResponse(applicationPage));
+    await expect(result).rejects.toMatchObject({ name: 'AbortError' });
   });
   it('ignores a late auth error after cancellation', async () => {
     const response = deferred<Response>();

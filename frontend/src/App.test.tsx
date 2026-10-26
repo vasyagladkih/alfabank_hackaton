@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { App } from './App';
-import { application, clientSession, deferred, employeeSession, jsonResponse, storeSession } from './test/fixtures';
+import { application, applicationPage, clientSession, deferred, employeeSession, jsonResponse, storeSession } from './test/fixtures';
 
 function NavigationProbe() {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ function renderApp(path = '/login') {
 }
 
 describe('role routes and session lifecycle', () => {
-  beforeEach(() => vi.stubGlobal('fetch', vi.fn(async () => jsonResponse([]))));
+  beforeEach(() => vi.stubGlobal('fetch', vi.fn(async (url: string) => jsonResponse(url.includes('/employee/') ? applicationPage : []))));
 
   it.each(['/client', '/employee'])('redirects guest %s to login', async (path) => {
     renderApp(path);
@@ -80,7 +80,7 @@ describe('role routes and session lifecycle', () => {
         calls.push(String(init.body));
         return jsonResponse(session);
       }
-      return jsonResponse([]);
+      return jsonResponse(url.includes('/employee/') ? applicationPage : []);
     }));
     renderApp();
     fireEvent.click(screen.getByRole('button', { name: `${label}: Войти в кабинет` }));
@@ -132,7 +132,7 @@ describe('role routes and session lifecycle', () => {
   it('does not let an old response expire a newly selected session', async () => {
     storeSession();
     const pending = deferred<Response>();
-    vi.stubGlobal('fetch', vi.fn((url: string) => url.includes('/client/') ? pending.promise : Promise.resolve(jsonResponse([]))));
+    vi.stubGlobal('fetch', vi.fn((url: string) => url.includes('/client/') ? pending.promise : Promise.resolve(jsonResponse(applicationPage))));
     renderApp('/client');
     await waitFor(() => expect(fetch).toHaveBeenCalled());
     act(() => {

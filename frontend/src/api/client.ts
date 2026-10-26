@@ -1,6 +1,5 @@
-import type { Application, ApplicationInput, Session, StatusFilter, UserCode } from './types';
-import { isApplication, isApplicationList, isSession } from './validation';
-import { APPLICATION_STATUSES, mergeApplications } from '../features/applications/model';
+import type { Application, ApplicationInput, ApplicationPage, Session, StatusFilter, UserCode } from './types';
+import { isApplication, isApplicationList, isApplicationPage, isSession } from './validation';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string, public readonly code?: string) {
@@ -76,21 +75,10 @@ export function createApiClient({ token, onAuthError, baseUrl = import.meta.env.
       request('/api/v1/client/applications', isApplicationList, { signal }),
     getApplication: (id: number, signal?: AbortSignal): Promise<Application> =>
       request(`/api/v1/client/applications/${encodeURIComponent(id)}`, isApplication, { signal }),
-    async getEmployeeApplications(status: StatusFilter, signal?: AbortSignal): Promise<Application[]> {
-      if (status !== 'ALL') return request(`/api/v1/employee/applications?status=${status}`, isApplicationList, { signal });
-      // The API defaults an omitted filter to PROCESSING. ALL is never sent to the server.
-      const controller = new AbortController();
-      const abort = () => controller.abort();
-      signal?.addEventListener('abort', abort, { once: true });
-      if (signal?.aborted) controller.abort();
-      try {
-        const groups = await Promise.all(APPLICATION_STATUSES.map((value) =>
-          request(`/api/v1/employee/applications?status=${value}`, isApplicationList, { signal: controller.signal })));
-        return mergeApplications(...groups);
-      } finally {
-        controller.abort();
-        signal?.removeEventListener('abort', abort);
-      }
+    getEmployeeApplications(status: StatusFilter, page: number, size: number, signal?: AbortSignal): Promise<ApplicationPage> {
+      const query = new URLSearchParams({ page: String(page), size: String(size) });
+      if (status !== 'ALL') query.set('status', status);
+      return request(`/api/v1/employee/applications?${query}`, isApplicationPage, { signal });
     },
   };
 }

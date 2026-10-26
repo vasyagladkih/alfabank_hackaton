@@ -8,10 +8,10 @@ export const PURPOSE_LABELS: Record<LoanPurpose, string> = {
 };
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  PROCESSING: 'В обработке', APPROVED: 'Одобрено', REJECTED: 'Отклонено',
+  PROCESSING: 'В обработке', MANUAL_REVIEW: 'На ручной проверке', APPROVED: 'Одобрено', SIGNED: 'Договор подписан', REJECTED: 'Отклонено',
 };
 
-export const APPLICATION_STATUSES: ApplicationStatus[] = ['PROCESSING', 'APPROVED', 'REJECTED'];
+export const APPLICATION_STATUSES: ApplicationStatus[] = ['PROCESSING', 'MANUAL_REVIEW', 'APPROVED', 'SIGNED', 'REJECTED'];
 
 export function mergeApplications(...groups: Application[][]): Application[] {
   const byId = new Map<number, Application>();

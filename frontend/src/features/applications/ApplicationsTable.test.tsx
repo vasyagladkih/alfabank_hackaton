@@ -11,4 +11,13 @@ describe('Core application tables', () => {
     expect(within(table).getAllByRole('cell')).toHaveLength(employee ? 7 : 6);
     expect(within(table).getByText('№42')).toBeVisible();
   });
+  it.each([
+    ['MANUAL_REVIEW', 'На ручной проверке'],
+    ['SIGNED', 'Договор подписан'],
+  ] as const)('shows the %s status without a rejection reason', (status, label) => {
+    render(<ApplicationsTable applications={[{ ...application, status, rejectionReason: 'Не должна отображаться' }]} employee />);
+    expect(screen.getByText(label)).toBeVisible();
+    expect(screen.queryByText('Не должна отображаться')).not.toBeInTheDocument();
+    expect(screen.queryByText('Отклонено')).not.toBeInTheDocument();
+  });
 });
