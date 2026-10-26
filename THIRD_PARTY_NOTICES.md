@@ -44,7 +44,7 @@
 | Библиотека / Компонент | Версия | Лицензия | Назначение в архитектуре |
 | :--- | :--- | :--- | :--- |
 | **Eclipse Temurin OpenJDK / Java** | 25 | GPL-2.0 with Classpath Exception | Базовая среда исполнения платформы, поддержка Virtual Threads. |
-| **Spring Boot (Web, Security, Data JDBC, Validation)** | 3.3.4 | Apache-2.0 | Каркас приложения, REST API, безопасность, работа с PostgreSQL. |
+| **Spring Boot (Web, Security, Data JDBC, Validation)** | 4.1.1 | Apache-2.0 | Каркас приложения, REST API, безопасность, работа с PostgreSQL. |
 | **Nimbus JOSE + JWT** | 9.37.3 | Apache-2.0 | Валидация криптографических токенов JWT по стандарту RS256. |
 | **PostgreSQL JDBC Driver** | 42.7.4 | BSD-2-Clause | Драйвер сетевого подключения к базе данных PostgreSQL 16. |
 | **Flyway Core** | 10.18.0 | Apache-2.0 | Управление версионированием и миграциями схемы базы данных. |
