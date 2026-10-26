@@ -3,7 +3,6 @@ package ru.alfahackaton.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.alfahackaton.api.models.BkiDto;
 import ru.alfahackaton.persistance.entity.ApplicationBkiSnapshotEntity;
 import ru.alfahackaton.persistance.repository.ApplicationBkiSnapshotRepository;
@@ -37,7 +36,6 @@ public class BkiEnrichmentService {
      * @param inn           ИНН организации
      * @return сохраненный снимок БКИ либо null при технической недоступности
      */
-    @Transactional
     public ApplicationBkiSnapshotEntity enrich(Long applicationId, String inn) {
         log.info("Запуск обогащения БКИ по заявке #{} (ИНН {})", applicationId, inn);
         BkiDto dto = bkiClientService.getData(inn);

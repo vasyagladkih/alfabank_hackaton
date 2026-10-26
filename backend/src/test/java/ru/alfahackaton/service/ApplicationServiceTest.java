@@ -28,6 +28,10 @@ import ru.alfahackaton.persistance.repository.UserRepository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -241,6 +245,7 @@ class ApplicationServiceTest {
         when(applicationRepository.findByIdAndUserId(appId, userId))
                 .thenReturn(Optional.of(approvedApp))
                 .thenReturn(Optional.of(signedApp));
+        when(applicationRepository.markAsSignedIfApproved(appId)).thenReturn(1);
 
         ApplicationResponse responseDto = new ApplicationResponse();
         responseDto.setId(appId);
@@ -254,7 +259,7 @@ class ApplicationServiceTest {
         ApplicationResponse result = applicationService.signApplication(appId, request, userId);
 
         assertEquals(ApplicationStatus.SIGNED, result.getStatus());
-        verify(applicationRepository).updateStatus(appId, ApplicationStatus.SIGNED.getValue(), null, null);
+        verify(applicationRepository).markAsSignedIfApproved(appId);
     }
 
     @Test
@@ -346,6 +351,7 @@ class ApplicationServiceTest {
                 .thenReturn(Optional.of(techFailApp))
                 .thenReturn(Optional.of(processingApp))
                 .thenReturn(Optional.of(techFailApp));
+        when(applicationRepository.markAsProcessingIfEligibleForRetry(appId)).thenReturn(1);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         ApplicationResponse responseDto = new ApplicationResponse();
@@ -355,7 +361,7 @@ class ApplicationServiceTest {
         ApplicationResponse result = applicationService.retryApplication(appId);
 
         assertNotNull(result);
-        verify(applicationRepository).updateStatus(appId, ApplicationStatus.PROCESSING.getValue(), null, null);
+        verify(applicationRepository).markAsProcessingIfEligibleForRetry(appId);
     }
 
     @Test
@@ -664,5 +670,143 @@ class ApplicationServiceTest {
         assertEquals(2, list.size());
         assertEquals(1L, list.get(0).getId());
         assertEquals(2L, list.get(1).getId());
+    }
+
+    @Test
+    @DisplayName("processApplication: задачи обогащения ФНС и БКИ исполняются в виртуальных потоках")
+    void testProcessApplicationRunsOnVirtualThreads() {
+        Long appId = 42L;
+        Long userId = 101L;
+        String inn = "7701234567";
+
+        ApplicationEntity app = new ApplicationEntity(
+                appId, userId, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.PROCESSING.getValue(), null, OffsetDateTime.now(), OffsetDateTime.now(),
+                "Ромашка", inn
+        );
+        UserEntity user = new UserEntity(
+                userId, "client_good", "CLIENT", "ООО \"Ромашка\"", inn,
+                1_500_000L, 18_000_000L, 350_000L, 24, OffsetDateTime.now()
+        );
+
+        when(applicationRepository.findWithUserById(appId)).thenReturn(Optional.of(app));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        AtomicBoolean fnsWasVirtual = new AtomicBoolean(false);
+        AtomicBoolean bkiWasVirtual = new AtomicBoolean(false);
+
+        when(fnsEnrichmentService.enrich(eq(appId), eq(inn))).thenAnswer(invocation -> {
+            fnsWasVirtual.set(Thread.currentThread().isVirtual());
+            return new ApplicationFnsSnapshotEntity(1L, appId, inn, "Ромашка", "ACTIVE", false, 36, OffsetDateTime.now());
+        });
+
+        when(bkiEnrichmentService.enrich(eq(appId), eq(inn))).thenAnswer(invocation -> {
+            bkiWasVirtual.set(Thread.currentThread().isVirtual());
+            return new ApplicationBkiSnapshotEntity(1L, appId, inn, 700, 20_000L, 0, 0, "CURRENT (0 DPD)", OffsetDateTime.now());
+        });
+
+        applicationService.processApplication(appId);
+
+        assertTrue(fnsWasVirtual.get(), "Обогащение ФНС должно выполняться в виртуальном потоке");
+        assertTrue(bkiWasVirtual.get(), "Обогащение БКИ должно выполняться в виртуальном потоке");
+    }
+
+    @Test
+    @DisplayName("Гонка данных: одновременное подписание заявки двумя потоками (должен преуспеть только один)")
+    void testConcurrentSignApplicationRaceCondition() throws Exception {
+        Long appId = 42L;
+        Long userId = 101L;
+
+        ApplicationEntity approvedApp = new ApplicationEntity(
+                appId, userId, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.APPROVED.getValue(), null, OffsetDateTime.now(), OffsetDateTime.now(),
+                "Ромашка", "7701234567"
+        );
+
+        when(applicationRepository.findByIdAndUserId(appId, userId)).thenReturn(Optional.of(approvedApp));
+        when(applicationRepository.markAsSignedIfApproved(appId))
+                .thenReturn(1)
+                .thenReturn(0);
+        when(mapper.toDto(any())).thenReturn(new ApplicationResponse().status(ApplicationStatus.SIGNED));
+
+        SignApplicationRequest request = new SignApplicationRequest();
+        request.setConfirmTerms(true);
+        request.setSmsCode("1234");
+
+        CountDownLatch startLatch = new CountDownLatch(1);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failureCount = new AtomicInteger(0);
+
+        Runnable signTask = () -> {
+            try {
+                startLatch.await();
+                applicationService.signApplication(appId, request, userId);
+                successCount.incrementAndGet();
+            } catch (Exception e) {
+                failureCount.incrementAndGet();
+            }
+        };
+
+        Thread t1 = new Thread(signTask);
+        Thread t2 = new Thread(signTask);
+        t1.start();
+        t2.start();
+        startLatch.countDown();
+        t1.join();
+        t2.join();
+
+        assertEquals(1, successCount.get(), "Ровно один запрос должен успешно подписать заявку");
+        assertEquals(1, failureCount.get(), "Конкурирующий запрос должен быть отклонен");
+    }
+
+    @Test
+    @DisplayName("Гонка данных: одновременный вызов retryApplication двумя потоками (должен запуститься ровно один)")
+    void testConcurrentRetryApplicationRaceCondition() throws Exception {
+        Long appId = 42L;
+        Long userId = 101L;
+
+        ApplicationEntity reviewApp = new ApplicationEntity(
+                appId, userId, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.MANUAL_REVIEW.getValue(), "Сбой сервиса", ReviewReasonCode.TECH_FAILURE.getValue(),
+                null, null, null, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(),
+                "Ромашка", "7701234567"
+        );
+        UserEntity user = new UserEntity(
+                userId, "client_good", "CLIENT", "ООО \"Ромашка\"", "7701234567",
+                1_500_000L, 18_000_000L, 350_000L, 24, OffsetDateTime.now()
+        );
+
+        when(applicationRepository.findWithUserById(appId)).thenReturn(Optional.of(reviewApp));
+        when(applicationRepository.markAsProcessingIfEligibleForRetry(appId))
+                .thenReturn(1)
+                .thenReturn(0);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(mapper.toDto(any())).thenReturn(new ApplicationResponse().status(ApplicationStatus.APPROVED));
+
+        CountDownLatch startLatch = new CountDownLatch(1);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failureCount = new AtomicInteger(0);
+
+        Runnable retryTask = () -> {
+            try {
+                startLatch.await();
+                applicationService.retryApplication(appId);
+                successCount.incrementAndGet();
+            } catch (Exception e) {
+                failureCount.incrementAndGet();
+            }
+        };
+
+        Thread t1 = new Thread(retryTask);
+        Thread t2 = new Thread(retryTask);
+        t1.start();
+        t2.start();
+        startLatch.countDown();
+        t1.join();
+        t2.join();
+
+        assertEquals(1, successCount.get(), "Ровно один вызов retry должен преуспеть");
+        assertEquals(1, failureCount.get(), "Второй одновременный вызов retry должен получить отказ");
     }
 }

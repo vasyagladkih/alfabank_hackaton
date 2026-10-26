@@ -31,24 +31,26 @@ import ru.alfahackaton.persistance.repository.ApplicationFnsSnapshotRepository;
 import ru.alfahackaton.persistance.repository.ApplicationRepository;
 import ru.alfahackaton.persistance.repository.UserRepository;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Основной сервис кредитного конвейера.
- * Обеспечивает оркестрацию создания заявок, параллельного обогащения через Structured Concurrency,
+ * Обеспечивает оркестрацию создания заявок, параллельного обогащения через Virtual Threads,
  * скоринга, подписания и предоставления данных клиенту и сотрудникам банка.
  */
 @Service
-@Transactional(readOnly = true)
 @AllArgsConstructor
 public class ApplicationService {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
+    private static final ExecutorService VT_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
@@ -63,6 +65,7 @@ public class ApplicationService {
 
     @Transactional
     public ApplicationResponse createApplication(CreateApplicationRequest request, Long currentUserId) {
+
         UserEntity user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь #" + currentUserId + " не найден"));
 
@@ -85,10 +88,8 @@ public class ApplicationService {
         return response;
     }
 
-    /**
-     * Оркестрация асинхронного скоринга заявки с использованием Structured Concurrency.
-     */
     public void processApplication(Long applicationId) {
+
         ApplicationEntity application = applicationRepository.findWithUserById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
 
@@ -102,27 +103,29 @@ public class ApplicationService {
 
         String inn = user.inn();
 
-        // Параллельный сбор сведений через Structured Concurrency (Java 25 JEP 480)
-        try (var scope = StructuredTaskScope.open(
-                StructuredTaskScope.Joiner.awaitAll(),
-                cfg -> cfg.withTimeout(Duration.ofMillis(1500))
-        )) {
-            scope.fork(() -> fnsEnrichmentService.enrich(applicationId, inn));
-            scope.fork(() -> bkiEnrichmentService.enrich(applicationId, inn));
+        int TIMEOUT_MS = 1500;
 
-            try {
-                scope.join();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("Прерывание Structured Concurrency скоринга по заявке #{}", applicationId);
-            } catch (Exception e) {
-                log.warn("Исключение при ожидании Structured Concurrency по заявке #{}: {}", applicationId, e.getMessage());
-            }
-        }
+        CompletableFuture<ApplicationFnsSnapshotEntity> fnsFuture = CompletableFuture
+                .supplyAsync(() -> fnsEnrichmentService.enrich(applicationId, inn), VT_EXECUTOR)
+                .orTimeout(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                .exceptionally(ex -> {
+                    log.warn("Сбой или таймаут обогащения ФНС по заявке #{}: {}", applicationId, ex.getMessage());
+                    return null;
+                });
 
-        // Извлечение сохраненных снимков из БД
-        ApplicationFnsSnapshotEntity fnsSnapshot = fnsSnapshotRepository.findLatestByApplicationId(applicationId).orElse(null);
-        ApplicationBkiSnapshotEntity bkiSnapshot = bkiSnapshotRepository.findLatestByApplicationId(applicationId).orElse(null);
+        CompletableFuture<ApplicationBkiSnapshotEntity> bkiFuture = CompletableFuture
+                .supplyAsync(() -> bkiEnrichmentService.enrich(applicationId, inn), VT_EXECUTOR)
+                .orTimeout(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                .exceptionally(ex -> {
+                    log.warn("Сбой или таймаут обогащения БКИ по заявке #{}: {}", applicationId, ex.getMessage());
+                    return null;
+                });
+
+        CompletableFuture.allOf(fnsFuture, bkiFuture).join();
+
+        // 4. Извлечение результатов прямо из памяти (без повторных SELECT в БД)
+        ApplicationFnsSnapshotEntity fnsSnapshot = fnsFuture.join();
+        ApplicationBkiSnapshotEntity bkiSnapshot = bkiFuture.join();
 
         BorrowerDossier dossier = new BorrowerDossier(user, application, fnsSnapshot, bkiSnapshot);
         DecisionResult decision = decisionEngine.evaluate(dossier);
@@ -163,9 +166,6 @@ public class ApplicationService {
                 .toList();
     }
 
-    /**
-     * Подписание кредитного договора заемщиком (ПЭП).
-     */
     @Transactional
     public ApplicationResponse signApplication(Long applicationId, SignApplicationRequest request, Long currentUserId) {
         ApplicationEntity entity = applicationRepository.findByIdAndUserId(applicationId, currentUserId)
@@ -183,7 +183,10 @@ public class ApplicationService {
             throw new IllegalArgumentException("Код подтверждения не может быть пустым");
         }
 
-        applicationRepository.updateStatus(applicationId, ApplicationStatus.SIGNED.getValue(), null, null);
+        int rowsUpdated = applicationRepository.markAsSignedIfApproved(applicationId);
+        if (rowsUpdated == 0) {
+            throw new IllegalStateException("Заявка #" + applicationId + " уже подписана или не находится в статусе APPROVED");
+        }
 
         ApplicationEntity updated = applicationRepository.findByIdAndUserId(applicationId, currentUserId)
                 .orElseThrow();
@@ -193,9 +196,6 @@ public class ApplicationService {
         return response;
     }
 
-    /**
-     * Пагинированный реестр заявок для сотрудника банка.
-     */
     public ApplicationPageResponse getEmployeeApplicationsPaged(ApplicationStatus statusFilter, int page, int size) {
         int limit = Math.max(1, size);
         long offset = (long) Math.max(0, page) * limit;
@@ -231,9 +231,6 @@ public class ApplicationService {
         return pageResponse;
     }
 
-    /**
-     * Полное кредитное досье заявки для сотрудника банка (андеррайтера).
-     */
     public ApplicationDetailsResponse getEmployeeApplicationDetails(Long applicationId) {
         ApplicationEntity app = applicationRepository.findWithUserById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
@@ -315,12 +312,9 @@ public class ApplicationService {
                     LocalDate.now()
             ));
         }
-
         return details;
     }
 
-
-    @Transactional
     public ApplicationResponse retryApplication(Long applicationId) {
         ApplicationEntity app = applicationRepository.findWithUserById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
@@ -330,7 +324,10 @@ public class ApplicationService {
             throw new IllegalStateException("Перезапуск возможен только при техническом сбое внешних сервисов");
         }
 
-        applicationRepository.updateStatus(applicationId, ApplicationStatus.PROCESSING.getValue(), null, null);
+        int rowsUpdated = applicationRepository.markAsProcessingIfEligibleForRetry(applicationId);
+        if (rowsUpdated == 0) {
+            throw new IllegalStateException("Перезапуск заявки #" + applicationId + " невозможен: заявка уже обрабатывается или не находится в статусе MANUAL_REVIEW (TECH_FAILURE)");
+        }
 
         processApplication(applicationId);
 

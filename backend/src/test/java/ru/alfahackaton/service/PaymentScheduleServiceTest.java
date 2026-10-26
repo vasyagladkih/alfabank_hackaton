@@ -87,7 +87,7 @@ class PaymentScheduleServiceTest {
 
         assertNotNull(schedule);
         assertEquals(1, schedule.getItems().size());
-        PaymentScheduleItem item = schedule.getItems().get(0);
+        PaymentScheduleItem item = schedule.getItems().getFirst();
         assertEquals(1_000L, item.getInterestPayment()); // 100 000 * 0.01 = 1 000
         assertEquals(100_000L, item.getPrincipalPayment());
         assertEquals(101_000L, item.getTotalPayment());
