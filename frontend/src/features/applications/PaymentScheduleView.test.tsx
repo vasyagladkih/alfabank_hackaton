@@ -15,9 +15,9 @@ describe('payment schedule', () => {
         principalPayment: 1001, interestPayment: 233, remainingDebt: 45678 }],
     }} />);
 
-    expect(screen.getByText(formatMoney(7001))).toBeVisible();
-    expect(screen.getByText(formatMoney(901))).toBeVisible();
-    expect(screen.getByText(formatMoney(99999))).toBeVisible();
+    expect(screen.getByText(formatMoney(7001).replace(/\s+/g, ' '))).toBeVisible();
+    expect(screen.getByText(formatMoney(901).replace(/\s+/g, ' '))).toBeVisible();
+    expect(screen.getByText(formatMoney(99999).replace(/\s+/g, ' '))).toBeVisible();
     const table = screen.getByRole('table', { name: 'График платежей' });
     expect(within(table).getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
       'Месяц', 'Дата платежа', 'Платёж', 'Основной долг', 'Проценты', 'Остаток долга',

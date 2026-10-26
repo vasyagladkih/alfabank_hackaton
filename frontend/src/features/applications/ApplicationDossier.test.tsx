@@ -125,6 +125,7 @@ describe('employee application dossier', () => {
     expect(await screen.findByText('Повторный запуск завершился ошибкой')).toBeVisible();
     expect(onUpdated).not.toHaveBeenCalled();
     expect(fetch).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Обновить досье' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'Обновить досье' }));
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3));
     expect(await screen.findByRole('button', { name: 'Перезапустить проверку' })).toBeEnabled();

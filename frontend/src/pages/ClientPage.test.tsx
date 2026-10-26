@@ -42,7 +42,10 @@ describe('client application agreement in history', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Условия заявки №42' }));
     expect(screen.queryByRole('button', { name: 'Подписать договор' })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Обновить историю' }));
+    const refresh = screen.getByRole('button', { name: 'Обновить историю' });
+    await waitFor(() => expect(refresh).toBeEnabled());
+    fireEvent.click(refresh);
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
 
     expect(await screen.findByRole('button', { name: 'Подписать договор' })).toBeVisible();
     expect(screen.getByRole('checkbox', { name: 'Согласен с условиями договора' })).not.toBeChecked();

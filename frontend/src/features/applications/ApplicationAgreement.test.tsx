@@ -26,7 +26,7 @@ describe('client agreement', () => {
     vi.stubGlobal('fetch', fetch);
     const { onUpdated } = renderAgreement();
 
-    expect(screen.getByText('Сумма кредита').nextElementSibling).toHaveTextContent(formatMoney(approvedApplication.approvedAmount!));
+    expect(screen.getByText('Сумма кредита').nextElementSibling).toHaveTextContent(formatMoney(approvedApplication.approvedAmount!).replace(/\s+/g, ' '));
     expect(screen.getByText(`${approvedApplication.approvedRate} % годовых`)).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Подписать договор' }));
     expect(screen.getByText('Подтвердите согласие с условиями договора.')).toBeVisible();
@@ -73,7 +73,7 @@ describe('client agreement', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Подписать договор' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Неверный код подтверждения');
-    expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeEnabled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeEnabled());
     expect(screen.queryByRole('button', { name: 'Обновить историю' })).not.toBeInTheDocument();
     expect(onUpdated).not.toHaveBeenCalled();
     expect(fetch).toHaveBeenCalledOnce();
