@@ -478,4 +478,24 @@ class DecisionEngineTest {
         assertEquals(100.0, result.calculatedPdnPercent());
         assertTrue(result.rejectionReason().contains("Превышен показатель предельной долговой нагрузки"));
     }
+
+    @Test
+    @DisplayName("Контр-оффер при ПДН > 80%: при наличии лимита формируется встречное предложение вместо отказа")
+    void testRequestedAmountExceedsPdn80GeneratesCounterOfferWhenLimitAvailable() {
+        UserEntity user = createGoodUser();
+        // Запрос 4 000 000 руб. дает ПДН = 99.3% (> 80%), но безопасный лимит maxLimit = 2 013 666 руб.
+        ApplicationEntity app = createApplication(4_000_000L, 12);
+        ApplicationFnsSnapshotEntity fns = new ApplicationFnsSnapshotEntity(1L, 1L, "7701234567", "ООО \"Ромашка\"", "ACTIVE", false, 36, OffsetDateTime.now());
+        ApplicationBkiSnapshotEntity bki = new ApplicationBkiSnapshotEntity(1L, 1L, "7701234567", 750, 0L, 0, 0, "CURRENT (0 DPD)", OffsetDateTime.now());
+
+        BorrowerDossier dossier = new BorrowerDossier(user, app, fns, bki);
+        DecisionResult result = decisionEngine.evaluate(dossier);
+
+        assertEquals(ApplicationStatus.APPROVED.getValue(), result.status());
+        assertEquals(2_013_666L, result.approvedAmount());
+        assertEquals(2_013_666L, result.maxLimitRub());
+        assertEquals(18.8, result.approvedRate());
+        assertNotNull(result.rejectionReason());
+        assertTrue(result.rejectionReason().contains("Сформировано встречное предложение: одобрен лимит 2013666 ₽"));
+    }
 }

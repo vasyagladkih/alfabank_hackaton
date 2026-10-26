@@ -32,7 +32,6 @@ public class DecisionEngine {
         ApplicationFnsSnapshotEntity fns = dossier.fns();
         ApplicationBkiSnapshotEntity bki = dossier.bki();
 
-        // 1. Проверка стоп-факторов ФНС (Fail-Fast)
         if (fns != null) {
             if ("BANKRUPT".equalsIgnoreCase(fns.stateStatus()) || "LIQUIDATING".equalsIgnoreCase(fns.stateStatus())) {
                 return new DecisionResult(
@@ -50,7 +49,6 @@ public class DecisionEngine {
             }
         }
 
-        // 2. Проверка стоп-факторов БКИ (Fail-Fast)
         if (bki != null) {
             if (bki.cntOverdueOver90d() != null && bki.cntOverdueOver90d() > 0) {
                 return new DecisionResult(
@@ -68,7 +66,6 @@ public class DecisionEngine {
             }
         }
 
-        // 3. Проверка доступности и полноты критических данных внешних реестров
         boolean fnsUnavailable = fns == null || fns.stateStatus() == null || fns.stateStatus().isBlank()
                 || fns.taxBlocksExist() == null;
         boolean bkiUnavailable = bki == null || bki.monthlyPaymentRub() == null
@@ -83,7 +80,6 @@ public class DecisionEngine {
             );
         }
 
-        // 4. Финансовые расчеты (ПДН и аннуитет)
         long requestedAmount = app.amount();
         int termMonths = Math.max(1, app.termMonths());
 
@@ -96,7 +92,7 @@ public class DecisionEngine {
                 / (Math.pow(1.0 + monthlyRate, termMonths) - 1.0);
 
         long newMonthlyPayment = Math.round(requestedAmount * annuityFactor);
-        long existingMonthlyPayment = bki.monthlyPaymentRub() != null ? bki.monthlyPaymentRub() : 0L;
+        long existingMonthlyPayment = bki.monthlyPaymentRub();
 
         double pdnPercent;
         if (monthlyNetIncome <= 0) {
@@ -106,13 +102,11 @@ public class DecisionEngine {
             pdnPercent = Math.round(pdnPercent * 10.0) / 10.0;
         }
 
-        // 5. Расчет максимального кредитного лимита
         long limitByTurnover = Math.round(annualTurnover * 0.30); // максимум 30% годового оборота
         long maxAllowedMonthlyPayment = Math.max(0L, Math.round(monthlyNetIncome * 0.50) - existingMonthlyPayment);
         long limitByPdn = maxAllowedMonthlyPayment > 0 ? Math.round(maxAllowedMonthlyPayment / annuityFactor) : 0L;
         long maxLimit = Math.min(limitByTurnover, limitByPdn);
 
-        // 6. Скор-карта заемщика (0 - 100 баллов)
         int rkoScore = 5;
         if (avgTurnover >= 1_000_000L) {
             rkoScore = 20;
@@ -130,15 +124,6 @@ public class DecisionEngine {
 
         int totalScore = getTotalScore(bki, fns, rkoScore);
 
-        // 7. Проверка ПДН и скорингового балла
-        if (pdnPercent > 80.0) {
-            return new DecisionResult(
-                    ApplicationStatus.REJECTED.getValue(),
-                    String.format("Превышен показатель предельной долговой нагрузки (ПДН = %.1f%% при допустимых 80%%)", pdnPercent),
-                    null, totalScore, pdnPercent, maxLimit, null, null
-            );
-        }
-
         if (totalScore < 50) {
             return new DecisionResult(
                     ApplicationStatus.REJECTED.getValue(),
@@ -147,31 +132,37 @@ public class DecisionEngine {
             );
         }
 
-        if (totalScore < 65) {
-            return new DecisionResult(
-                    ApplicationStatus.MANUAL_REVIEW.getValue(),
-                    String.format("Пограничный скоринговый балл (%d/100). Требуется решение кредитного эксперта", totalScore),
-                    ReviewReasonCode.BORDERLINE_SCORE.getValue(),
-                    totalScore, pdnPercent, maxLimit, null, null
-            );
-        }
-
-        // 8. Одобрение кредита и расчет индивидуальной ставки
-        long approvedAmount = Math.min(requestedAmount, maxLimit);
-        if (approvedAmount < MIN_CREDIT_AMOUNT) {
+        if (maxLimit < MIN_CREDIT_AMOUNT) {
             return new DecisionResult(
                     ApplicationStatus.REJECTED.getValue(),
-                    "Отказ: максимально допустимый кредитный лимит ниже минимальной суммы (100 000 руб.)",
+                    pdnPercent > 80.0
+                            ? String.format("Превышен показатель предельной долговой нагрузки (ПДН = %.1f%% при допустимых 80%%)", pdnPercent)
+                            : "Отказ: максимально допустимый кредитный лимит ниже минимальной суммы (100 000 руб.)",
                     null, totalScore, pdnPercent, maxLimit, null, null
             );
         }
 
         double individualRate = Math.round((24.0 - (totalScore - 65) * 0.15) * 10.0) / 10.0;
         individualRate = Math.clamp(individualRate, 16.5, 23.5);
+        long approvedAmount = Math.min(requestedAmount, maxLimit);
+
+        if (totalScore < 65) {
+            return new DecisionResult(
+                    ApplicationStatus.MANUAL_REVIEW.getValue(),
+                    String.format("Пограничный скоринговый балл (%d/100). Требуется решение кредитного эксперта", totalScore),
+                    ReviewReasonCode.BORDERLINE_SCORE.getValue(),
+                    totalScore, pdnPercent, maxLimit, approvedAmount, individualRate
+            );
+        }
+
+        String decisionMessage = null;
+        if (requestedAmount > maxLimit) {
+            decisionMessage = String.format("Запрошенная сумма (%d ₽) превышает допустимый лимит по ПДН и оборотам. Сформировано встречное предложение: одобрен лимит %d ₽", requestedAmount, approvedAmount);
+        }
 
         return new DecisionResult(
                 ApplicationStatus.APPROVED.getValue(),
-                null,
+                decisionMessage,
                 null,
                 totalScore,
                 pdnPercent,

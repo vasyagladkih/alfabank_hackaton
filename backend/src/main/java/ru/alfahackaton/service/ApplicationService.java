@@ -301,7 +301,9 @@ public class ApplicationService {
         scoring.setMaxLimitRub(app.maxLimitRub());
         details.setScoring(scoring);
 
-        if (ApplicationStatus.APPROVED.getValue().equals(app.status()) || ApplicationStatus.SIGNED.getValue().equals(app.status())) {
+        if ((ApplicationStatus.APPROVED.getValue().equals(app.status()) || ApplicationStatus.SIGNED.getValue().equals(app.status())
+                || ApplicationStatus.MANUAL_REVIEW.getValue().equals(app.status()))
+                && app.approvedAmount() != null && app.approvedRate() != null && app.termMonths() != null) {
             details.setSchedule(paymentScheduleService.calculateSchedule(
                     app.approvedAmount(),
                     app.termMonths(),
