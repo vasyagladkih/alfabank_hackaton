@@ -1,9 +1,12 @@
 import { expect, test as base, type Page, type Request, type Route } from '@playwright/test';
 import type {
   Application,
+  ApplicationDetails,
   ApplicationInput,
   ApplicationStatus,
+  PaymentSchedule,
   Session,
+  SignApplicationInput,
   UserCode,
 } from '../src/api/types';
 
@@ -92,8 +95,41 @@ export const processingApplication: Application = {
   updatedAt: applications.APPROVED.createdAt,
 };
 
+export const paymentSchedule: PaymentSchedule = {
+  monthlyPayment: 101_542,
+  totalInterest: 1_542,
+  totalPayout: 101_542,
+  items: [{
+    monthNumber: 1,
+    paymentDate: '2026-11-22',
+    totalPayment: 101_542,
+    principalPayment: 100_000,
+    interestPayment: 1_542,
+    remainingDebt: 0,
+  }],
+};
+
+export const approvedAgreement: Application = {
+  ...applications.APPROVED,
+  termMonths: 1,
+  approvedAmount: 100_000,
+  approvedRate: 18.5,
+  schedule: paymentSchedule,
+};
+
+export const technicalDossier: ApplicationDetails = {
+  ...applications.MANUAL_REVIEW,
+  reviewReasonCode: 'TECH_FAILURE',
+  canRetry: true,
+  user: { id: 104, username: 'client_vector', role: 'CLIENT', companyName: applications.MANUAL_REVIEW.companyName, inn: applications.MANUAL_REVIEW.inn },
+  fns: { stateStatus: 'ACTIVE', businessAgeMonths: 36, taxBlocksExist: false },
+  bki: { bkiScore: 750, monthlyPaymentRub: 0, currentOverdueDays: 0, cntOverdueOver90d: 0, riskBucket: 'CURRENT (0 DPD)' },
+  scoring: { scoringScore: 85, calculatedPdnPercent: 0, maxLimitRub: 4_500_000 },
+};
+
 export interface ApiReply { status?: number; body: unknown }
 interface EmployeeQuery { status: ApplicationStatus | null; page: number; size: number }
+interface SignRequest { id: number; input: SignApplicationInput }
 type ReplyHandler<T> = (value: T) => ApiReply | Promise<ApiReply>;
 
 export function apiError(status: number, message: string): ApiReply {
@@ -118,11 +154,19 @@ export class TestApi {
     history: 0,
     create: [] as ApplicationInput[],
     polls: [] as number[],
+    sign: [] as SignRequest[],
     employee: [] as EmployeeQuery[],
+    details: [] as number[],
+    retry: [] as number[],
   };
   historyReply: () => ApiReply | Promise<ApiReply> = () => ({ body: this.history });
   createReply: ReplyHandler<ApplicationInput> = () => ({ status: 201, body: processingApplication });
   pollReply: ReplyHandler<number> = () => ({ body: processingApplication });
+  signReply: ReplyHandler<SignRequest> = ({ id }) => ({ body: { ...approvedAgreement, id, status: 'SIGNED' } });
+  detailsReply: ReplyHandler<number> = (id) => ({ body: { ...technicalDossier, id } });
+  retryReply: ReplyHandler<number> = (id) => ({ body: {
+    ...applications.MANUAL_REVIEW, id, status: 'PROCESSING', updatedAt: '2026-10-22T15:05:00Z',
+  } });
   employeeReply: ReplyHandler<EmployeeQuery> = ({ status, page, size }) => {
     const items = status === null ? Object.values(this.employeeData).flat() : this.employeeData[status];
     return {
@@ -180,6 +224,22 @@ export class TestApi {
         return;
       }
 
+      const signingPath = /^\/api\/v1\/client\/applications\/(\d+)\/sign$/.exec(path);
+      if (signingPath) {
+        expect(request.method()).toBe('POST');
+        expect(url.search).toBe('');
+        expect(request.headers()['content-type']).toContain('application/json');
+        const input = request.postDataJSON() as SignApplicationInput;
+        expect(Object.keys(input).sort()).toEqual(['confirmTerms', 'smsCode']);
+        expect(input.confirmTerms).toBe(true);
+        expect(typeof input.smsCode).toBe('string');
+        expect(input.smsCode.trim()).not.toBe('');
+        const value = { id: Number(signingPath[1]), input };
+        this.calls.sign.push(value);
+        await this.fulfill(route, await this.signReply(value));
+        return;
+      }
+
       const applicationPath = /^\/api\/v1\/client\/applications\/(\d+)$/.exec(path);
       if (applicationPath) {
         expect(request.method()).toBe('GET');
@@ -200,6 +260,27 @@ export class TestApi {
         const query = { status, page: Number(url.searchParams.get('page')), size: Number(url.searchParams.get('size')) };
         this.calls.employee.push(query);
         await this.fulfill(route, await this.employeeReply(query));
+        return;
+      }
+
+      const detailsPath = /^\/api\/v1\/employee\/applications\/(\d+)$/.exec(path);
+      if (detailsPath) {
+        expect(request.method()).toBe('GET');
+        expect(url.search).toBe('');
+        const id = Number(detailsPath[1]);
+        this.calls.details.push(id);
+        await this.fulfill(route, await this.detailsReply(id));
+        return;
+      }
+
+      const retryPath = /^\/api\/v1\/employee\/applications\/(\d+)\/retry$/.exec(path);
+      if (retryPath) {
+        expect(request.method()).toBe('POST');
+        expect(url.search).toBe('');
+        expect(request.postData()).toBeNull();
+        const id = Number(retryPath[1]);
+        this.calls.retry.push(id);
+        await this.fulfill(route, await this.retryReply(id));
         return;
       }
 

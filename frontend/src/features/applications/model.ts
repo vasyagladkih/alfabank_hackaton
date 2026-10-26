@@ -17,13 +17,16 @@ export function mergeApplications(...groups: Application[][]): Application[] {
   const byId = new Map<number, Application>();
   for (const item of groups.flat()) {
     const previous = byId.get(item.id);
-    // Decisions are terminal. A slow history/poll response must not undo one.
-    if (previous && previous.status !== 'PROCESSING' && item.status === 'PROCESSING') continue;
     const previousTime = previous ? Date.parse(previous.updatedAt ?? previous.createdAt) : -Infinity;
     const itemTime = Date.parse(item.updatedAt ?? item.createdAt);
-    if (!previous || itemTime >= previousTime || (previous.status === 'PROCESSING' && item.status !== 'PROCESSING')) {
-      byId.set(item.id, item);
+    if (previous) {
+      if (itemTime < previousTime) continue;
+      if (previous.status === 'SIGNED' && item.status !== 'SIGNED') continue;
+      // Only a newer retry can move manual review back into processing.
+      if (item.status === 'PROCESSING' && previous.status !== 'PROCESSING'
+        && (previous.status !== 'MANUAL_REVIEW' || itemTime === previousTime)) continue;
     }
+    byId.set(item.id, item);
   }
   return [...byId.values()].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.id - a.id);
 }

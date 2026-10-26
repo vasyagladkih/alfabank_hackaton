@@ -81,6 +81,13 @@ button, a, input, [tabindex] { -webkit-tap-highlight-color: transparent; }
 .registry-controls { display: flex; align-items: end; gap: var(--gap-16); min-width: 360px; }
 .registry-controls > :first-child { min-width: 200px; flex: 1; }
 .pagination-controls { display: flex; gap: var(--gap-16); }
+.details-panel { padding: var(--gap-32); margin-top: var(--gap-24); }
+.details-panel > .section-heading { margin-bottom: var(--gap-24); }
+.details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: var(--gap-24); margin: var(--gap-24) 0; }
+.details-grid dt { font-size: 14px; color: var(--color-light-text-secondary); margin-bottom: var(--gap-4); }
+.details-grid dd { margin: 0; overflow-wrap: anywhere; }
+.consent-field { display: flex; align-items: start; gap: var(--gap-12); margin: var(--gap-24) 0; }
+.payment-schedule { display: flex; flex-direction: column; gap: var(--gap-16); margin: var(--gap-24) 0; min-width: 0; }
 .history-panel > .notice, .registry-panel > .notice { margin: 0 var(--gap-24) var(--gap-24); }
 .table-scroll { width: 100%; max-width: 100%; overflow-x: auto; border-radius: 0 0 var(--border-radius-24) var(--border-radius-24); overscroll-behavior-x: contain; }
 .applications-table { width: 100%; min-width: 850px; }
@@ -111,6 +118,7 @@ button, a, input, [tabindex] { -webkit-tap-highlight-color: transparent; }
   .login-intro { max-width: 660px; }
   .client-grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
   .form-panel, .credit-limit { padding: var(--gap-24); }
+  .details-panel { padding: var(--gap-24); }
   .form-fields { grid-template-columns: minmax(0, 1fr); }
   .process-steps { padding: var(--gap-16); }
   .section-toolbar { padding: var(--gap-24); }
@@ -138,6 +146,7 @@ button, a, input, [tabindex] { -webkit-tap-highlight-color: transparent; }
   .page-heading { margin: var(--gap-24) 0; }
   .client-grid { grid-template-columns: minmax(0, 1fr); }
   .form-panel { padding: var(--gap-24) var(--gap-16); }
+  .details-panel { padding: var(--gap-24) var(--gap-16); }
   .form-fields { gap: var(--gap-24); margin: var(--gap-24) 0; }
   .form-submit { align-items: stretch; }
   .credit-aside { gap: var(--gap-16); }
