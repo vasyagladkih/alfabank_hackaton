@@ -18,6 +18,8 @@ describe('payment schedule', () => {
     expect(screen.getByText(formatMoney(7001).replace(/\s+/g, ' '))).toBeVisible();
     expect(screen.getByText(formatMoney(901).replace(/\s+/g, ' '))).toBeVisible();
     expect(screen.getByText(formatMoney(99999).replace(/\s+/g, ' '))).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'График платежей' })).toBeVisible();
+    expect(screen.getByRole('region', { name: 'График платежей' })).toBeVisible();
     const table = screen.getByRole('table', { name: 'График платежей' });
     expect(within(table).getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
       'Месяц', 'Дата платежа', 'Платёж', 'Основной долг', 'Проценты', 'Остаток долга',
@@ -26,6 +28,17 @@ describe('payment schedule', () => {
       '7', '01.01.2027', formatMoney(1234), formatMoney(1001), formatMoney(233), formatMoney(45678),
     ]);
     expect(within(table).getByText('01.01.2027')).toHaveAttribute('dateTime', '2027-01-01');
+  });
+
+  it('marks a preliminary schedule in its heading and accessible region and table names', () => {
+    render(<PaymentScheduleView schedule={paymentSchedule} preliminary />);
+
+    const name = 'Предварительный график платежей';
+    expect(screen.getByRole('heading', { name })).toBeVisible();
+    expect(screen.getByRole('region', { name })).toBeVisible();
+    const table = screen.getByRole('table', { name });
+    expect(within(table).getAllByRole('row')).toHaveLength(paymentSchedule.items.length + 1);
+    expect(screen.queryByRole('table', { name: 'График платежей' })).not.toBeInTheDocument();
   });
 
   it('keeps a date-only payment date unchanged across the year boundary', () => {

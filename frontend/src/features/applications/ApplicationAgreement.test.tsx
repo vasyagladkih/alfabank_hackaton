@@ -57,6 +57,34 @@ describe('client agreement', () => {
     expect(screen.queryByRole('form', { name: 'Подписание договора' })).not.toBeInTheDocument();
   });
 
+  it('shows actual manual-review conditions as preliminary and keeps signing unavailable', () => {
+    renderAgreement({ ...approvedApplication, status: 'MANUAL_REVIEW', schedule: undefined });
+    expect(screen.getByText('Предварительная сумма').nextElementSibling).toHaveTextContent(formatMoney(approvedApplication.approvedAmount!).replace(/\s+/g, ' '));
+    expect(screen.getByText('Предварительная ставка').nextElementSibling).toHaveTextContent(`${approvedApplication.approvedRate} % годовых`);
+    expect(screen.getByText('Условия предварительные; окончательное решение принимает сотрудник банка. Подписание пока недоступно.')).toBeVisible();
+    expect(screen.getByText('График будет доступен после решения банка.')).toBeVisible();
+    expect(screen.queryByText('Одобренная сумма')).not.toBeInTheDocument();
+    expect(screen.queryByText('Предложенная сумма')).not.toBeInTheDocument();
+    expect(screen.queryByText('Банк предложил другие условия')).not.toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: 'Подписание договора' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Подписать договор' })).not.toBeInTheDocument();
+  });
+
+  it('shows an approved-offer explanation as a neutral bank comment', () => {
+    const comment = 'Банк предлагает меньшую сумму с учётом допустимой долговой нагрузки.';
+    renderAgreement({ ...approvedApplication, rejectionReason: comment });
+    expect(screen.getByRole('region', { name: 'Комментарий банка' })).toHaveTextContent(comment);
+    expect(screen.getByRole('heading', { name: 'Банк предложил другие условия' })).toBeVisible();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByText('Отклонено')).not.toBeInTheDocument();
+    expect(screen.getByRole('form', { name: 'Подписание договора' })).toBeVisible();
+  });
+
+  it.each([null, '', '   '])('omits an empty approved bank comment %j', (rejectionReason) => {
+    renderAgreement({ ...approvedApplication, rejectionReason });
+    expect(screen.queryByRole('region', { name: 'Комментарий банка' })).not.toBeInTheDocument();
+  });
+
   it('requires consent and exactly four digits, then preserves leading zeroes in the request', async () => {
     const signed = { ...approvedApplication, status: 'SIGNED' };
     const fetch = vi.fn().mockResolvedValue(jsonResponse(signed));

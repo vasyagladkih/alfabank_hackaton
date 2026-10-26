@@ -12,6 +12,12 @@ const technicalDetails: ApplicationDetails = {
   rejectionReason: 'ФНС временно недоступна', schedule: undefined,
 };
 
+const borderlineDetails: ApplicationDetails = {
+  ...applicationDetails, status: 'MANUAL_REVIEW', reviewReasonCode: 'BORDERLINE_SCORE', canRetry: false,
+  rejectionReason: 'Пограничный скоринговый балл (60/100). Требуется решение кредитного эксперта',
+  scoring: { ...applicationDetails.scoring, scoringScore: 60 },
+};
+
 function wrapper({ children }: { children: ReactNode }) {
   return <MemoryRouter><AuthProvider>{children}</AuthProvider></MemoryRouter>;
 }
@@ -40,8 +46,31 @@ describe('employee application dossier', () => {
     expect(within(metric('Скоринговый балл')).getByText('85')).toBeVisible();
     expect(within(metric('ПДН')).getByText('34.2%')).toBeVisible();
     expect(screen.getByRole('heading', { name: 'График платежей' })).toBeVisible();
+    expect(within(metric('Одобренная сумма')).getByText(/100\s*000\s*₽/)).toBeVisible();
+    expect(within(metric('Ставка')).getByText('18.5%')).toBeVisible();
+    expect(screen.queryByText('Предварительная сумма')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Перезапустить проверку' })).not.toBeInTheDocument();
     expect(fetch.mock.calls[0]![0]).toBe('/api/v1/employee/applications/42');
+  });
+
+  it('shows borderline manual review terms and schedule as preliminary without exposing decision or signing actions', async () => {
+    const fetch = vi.fn().mockResolvedValue(jsonResponse(borderlineDetails));
+    vi.stubGlobal('fetch', fetch);
+    renderDossier();
+
+    expect(await screen.findByText('На ручной проверке')).toBeVisible();
+    expect(within(metric('Предварительная сумма')).getByText(/100\s*000\s*₽/)).toBeVisible();
+    expect(within(metric('Предварительная ставка')).getByText('18.5%')).toBeVisible();
+    expect(screen.getByText('Условия предварительные; окончательное решение принимает сотрудник банка. Подписание пока недоступно.')).toBeVisible();
+    expect(screen.getByText(borderlineDetails.rejectionReason!)).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Предварительный график платежей' })).toBeVisible();
+    expect(screen.getByRole('table', { name: 'Предварительный график платежей' })).toBeVisible();
+    expect(screen.queryByText('Одобренная сумма')).not.toBeInTheDocument();
+    expect(screen.queryByText('Ставка', { selector: 'dt' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Технический сбой проверки')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Перезапустить проверку|Одобрить|Отклонить|Подписать/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: 'Подписание договора' })).not.toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledOnce();
   });
 
   it('shows absent snapshots as missing data and omits an absent schedule', async () => {

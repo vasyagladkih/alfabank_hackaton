@@ -3,6 +3,18 @@ import { application, applicationDetails, applicationPage, approvedApplication, 
 import { isApplication, isApplicationDetails, isApplicationPage, isPaymentSchedule, normalizeApplicationDetails } from './validation';
 
 describe('application response validation', () => {
+  it('accepts the backend counteroffer comment on an approved application', () => {
+    expect(isApplication({ ...approvedApplication, amount: 1500000, approvedAmount: 100000,
+      rejectionReason: 'Сформировано встречное предложение: одобрен лимит 100000 ₽' })).toBe(true);
+  });
+
+  it('accepts preliminary terms and a dossier schedule during borderline manual review', () => {
+    const preliminary = { ...applicationDetails, status: 'MANUAL_REVIEW', reviewReasonCode: 'BORDERLINE_SCORE',
+      canRetry: false, approvedAmount: 100000, approvedRate: 18.5, schedule: paymentSchedule };
+    expect(isApplication(preliminary)).toBe(true);
+    expect(isApplicationDetails(preliminary)).toBe(true);
+  });
+
   it.each(['PROCESSING', 'MANUAL_REVIEW', 'APPROVED', 'SIGNED', 'REJECTED'])('accepts the %s status', (status) => {
     expect(isApplication({ ...application, status })).toBe(true);
   });

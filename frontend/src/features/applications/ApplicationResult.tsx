@@ -12,10 +12,11 @@ export function ApplicationResult({ application, issue, retry }: { application: 
   const title = processing ? `Заявка №${application.id} в обработке` : STATUS_LABELS[application.status];
   const view = pollingIssue ? 'attention' : application.status === 'REJECTED' ? 'negative'
     : application.status === 'APPROVED' || application.status === 'SIGNED' ? 'positive' : 'common';
+  const bankComment = application.status === 'APPROVED' ? application.rejectionReason?.trim() : undefined;
   const messages = {
     PROCESSING: 'Проверяем статус каждые 2 секунды. Можно продолжать работу в кабинете.',
     MANUAL_REVIEW: `Заявка №${application.id} передана сотруднику банка для ручной проверки.`,
-    APPROVED: `Заявка №${application.id} одобрена. Решение также сохранено в истории.`,
+    APPROVED: `Заявка №${application.id} одобрена. Решение также сохранено в истории.${bankComment ? ` Комментарий банка: ${bankComment}` : ''}`,
     SIGNED: `Договор по заявке №${application.id} подписан. Статус сохранён в истории.`,
     REJECTED: application.rejectionReason || 'Причина отказа не указана.',
   };

@@ -55,6 +55,7 @@ export function ApplicationDossier({ applicationId, onUpdated }: { applicationId
   }, [api, applicationId, revision]);
 
   const data = state.data?.id === applicationId ? state.data : null;
+  const preliminary = data?.status === 'MANUAL_REVIEW';
   const technicalFailure = data?.status === 'MANUAL_REVIEW' && data.reviewReasonCode === 'TECH_FAILURE';
   const canRetry = technicalFailure && data.canRetry === true;
   const retry = () => {
@@ -112,12 +113,15 @@ export function ApplicationDossier({ applicationId, onUpdated }: { applicationId
           <Detail label="Запрошенная сумма" value={formatMoney(data.amount)} />
           <Detail label="Срок" value={`${data.termMonths} мес.`} />
           <Detail label="Цель" value={PURPOSE_LABELS[data.purpose]} />
-          <Detail label="Одобренная сумма" value={optionalMoney(data.approvedAmount)} />
-          <Detail label="Ставка" value={data.approvedRate == null ? undefined : `${data.approvedRate}%`} />
+          <Detail label={preliminary ? 'Предварительная сумма' : 'Одобренная сумма'} value={optionalMoney(data.approvedAmount)} />
+          <Detail label={preliminary ? 'Предварительная ставка' : 'Ставка'} value={data.approvedRate == null ? undefined : `${data.approvedRate}%`} />
           <Detail label="Создана" value={formatDate(data.createdAt)} />
           <Detail label="Обновлена" value={data.updatedAt ? formatDate(data.updatedAt) : undefined} />
           {!technicalFailure && data.rejectionReason && <Detail label="Комментарий к решению" value={data.rejectionReason} />}
         </dl>
+        {preliminary && <Typography.Text tag="p" view="primary-small" color="secondary">
+          Условия предварительные; окончательное решение принимает сотрудник банка. Подписание пока недоступно.
+        </Typography.Text>}
       </section>
       <section aria-labelledby={`dossier-${applicationId}-fns`}>
         <Typography.Title tag="h3" id={`dossier-${applicationId}-fns`} view="xsmall" font="system" defaultMargins={false}>ФНС</Typography.Title>
@@ -145,7 +149,7 @@ export function ApplicationDossier({ applicationId, onUpdated }: { applicationId
           <Detail label="Максимальный лимит" value={optionalMoney(data.scoring.maxLimitRub)} />
         </dl> : <Typography.Text tag="p" color="secondary">Нет данных</Typography.Text>}
       </section>
-      {data.schedule && <PaymentScheduleView schedule={data.schedule} />}
+      {data.schedule && <PaymentScheduleView schedule={data.schedule} preliminary={preliminary} />}
     </>}
   </section>;
 }

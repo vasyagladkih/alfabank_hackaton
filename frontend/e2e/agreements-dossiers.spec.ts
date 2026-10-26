@@ -94,6 +94,74 @@ test('restored approved history opens server terms and signs once only after con
   expect(api.calls.login).toEqual([]);
 });
 
+test('an approved lower offer presents the server comment as bank information and remains signable', async ({ page, api }) => {
+  const comment = 'Сформировано встречное предложение: одобрен лимит 100000 ₽';
+  const offer: Application = { ...approvedAgreement, rejectionReason: comment };
+  api.createReply = () => ({ status: 201, body: offer });
+  api.signReply = () => ({ body: { ...offer, status: 'SIGNED', updatedAt: '2026-10-22T14:35:00Z' } });
+  await openAs(page, api, sessions.client_good, '/client');
+  await page.getByLabel('Срок, месяцев', { exact: true }).fill('1');
+  await page.getByLabel('Цель кредита', { exact: true }).selectOption('EQUIPMENT');
+  await page.getByRole('button', { name: 'Отправить заявку', exact: true }).click();
+  const banner = page.getByRole('alert').filter({ hasText: comment });
+  await expect(banner).toContainText('Одобрено');
+  await expect(banner).toContainText(`Комментарий банка: ${comment}`);
+  await expect(banner).not.toContainText('Отклонено');
+  await page.getByRole('button', { name: 'Условия заявки №42', exact: true }).click();
+  const panel = page.getByRole('region', { name: 'Условия заявки №42', exact: true });
+  await expect(panel.getByRole('heading', { name: 'Банк предложил другие условия', exact: true })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'Комментарий банка', exact: true })).toBeVisible();
+  await expect(panel.getByText(comment, { exact: true })).toBeVisible();
+  await expect(panel.getByText('Причина отказа', { exact: true })).toHaveCount(0);
+  await expect(value(panel, 'Предложенная сумма')).toHaveText(/^100\s000\s₽$/);
+  await panel.getByRole('checkbox', { name: 'Согласен с условиями договора', exact: true }).check();
+  await panel.getByRole('textbox', { name: 'Код из СМС', exact: true }).fill('0001');
+  await panel.getByRole('button', { name: 'Подписать договор', exact: true }).click();
+  await expect(panel.getByRole('status')).toContainText('Договор подписан');
+  expect(api.calls.sign).toEqual([{ id: 42, input: { confirmTerms: true, smsCode: '0001' } }]);
+});
+
+test('manual review client terms are preliminary and do not offer a schedule or signature before a decision', async ({ page, api }) => {
+  api.history = [{
+    ...approvedAgreement, status: 'MANUAL_REVIEW', schedule: undefined,
+    rejectionReason: 'Требуется ручная проверка: пограничный скоринговый балл.',
+  }];
+  await openAs(page, api, sessions.client_good, '/client');
+  await page.getByRole('button', { name: 'Условия заявки №42', exact: true }).click();
+  const panel = page.getByRole('region', { name: 'Условия заявки №42', exact: true });
+  await expect(value(panel, 'Предварительная сумма')).toHaveText(/^100\s000\s₽$/);
+  await expect(value(panel, 'Предварительная ставка')).toHaveText('18.5 % годовых');
+  await expect(panel.getByText('График будет доступен после решения банка.', { exact: true })).toBeVisible();
+  await expect(panel.getByText(/Условия предварительные; окончательное решение принимает сотрудник банка/)).toBeVisible();
+  await expect(panel.getByRole('table')).toHaveCount(0);
+  await expect(panel.getByRole('form', { name: 'Подписание договора', exact: true })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Подписать договор', exact: true })).toHaveCount(0);
+  await expect(panel.getByRole('heading', { name: 'Банк предложил другие условия', exact: true })).toHaveCount(0);
+  expect(api.calls.sign).toEqual([]);
+  expect(api.calls.polls).toEqual([]);
+});
+
+test('a borderline manual-review dossier labels its server terms and payment schedule as preliminary', async ({ page, api }) => {
+  api.detailsReply = () => ({ body: {
+    ...technicalDossier, reviewReasonCode: 'BORDERLINE_SCORE', canRetry: false,
+    approvedAmount: 100_000, approvedRate: 18.5, termMonths: 1, schedule: paymentSchedule,
+  } });
+  await openAs(page, api, sessions.bank_employee, '/employee');
+  await page.getByRole('button', { name: 'Досье заявки №44', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Досье заявки №44', exact: true });
+  await expect(value(panel, 'Статус')).toHaveText('На ручной проверке');
+  await expect(value(panel, 'Предварительная сумма')).toHaveText(/^100\s000\s₽$/);
+  await expect(value(panel, 'Предварительная ставка')).toHaveText('18.5%');
+  await expect(panel.getByRole('heading', { name: 'Предварительный график платежей', exact: true })).toBeVisible();
+  await expect(panel.getByRole('table', { name: 'Предварительный график платежей', exact: true }).locator('tbody tr')).toHaveCount(paymentSchedule.items.length);
+  await expect(panel.getByRole('table', { name: 'График платежей', exact: true })).toHaveCount(0);
+  await expect(panel.getByText('Одобренная сумма', { exact: true })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Перезапустить проверку', exact: true })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Подписать договор', exact: true })).toHaveCount(0);
+  expect(api.calls.retry).toEqual([]);
+  expect(api.calls.sign).toEqual([]);
+});
+
 for (const failure of ['503', 'network'] as const) {
   test(`an ambiguous signing ${failure} blocks another POST until an authoritative GET succeeds`, async ({ page, api }) => {
     api.history = [approvedAgreement];

@@ -45,6 +45,8 @@ export function ApplicationAgreement({ application, onUpdated, onRefresh, requir
   const needsReconciliation = uncertain || requiresReconciliation;
   const signingError = error ?? (!submitting && requiresReconciliation ? 'Сначала обновите историю: результат предыдущей попытки подписания неизвестен.' : null);
   const counteroffer = application.status === 'APPROVED' && application.approvedAmount != null && application.approvedAmount < application.amount;
+  const manualReview = application.status === 'MANUAL_REVIEW';
+  const bankComment = application.status === 'APPROVED' ? application.rejectionReason?.trim() : undefined;
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -123,14 +125,19 @@ export function ApplicationAgreement({ application, onUpdated, onRefresh, requir
       <Typography.Title tag="h3" id={`${prefix}-offer-title`} view="xsmall" font="system" defaultMargins={false}>Банк предложил другие условия</Typography.Title>
       <Typography.Text tag="p" view="primary-medium" defaultMargins={false}>Предложенная сумма меньше запрошенной. Ознакомьтесь со ставкой и графиком платежей. Подписание договора означает согласие с предложенными условиями.</Typography.Text>
     </section>}
+    {manualReview && <Typography.Text tag="p" view="primary-medium" defaultMargins={false}>Условия предварительные; окончательное решение принимает сотрудник банка. Подписание пока недоступно.</Typography.Text>}
+    {bankComment && <section aria-labelledby={`${prefix}-comment-title`}>
+      <Typography.Title tag="h3" id={`${prefix}-comment-title`} view="xsmall" font="system" defaultMargins={false}>Комментарий банка</Typography.Title>
+      <Typography.Text tag="p" view="primary-medium" defaultMargins={false}>{bankComment}</Typography.Text>
+    </section>}
     <dl className="details-grid">
       <div><dt>Запрошенная сумма</dt><dd>{formatMoney(application.amount)}</dd></div>
-      <div><dt>{counteroffer ? 'Предложенная сумма' : 'Одобренная сумма'}</dt><dd>{application.approvedAmount == null ? 'Не указана' : formatMoney(application.approvedAmount)}</dd></div>
-      <div><dt>Ставка</dt><dd>{application.approvedRate == null ? 'Не указана' : `${application.approvedRate} % годовых`}</dd></div>
+      <div><dt>{manualReview ? 'Предварительная сумма' : counteroffer ? 'Предложенная сумма' : 'Одобренная сумма'}</dt><dd>{application.approvedAmount == null ? 'Не указана' : formatMoney(application.approvedAmount)}</dd></div>
+      <div><dt>{manualReview ? 'Предварительная ставка' : 'Ставка'}</dt><dd>{application.approvedRate == null ? 'Не указана' : `${application.approvedRate} % годовых`}</dd></div>
       <div><dt>Срок</dt><dd>{application.termMonths} мес.</dd></div>
     </dl>
-    {application.schedule ? <PaymentScheduleView schedule={application.schedule} />
-      : <Typography.Text tag="p" view="primary-small" color="secondary" defaultMargins={false}>График платежей пока недоступен.</Typography.Text>}
+    {application.schedule ? <PaymentScheduleView schedule={application.schedule} preliminary={manualReview} />
+      : <Typography.Text tag="p" view="primary-small" color="secondary" defaultMargins={false}>{manualReview ? 'График будет доступен после решения банка.' : 'График платежей пока недоступен.'}</Typography.Text>}
     {application.status === 'SIGNED' && <div role="status"><Typography.Text tag="p" view="primary-medium" defaultMargins={false}>Договор подписан. Статус сохранён в истории.</Typography.Text></div>}
     {application.status === 'APPROVED' && <form className="application-form" onSubmit={(event) => void submit(event)} noValidate aria-label="Подписание договора" aria-busy={busy}>
       <div className="form-fields">
