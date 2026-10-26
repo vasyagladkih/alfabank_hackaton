@@ -10,12 +10,15 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.alfahackaton.dto.ApplicationDetailsResponse;
 import ru.alfahackaton.dto.ApplicationPageResponse;
 import ru.alfahackaton.dto.ApplicationResponse;
 import ru.alfahackaton.dto.ApplicationStatus;
+import ru.alfahackaton.dto.ManualApproveRequest;
+import ru.alfahackaton.dto.ManualRejectRequest;
 import ru.alfahackaton.dto.ReviewReasonCode;
 import ru.alfahackaton.persistance.repository.ApplicationBkiSnapshotRepository;
 import ru.alfahackaton.persistance.repository.ApplicationFnsSnapshotRepository;
@@ -30,6 +33,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -215,5 +220,150 @@ class EmployeeControllerIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("Заявка #999 не найдена"));
+    }
+
+    @Test
+    @DisplayName("Сотрудник банка успешно одобряет заявку вручную через POST /approve")
+    void testManualApproveSuccess() throws Exception {
+        String employeeToken = stubTokenService.generateToken(201L, "bank_employee", "EMPLOYEE", "7728168971");
+
+        ApplicationResponse approveResponse = new ApplicationResponse();
+        approveResponse.setId(42L);
+        approveResponse.setStatus(ApplicationStatus.APPROVED);
+        approveResponse.setApprovedAmount(1_200_000L);
+        approveResponse.setApprovedRate(17.5);
+
+        Mockito.when(applicationService.manualApprove(eq(42L), any(ManualApproveRequest.class)))
+                .thenReturn(approveResponse);
+
+        String jsonRequest = """
+                {
+                    "approvedAmount": 1200000,
+                    "approvedRate": 17.5,
+                    "comment": "Одобрено андеррайтером"
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/employee/applications/42/approve")
+                        .header("Authorization", "Bearer " + employeeToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(42))
+                .andExpect(jsonPath("$.status").value("APPROVED"))
+                .andExpect(jsonPath("$.approvedAmount").value(1200000))
+                .andExpect(jsonPath("$.approvedRate").value(17.5));
+
+        Mockito.verify(applicationService).manualApprove(eq(42L), any(ManualApproveRequest.class));
+    }
+
+    @Test
+    @DisplayName("Сотрудник банка успешно отклоняет заявку вручную через POST /reject")
+    void testManualRejectSuccess() throws Exception {
+        String employeeToken = stubTokenService.generateToken(201L, "bank_employee", "EMPLOYEE", "7728168971");
+
+        ApplicationResponse rejectResponse = new ApplicationResponse();
+        rejectResponse.setId(42L);
+        rejectResponse.setStatus(ApplicationStatus.REJECTED);
+        rejectResponse.setRejectionReason("Отказ по результатам проверки");
+
+        Mockito.when(applicationService.manualReject(eq(42L), any(ManualRejectRequest.class)))
+                .thenReturn(rejectResponse);
+
+        String jsonRequest = """
+                {
+                    "comment": "Отказ по результатам проверки"
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/employee/applications/42/reject")
+                        .header("Authorization", "Bearer " + employeeToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(42))
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.rejectionReason").value("Отказ по результатам проверки"));
+
+        Mockito.verify(applicationService).manualReject(eq(42L), any(ManualRejectRequest.class));
+    }
+
+    @Test
+    @DisplayName("Клиент с ролью CLIENT не может вызвать /approve или /reject (403 Forbidden)")
+    void testApproveAndRejectForbiddenForClient() throws Exception {
+        String clientToken = stubTokenService.generateToken(101L, "client_user", "CLIENT", "7701234567");
+
+        String approveJson = """
+                {
+                    "approvedAmount": 1000000,
+                    "approvedRate": 18.0,
+                    "comment": "Попытка одобрения клиентом"
+                }
+                """;
+        mockMvc.perform(post("/api/v1/employee/applications/42/approve")
+                        .header("Authorization", "Bearer " + clientToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(approveJson))
+                .andExpect(status().isForbidden());
+
+        String rejectJson = """
+                {
+                    "comment": "Попытка отклонения клиентом"
+                }
+                """;
+        mockMvc.perform(post("/api/v1/employee/applications/42/reject")
+                        .header("Authorization", "Bearer " + clientToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(rejectJson))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Вызовы /approve и /reject без токена возвращают 401 Unauthorized")
+    void testApproveAndRejectUnauthorizedWithoutToken() throws Exception {
+        String approveJson = """
+                {
+                    "approvedAmount": 1000000,
+                    "approvedRate": 18.0,
+                    "comment": "Без токена"
+                }
+                """;
+        mockMvc.perform(post("/api/v1/employee/applications/42/approve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(approveJson))
+                .andExpect(status().isUnauthorized());
+
+        String rejectJson = """
+                {
+                    "comment": "Без токена"
+                }
+                """;
+        mockMvc.perform(post("/api/v1/employee/applications/42/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(rejectJson))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Ручное одобрение: при невалидном статусе заявки (IllegalStateException) возвращается 400 Bad Request")
+    void testManualApproveConflictStatusReturnsBadRequest() throws Exception {
+        String employeeToken = stubTokenService.generateToken(201L, "bank_employee", "EMPLOYEE", "7728168971");
+
+        Mockito.when(applicationService.manualApprove(eq(42L), any(ManualApproveRequest.class)))
+                .thenThrow(new IllegalStateException("Ручное одобрение возможно только для заявки в статусе MANUAL_REVIEW"));
+
+        String jsonRequest = """
+                {
+                    "comment": "Попытка одобрить заявку в статусе PROCESSING"
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/employee/applications/42/approve")
+                        .header("Authorization", "Bearer " + employeeToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Ручное одобрение возможно только для заявки в статусе MANUAL_REVIEW"));
     }
 }

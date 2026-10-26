@@ -8,8 +8,6 @@ import ru.alfahackaton.dto.ApplicationStatus;
 import ru.alfahackaton.dto.LoanPurpose;
 import ru.alfahackaton.persistance.entity.ApplicationEntity;
 
-import java.util.List;
-
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ApplicationMapper {
 

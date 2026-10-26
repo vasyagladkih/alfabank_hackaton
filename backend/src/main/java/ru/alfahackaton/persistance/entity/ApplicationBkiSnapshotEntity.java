@@ -1,6 +1,7 @@
 package ru.alfahackaton.persistance.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.OffsetDateTime;
@@ -16,7 +17,7 @@ public record ApplicationBkiSnapshotEntity(
         Integer bkiScore,
         Long monthlyPaymentRub,
         Integer currentOverdueDays,
-        Integer cntOverdueOver90d,
+        @Column("cnt_overdue_over_90d") Integer cntOverdueOver90d,
         String riskBucket,
         OffsetDateTime createdAt
 ) {}

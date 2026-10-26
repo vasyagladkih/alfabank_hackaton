@@ -8,6 +8,7 @@ import ru.alfahackaton.persistance.entity.ApplicationBkiSnapshotEntity;
 import ru.alfahackaton.persistance.repository.ApplicationBkiSnapshotRepository;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 
 /**
  * Изолированный сервис обогащения заявки кредитным отчетом из БКИ.
@@ -55,7 +56,7 @@ public class BkiEnrichmentService {
                 dto.currentOverdueDays(),
                 dto.cntOverdue90(),
                 riskBucket,
-                OffsetDateTime.now()
+                OffsetDateTime.now(ZoneId.systemDefault())
         );
 
         return bkiSnapshotRepository.save(entity);

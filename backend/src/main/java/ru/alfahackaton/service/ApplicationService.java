@@ -1,6 +1,7 @@
 package ru.alfahackaton.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,6 +16,8 @@ import ru.alfahackaton.dto.ApplicationStatus;
 import ru.alfahackaton.dto.BkiSnapshotDto;
 import ru.alfahackaton.dto.CreateApplicationRequest;
 import ru.alfahackaton.dto.FnsSnapshotDto;
+import ru.alfahackaton.dto.ManualApproveRequest;
+import ru.alfahackaton.dto.ManualRejectRequest;
 import ru.alfahackaton.dto.ReviewReasonCode;
 import ru.alfahackaton.dto.ScoringMetricsDto;
 import ru.alfahackaton.dto.SignApplicationRequest;
@@ -45,11 +48,11 @@ import java.util.concurrent.TimeUnit;
  * Обеспечивает оркестрацию создания заявок, параллельного обогащения через Virtual Threads,
  * скоринга, подписания и предоставления данных клиенту и сотрудникам банка.
  */
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ApplicationService {
 
-    private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
     private static final ExecutorService VT_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private final ApplicationRepository applicationRepository;
@@ -123,7 +126,6 @@ public class ApplicationService {
 
         CompletableFuture.allOf(fnsFuture, bkiFuture).join();
 
-        // 4. Извлечение результатов прямо из памяти (без повторных SELECT в БД)
         ApplicationFnsSnapshotEntity fnsSnapshot = fnsFuture.join();
         ApplicationBkiSnapshotEntity bkiSnapshot = bkiFuture.join();
 
@@ -262,7 +264,6 @@ public class ApplicationService {
                 && ReviewReasonCode.TECH_FAILURE.getValue().equals(app.reviewReasonType());
         details.setCanRetry(canRetry);
 
-        // Пользователь
         UserProfile userProfile = new UserProfile();
         userProfile.setId(user.id());
         userProfile.setUsername(user.username());
@@ -271,7 +272,6 @@ public class ApplicationService {
         userProfile.setInn(user.inn());
         details.setUser(userProfile);
 
-        // ФНС
         if (fns != null) {
             FnsSnapshotDto fnsDto = new FnsSnapshotDto();
             fnsDto.setInn(fns.inn());
@@ -283,7 +283,6 @@ public class ApplicationService {
             details.setFns(fnsDto);
         }
 
-        // БКИ
         if (bki != null) {
             BkiSnapshotDto bkiDto = new BkiSnapshotDto();
             bkiDto.setInn(bki.inn());
@@ -296,20 +295,18 @@ public class ApplicationService {
             details.setBki(bkiDto);
         }
 
-        // Скоринг метрики
         ScoringMetricsDto scoring = new ScoringMetricsDto();
         scoring.setScoringScore(app.scoringScore());
         scoring.setCalculatedPdnPercent(app.calculatedPdnPercent());
         scoring.setMaxLimitRub(app.maxLimitRub());
         details.setScoring(scoring);
 
-        // График платежей
         if (ApplicationStatus.APPROVED.getValue().equals(app.status()) || ApplicationStatus.SIGNED.getValue().equals(app.status())) {
             details.setSchedule(paymentScheduleService.calculateSchedule(
                     app.approvedAmount(),
                     app.termMonths(),
                     app.approvedRate(),
-                    LocalDate.now()
+                    LocalDate.now(ZoneId.systemDefault())
             ));
         }
         return details;
@@ -337,6 +334,54 @@ public class ApplicationService {
         return response;
     }
 
+    @Transactional
+    public ApplicationResponse manualApprove(Long applicationId, ManualApproveRequest request) {
+        ApplicationEntity app = applicationRepository.findWithUserById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
+
+        if (!ApplicationStatus.MANUAL_REVIEW.getValue().equals(app.status())) {
+            throw new IllegalStateException("Ручное одобрение возможно только для заявки в статусе MANUAL_REVIEW");
+        }
+
+        Long approvedAmount = request.getApprovedAmount() != null ? request.getApprovedAmount()
+                : (app.approvedAmount() != null ? app.approvedAmount() : app.amount());
+        Double approvedRate = request.getApprovedRate() != null ? request.getApprovedRate()
+                : (app.approvedRate() != null ? app.approvedRate() : 18.5);
+
+        int rowsUpdated = applicationRepository.markAsApprovedByEmployee(
+                applicationId, approvedAmount, approvedRate, request.getComment()
+        );
+        return getApplicationResponse(applicationId, rowsUpdated);
+    }
+
+    @Transactional
+    public ApplicationResponse manualReject(Long applicationId, ManualRejectRequest request) {
+        ApplicationEntity app = applicationRepository.findWithUserById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
+
+        if (!ApplicationStatus.MANUAL_REVIEW.getValue().equals(app.status())) {
+            throw new IllegalStateException("Ручное отклонение возможно только для заявки в статусе MANUAL_REVIEW");
+        }
+
+        int rowsUpdated = applicationRepository.markAsRejectedByEmployee(
+                applicationId, request.getComment()
+        );
+        return getApplicationResponse(applicationId, rowsUpdated);
+    }
+
+    private ApplicationResponse getApplicationResponse(Long applicationId, int rowsUpdated) {
+        if (rowsUpdated == 0) {
+            throw new IllegalStateException("Заявка #" + applicationId + " уже обработана или не находится в статусе MANUAL_REVIEW");
+        }
+
+        ApplicationEntity updated = applicationRepository.findWithUserById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Заявка #" + applicationId + " не найдена"));
+
+        ApplicationResponse response = mapper.toDto(updated);
+        attachScheduleIfApproved(response, updated);
+        return response;
+    }
+
     private void attachScheduleIfApproved(ApplicationResponse response, ApplicationEntity entity) {
         if (ApplicationStatus.APPROVED.getValue().equals(entity.status())
                 || ApplicationStatus.SIGNED.getValue().equals(entity.status())) {
@@ -344,7 +389,7 @@ public class ApplicationService {
                     entity.approvedAmount(),
                     entity.termMonths(),
                     entity.approvedRate(),
-                    LocalDate.now()
+                    LocalDate.now(ZoneId.systemDefault())
             ));
         }
     }

@@ -12,10 +12,14 @@ import ru.alfahackaton.dto.ApplicationResponse;
 import ru.alfahackaton.dto.ApplicationStatus;
 import ru.alfahackaton.dto.CreateApplicationRequest;
 import ru.alfahackaton.dto.LoanPurpose;
+import ru.alfahackaton.dto.ManualApproveRequest;
+import ru.alfahackaton.dto.ManualRejectRequest;
 import ru.alfahackaton.dto.ReviewReasonCode;
 import ru.alfahackaton.dto.SignApplicationRequest;
 import ru.alfahackaton.dto.UserRole;
 import ru.alfahackaton.event.ApplicationCreatedEvent;
+import ru.alfahackaton.event.ApplicationEventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import ru.alfahackaton.mapper.ApplicationMapper;
 import ru.alfahackaton.persistance.entity.ApplicationBkiSnapshotEntity;
 import ru.alfahackaton.persistance.entity.ApplicationEntity;
@@ -908,5 +912,219 @@ class ApplicationServiceTest {
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> applicationService.retryApplication(appId));
         assertTrue(ex.getMessage().contains("уже обрабатывается"));
+    }
+
+    @Test
+    @DisplayName("manualApprove: успешное ручное одобрение заявки андеррайтером с генерацией графика")
+    void testManualApproveSuccess() {
+        Long appId = 50L;
+        ApplicationEntity reviewApp = new ApplicationEntity(
+                appId, 101L, 1_500_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.MANUAL_REVIEW.getValue(), "Требуется проверка",
+                ReviewReasonCode.BORDERLINE_SCORE.getValue(),
+                60, 45.0, 2_000_000L, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+        ApplicationEntity approvedApp = new ApplicationEntity(
+                appId, 101L, 1_500_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.APPROVED.getValue(), "Одобрено андеррайтером",
+                ReviewReasonCode.BORDERLINE_SCORE.getValue(),
+                60, 45.0, 2_000_000L, 1_200_000L, 17.5,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+
+        when(applicationRepository.findWithUserById(appId))
+                .thenReturn(Optional.of(reviewApp))
+                .thenReturn(Optional.of(approvedApp));
+        when(applicationRepository.markAsApprovedByEmployee(appId, 1_200_000L, 17.5, "Одобрено андеррайтером"))
+                .thenReturn(1);
+
+        ApplicationResponse dto = new ApplicationResponse();
+        dto.setId(appId);
+        dto.setStatus(ApplicationStatus.APPROVED);
+        when(mapper.toDto(approvedApp)).thenReturn(dto);
+
+        ManualApproveRequest request = new ManualApproveRequest();
+        request.setApprovedAmount(1_200_000L);
+        request.setApprovedRate(17.5);
+        request.setComment("Одобрено андеррайтером");
+
+        ApplicationResponse result = applicationService.manualApprove(appId, request);
+
+        assertNotNull(result);
+        assertEquals(ApplicationStatus.APPROVED, result.getStatus());
+        assertNotNull(result.getSchedule(), "Для APPROVED заявки должен быть прикреплен график");
+        assertEquals(12, result.getSchedule().getItems().size());
+        verify(applicationRepository).markAsApprovedByEmployee(appId, 1_200_000L, 17.5, "Одобрено андеррайтером");
+    }
+
+    @Test
+    @DisplayName("manualApprove: fallback на параметры заявки при отсутствии approvedAmount/approvedRate в запросе")
+    void testManualApproveFallbackToAppParameters() {
+        Long appId = 51L;
+        ApplicationEntity reviewApp = new ApplicationEntity(
+                appId, 101L, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.MANUAL_REVIEW.getValue(), "Проверка",
+                ReviewReasonCode.TECH_FAILURE.getValue(),
+                null, null, null, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+        ApplicationEntity approvedApp = new ApplicationEntity(
+                appId, 101L, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.APPROVED.getValue(), "Согласовано",
+                ReviewReasonCode.TECH_FAILURE.getValue(),
+                null, null, null, 1_000_000L, 18.5,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+
+        when(applicationRepository.findWithUserById(appId))
+                .thenReturn(Optional.of(reviewApp))
+                .thenReturn(Optional.of(approvedApp));
+        when(applicationRepository.markAsApprovedByEmployee(appId, 1_000_000L, 18.5, "Согласовано"))
+                .thenReturn(1);
+
+        ApplicationResponse dto = new ApplicationResponse();
+        dto.setId(appId);
+        dto.setStatus(ApplicationStatus.APPROVED);
+        when(mapper.toDto(approvedApp)).thenReturn(dto);
+
+        ManualApproveRequest request = new ManualApproveRequest();
+        request.setComment("Согласовано");
+
+        ApplicationResponse result = applicationService.manualApprove(appId, request);
+
+        assertNotNull(result);
+        verify(applicationRepository).markAsApprovedByEmployee(appId, 1_000_000L, 18.5, "Согласовано");
+    }
+
+    @Test
+    @DisplayName("manualApprove: попытка одобрения заявки не в MANUAL_REVIEW выбрасывает IllegalStateException")
+    void testManualApproveInvalidStatusThrowsException() {
+        Long appId = 52L;
+        ApplicationEntity processingApp = new ApplicationEntity(
+                appId, 101L, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.PROCESSING.getValue(), null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+        when(applicationRepository.findWithUserById(appId)).thenReturn(Optional.of(processingApp));
+
+        ManualApproveRequest request = new ManualApproveRequest();
+        request.setComment("Одобрить");
+
+        assertThrows(IllegalStateException.class, () -> applicationService.manualApprove(appId, request));
+    }
+
+    @Test
+    @DisplayName("manualApprove: конфликт CAS (возврат 0 строк) выбрасывает IllegalStateException")
+    void testManualApproveCasConflictThrowsException() {
+        Long appId = 53L;
+        ApplicationEntity reviewApp = new ApplicationEntity(
+                appId, 101L, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.MANUAL_REVIEW.getValue(), "Проверка",
+                ReviewReasonCode.BORDERLINE_SCORE.getValue(),
+                null, null, null, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+        when(applicationRepository.findWithUserById(appId)).thenReturn(Optional.of(reviewApp));
+        when(applicationRepository.markAsApprovedByEmployee(eq(appId), anyLong(), any(), any())).thenReturn(0);
+
+        ManualApproveRequest request = new ManualApproveRequest();
+        request.setComment("Одобрить");
+
+        assertThrows(IllegalStateException.class, () -> applicationService.manualApprove(appId, request));
+    }
+
+    @Test
+    @DisplayName("manualReject: успешное ручное отклонение заявки андеррайтером")
+    void testManualRejectSuccess() {
+        Long appId = 54L;
+        ApplicationEntity reviewApp = new ApplicationEntity(
+                appId, 101L, 1_500_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.MANUAL_REVIEW.getValue(), "Требуется проверка",
+                ReviewReasonCode.BORDERLINE_SCORE.getValue(),
+                null, null, null, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+        ApplicationEntity rejectedApp = new ApplicationEntity(
+                appId, 101L, 1_500_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.REJECTED.getValue(), "Отказ по оценке благонадежности",
+                ReviewReasonCode.BORDERLINE_SCORE.getValue(),
+                null, null, null, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+
+        when(applicationRepository.findWithUserById(appId))
+                .thenReturn(Optional.of(reviewApp))
+                .thenReturn(Optional.of(rejectedApp));
+        when(applicationRepository.markAsRejectedByEmployee(appId, "Отказ по оценке благонадежности"))
+                .thenReturn(1);
+
+        ApplicationResponse dto = new ApplicationResponse();
+        dto.setId(appId);
+        dto.setStatus(ApplicationStatus.REJECTED);
+        dto.setRejectionReason("Отказ по оценке благонадежности");
+        when(mapper.toDto(rejectedApp)).thenReturn(dto);
+
+        ManualRejectRequest request = new ManualRejectRequest();
+        request.setComment("Отказ по оценке благонадежности");
+
+        ApplicationResponse result = applicationService.manualReject(appId, request);
+
+        assertNotNull(result);
+        assertEquals(ApplicationStatus.REJECTED, result.getStatus());
+        assertEquals("Отказ по оценке благонадежности", result.getRejectionReason());
+        verify(applicationRepository).markAsRejectedByEmployee(appId, "Отказ по оценке благонадежности");
+    }
+
+    @Test
+    @DisplayName("manualReject: попытка отклонения заявки не в MANUAL_REVIEW выбрасывает IllegalStateException")
+    void testManualRejectInvalidStatusThrowsException() {
+        Long appId = 55L;
+        ApplicationEntity approvedApp = new ApplicationEntity(
+                appId, 101L, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.APPROVED.getValue(), null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+        when(applicationRepository.findWithUserById(appId)).thenReturn(Optional.of(approvedApp));
+
+        ManualRejectRequest request = new ManualRejectRequest();
+        request.setComment("Отказ");
+
+        assertThrows(IllegalStateException.class, () -> applicationService.manualReject(appId, request));
+    }
+
+    @Test
+    @DisplayName("manualReject: конфликт CAS (возврат 0 строк) выбрасывает IllegalStateException")
+    void testManualRejectCasConflictThrowsException() {
+        Long appId = 56L;
+        ApplicationEntity reviewApp = new ApplicationEntity(
+                appId, 101L, 1_000_000L, 12, "WORKING_CAPITAL",
+                ApplicationStatus.MANUAL_REVIEW.getValue(), "Проверка",
+                ReviewReasonCode.BORDERLINE_SCORE.getValue(),
+                null, null, null, null, null,
+                OffsetDateTime.now(), OffsetDateTime.now(), "Ромашка", "7701234567"
+        );
+        when(applicationRepository.findWithUserById(appId)).thenReturn(Optional.of(reviewApp));
+        when(applicationRepository.markAsRejectedByEmployee(eq(appId), any())).thenReturn(0);
+
+        ManualRejectRequest request = new ManualRejectRequest();
+        request.setComment("Отказ");
+
+        assertThrows(IllegalStateException.class, () -> applicationService.manualReject(appId, request));
+    }
+
+    @Test
+    @DisplayName("ApplicationEventListener: onApplicationReady запускает processApplication для каждой зависшей заявки")
+    void testApplicationEventListenerOnApplicationReady() {
+        when(applicationRepository.findProcessingApplicationIds()).thenReturn(List.of(101L, 102L));
+        ApplicationService mockService = Mockito.mock(ApplicationService.class);
+        ApplicationEventListener listener = new ApplicationEventListener(mockService, applicationRepository);
+
+        listener.onApplicationReady(Mockito.mock(ApplicationReadyEvent.class));
+
+        verify(applicationRepository).findProcessingApplicationIds();
+        // Даем небольшое время для завершения асинхронных CompletableFuture
+        Mockito.verify(mockService, Mockito.timeout(1000).times(1)).processApplication(101L);
+        Mockito.verify(mockService, Mockito.timeout(1000).times(1)).processApplication(102L);
     }
 }

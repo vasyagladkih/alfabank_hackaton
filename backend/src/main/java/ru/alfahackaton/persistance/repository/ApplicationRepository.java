@@ -143,4 +143,39 @@ public interface ApplicationRepository extends CrudRepository<ApplicationEntity,
               AND review_reason_type = 'TECH_FAILURE'
             """)
     int markAsProcessingIfEligibleForRetry(@Param("id") Long id);
+
+    @Query("SELECT id FROM applications WHERE status = 'PROCESSING' ORDER BY created_at ASC")
+    List<Long> findProcessingApplicationIds();
+
+    @Modifying
+    @Transactional
+    @Query("""
+            UPDATE applications
+            SET status = 'APPROVED',
+                approved_amount = :approvedAmount,
+                approved_rate = :approvedRate,
+                rejection_reason = :comment,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = :id AND status = 'MANUAL_REVIEW'
+            """)
+    int markAsApprovedByEmployee(
+            @Param("id") Long id,
+            @Param("approvedAmount") Long approvedAmount,
+            @Param("approvedRate") Double approvedRate,
+            @Param("comment") String comment
+    );
+
+    @Modifying
+    @Transactional
+    @Query("""
+            UPDATE applications
+            SET status = 'REJECTED',
+                rejection_reason = :comment,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = :id AND status = 'MANUAL_REVIEW'
+            """)
+    int markAsRejectedByEmployee(
+            @Param("id") Long id,
+            @Param("comment") String comment
+    );
 }

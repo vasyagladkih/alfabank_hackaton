@@ -351,6 +351,116 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/v1/employee/applications/{id}/approve:
+    post:
+      tags:
+        - employee-applications
+      summary: Ручное одобрение кредитной заявки андеррайтером
+      description: Переводит заявку из статуса MANUAL_REVIEW в APPROVED. Андеррайтер может подтвердить условия скоринга или скорректировать лимит и ставку.
+      operationId: approveApplication
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор кредитной заявки
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualApproveRequest'
+      responses:
+        '200':
+          description: Заявка успешно одобрена андеррайтером
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+        '400':
+          description: Некорректные параметры запроса или статус заявки не MANUAL_REVIEW
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Доступ запрещен (требуется роль EMPLOYEE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/employee/applications/{id}/reject:
+    post:
+      tags:
+        - employee-applications
+      summary: Ручной отказ по кредитной заявке андеррайтером
+      description: Переводит заявку из статуса MANUAL_REVIEW в REJECTED с фиксацией мотивированной причины отказа.
+      operationId: rejectApplication
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор кредитной заявки
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualRejectRequest'
+      responses:
+        '200':
+          description: Заявка успешно отклонена андеррайтером
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+        '400':
+          description: Некорректные параметры запроса или статус заявки не MANUAL_REVIEW
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Доступ запрещен (требуется роль EMPLOYEE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -644,6 +754,36 @@ components:
           type: string
           description: Код подтверждения простой электронной подписи (ПЭП)
           example: "1234"
+
+    ManualApproveRequest:
+      type: object
+      required:
+        - comment
+      properties:
+        approvedAmount:
+          type: integer
+          format: int64
+          description: "Скорректированная сумма кредита в рублях (опционально, если андеррайтер меняет лимит)"
+          example: 1500000
+        approvedRate:
+          type: number
+          format: double
+          description: "Скорректированная годовая ставка в процентах (опционально)"
+          example: 18.5
+        comment:
+          type: string
+          description: "Обоснование решения андеррайтера"
+          example: "Показатели стабильны, предоставлены расширенные выписки РКО"
+
+    ManualRejectRequest:
+      type: object
+      required:
+        - comment
+      properties:
+        comment:
+          type: string
+          description: "Мотивированная причина ручного отказа"
+          example: "Высокая кредитная нагрузка группы связанных компаний"
 
     FnsSnapshotDto:
       type: object
