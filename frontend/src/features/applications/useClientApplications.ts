@@ -8,7 +8,9 @@ import { pollApplication } from './polling';
 export interface PollIssue { message: string; retrying: boolean; }
 
 export function useClientApplications(api: ApiClient) {
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [collection, setCollection] = useState<{ api: ApiClient; items: Application[] }>({ api, items: [] });
+  // Never expose cached agreements from the previous session while its replacement loads.
+  const applications = collection.api === api ? collection.items : [];
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pollIssues, setPollIssues] = useState<Record<number, PollIssue>>({});
@@ -21,11 +23,14 @@ export function useClientApplications(api: ApiClient) {
     for (const controller of polls.current.values()) controller.abort();
     polls.current.clear();
   }, []);
-  useEffect(() => () => stopAllPolls(), [api, stopAllPolls]);
+  useEffect(() => {
+    setPollIssues({});
+    return () => stopAllPolls();
+  }, [api, stopAllPolls]);
 
   const update = useCallback((application: Application) => {
-    setApplications((current) => mergeApplications(current, [application]));
-  }, []);
+    setCollection((current) => ({ api, items: mergeApplications(current.api === api ? current.items : [], [application]) }));
+  }, [api]);
 
   const refresh = useCallback(() => {
     historyRequest.current?.abort();
@@ -34,7 +39,7 @@ export function useClientApplications(api: ApiClient) {
     setLoading(true);
     setError(null);
     void api.getClientApplications(controller.signal).then((items) => {
-      if (!controller.signal.aborted) setApplications((current) => mergeApplications(current, items));
+      if (!controller.signal.aborted) setCollection((current) => ({ api, items: mergeApplications(current.api === api ? current.items : [], items) }));
     }).catch((cause: unknown) => {
       if (!controller.signal.aborted && !isAbortError(cause)) setError(errorMessage(cause));
     }).finally(() => {

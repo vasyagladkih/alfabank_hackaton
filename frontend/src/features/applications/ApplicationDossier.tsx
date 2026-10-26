@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import { Button } from '@alfalab/core-components-button';
 import { Plate } from '@alfalab/core-components-plate';
 import { Typography } from '@alfalab/core-components-typography';
-import type { ApplicationDetails } from '../../api/types';
-import { errorMessage, isAbortError } from '../../api/client';
+import type { Application, ApplicationDetails } from '../../api/types';
+import { ApiError, errorMessage, isAbortError } from '../../api/client';
 import { useAuth } from '../../auth/AuthProvider';
 import { ErrorNotice, Loading } from '../../components/Feedback';
 import { ApplicationStatusBadge } from './ApplicationsTable';
@@ -17,19 +17,21 @@ function Detail({ label, value }: { label: string; value?: ReactNode }) {
 
 const optionalMoney = (value?: number | null) => value == null ? undefined : formatMoney(value);
 
-export function ApplicationDossier({ applicationId, onUpdated }: { applicationId: number; onUpdated: () => void }) {
+export function ApplicationDossier({ applicationId, onUpdated }: { applicationId: number; onUpdated: (application: Application) => void }) {
   const { api } = useAuth();
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState<{ data: ApplicationDetails | null; loading: boolean; error: string | null }>({ data: null, loading: true, error: null });
-  const [retryState, setRetryState] = useState<{ pending: boolean; error: string | null }>({ pending: false, error: null });
+  const [retryState, setRetryState] = useState<{
+    pending: boolean; error: string | null; requiresRefresh: boolean; succeeded: boolean;
+  }>({ pending: false, error: null, requiresRefresh: false, succeeded: false });
   const retryController = useRef<AbortController | null>(null);
   const refresh = () => {
-    setRetryState({ pending: false, error: null });
     setRevision((value) => value + 1);
   };
 
   useEffect(() => {
-    setRetryState({ pending: false, error: null });
+    setState({ data: null, loading: true, error: null });
+    setRetryState({ pending: false, error: null, requiresRefresh: false, succeeded: false });
     return () => {
       retryController.current?.abort();
       retryController.current = null;
@@ -38,29 +40,50 @@ export function ApplicationDossier({ applicationId, onUpdated }: { applicationId
 
   useEffect(() => {
     const controller = new AbortController();
-    setState({ data: null, loading: true, error: null });
+    setState((current) => ({ data: current.data?.id === applicationId ? current.data : null, loading: true, error: null }));
     void api.getEmployeeApplicationDetails(applicationId, controller.signal).then((data) => {
-      if (!controller.signal.aborted) setState({ data, loading: false, error: null });
+      if (!controller.signal.aborted) {
+        setState({ data, loading: false, error: null });
+        setRetryState((current) => ({ ...current, error: null, requiresRefresh: false }));
+      }
     }).catch((cause: unknown) => {
-      if (!controller.signal.aborted && !isAbortError(cause)) setState({ data: null, loading: false, error: errorMessage(cause) });
+      if (!controller.signal.aborted && !isAbortError(cause)) {
+        setState((current) => ({ ...current, loading: false, error: errorMessage(cause) }));
+      }
     });
     return () => controller.abort();
   }, [api, applicationId, revision]);
 
-  const data = state.data;
+  const data = state.data?.id === applicationId ? state.data : null;
   const technicalFailure = data?.status === 'MANUAL_REVIEW' && data.reviewReasonCode === 'TECH_FAILURE';
   const canRetry = technicalFailure && data.canRetry === true;
   const retry = () => {
-    if (!canRetry || retryController.current) return;
+    if (!canRetry || state.loading || retryState.requiresRefresh || retryController.current) return;
     const controller = new AbortController();
     retryController.current = controller;
-    setRetryState({ pending: true, error: null });
-    void api.retryApplication(applicationId, controller.signal).then(() => {
+    setRetryState({ pending: true, error: null, requiresRefresh: false, succeeded: false });
+    void api.retryApplication(applicationId, controller.signal).then((application) => {
       if (controller.signal.aborted) return;
-      onUpdated();
+      setState((current) => ({
+        data: {
+          ...current.data, ...application,
+          approvedAmount: application.approvedAmount, approvedRate: application.approvedRate,
+          schedule: application.schedule, rejectionReason: application.rejectionReason,
+          updatedAt: application.updatedAt, reviewReasonCode: undefined, canRetry: false,
+        },
+        loading: false, error: null,
+      }));
+      setRetryState({ pending: false, error: null, requiresRefresh: true, succeeded: true });
+      onUpdated(application);
       refresh();
     }).catch((cause: unknown) => {
-      if (!controller.signal.aborted && !isAbortError(cause)) setRetryState({ pending: false, error: errorMessage(cause) });
+      if (!controller.signal.aborted && !isAbortError(cause)) {
+        const requiresRefresh = !(cause instanceof ApiError) || cause.status === 0 || cause.status >= 500 || cause.code === 'INVALID_RESPONSE';
+        setRetryState({
+          pending: false, requiresRefresh, succeeded: false,
+          error: `${errorMessage(cause)}${requiresRefresh ? ' Результат проверки неизвестен. Обновите досье перед повторным запуском: проверка могла выполниться на сервере.' : ''}`,
+        });
+      }
     }).finally(() => {
       if (retryController.current === controller) retryController.current = null;
     });
@@ -71,11 +94,12 @@ export function ApplicationDossier({ applicationId, onUpdated }: { applicationId
       <Typography.Title tag="h2" id={`dossier-${applicationId}-title`} view="small" font="system" defaultMargins={false}>Досье заявки №{applicationId}</Typography.Title>
       <Button view="secondary" size={40} loading={state.loading} disabled={state.loading || retryState.pending} onClick={refresh}>Обновить досье</Button>
     </div>
-    {state.loading && <Loading>Загружаем досье…</Loading>}
-    {state.error && <ErrorNotice title="Не удалось загрузить досье" message={state.error} retry={refresh} />}
+    {state.loading && <Loading>{data ? 'Обновляем досье…' : 'Загружаем досье…'}</Loading>}
+    {state.error && <ErrorNotice title={data ? 'Не удалось обновить досье' : 'Не удалось загрузить досье'} message={state.error} retry={refresh} />}
+    {retryState.succeeded && <div role="status">Результат повторной проверки получен. Статус заявки обновлён.</div>}
     {data && <>
       {technicalFailure && <Plate view="attention" title="Технический сбой проверки" titleView="bold" rounded limitContentWidth={false}
-        buttons={canRetry ? <Button size={40} view="secondary" loading={retryState.pending} disabled={retryState.pending} onClick={retry}>Перезапустить проверку</Button> : undefined}>
+        buttons={canRetry ? <Button size={40} view="secondary" loading={retryState.pending} disabled={retryState.pending || state.loading || retryState.requiresRefresh} onClick={retry}>Перезапустить проверку</Button> : undefined}>
         {data.rejectionReason || 'Проверка завершилась технической ошибкой.'}
       </Plate>}
       {retryState.error && <ErrorNotice title="Не удалось перезапустить проверку" message={retryState.error} />}

@@ -2,6 +2,13 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
+// jsdom does not implement modal dialogs. This shim only exposes open/close;
+// native modality, keyboard focus trapping and inert background are tested in Chromium.
+if (!HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
+  HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+}
+
 // jsdom has no layout engine or matchMedia. Components remain real; responsive
 // layout and media-query changes are checked in Chromium, not by this shim.
 Object.defineProperty(window, 'matchMedia', {

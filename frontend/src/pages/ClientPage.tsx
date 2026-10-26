@@ -15,7 +15,8 @@ export function ClientPage() {
   const { applications, loading, error, pollIssues, refresh, update, retryPolling } = useClientApplications(api);
   const [trackedIds, setTrackedIds] = useState<Set<number>>(() => new Set());
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  useEffect(() => { setSelectedId(null); }, [api, session]);
+  const [uncertainIds, setUncertainIds] = useState<Set<number>>(() => new Set());
+  useEffect(() => { setSelectedId(null); setUncertainIds(new Set()); setTrackedIds(new Set()); }, [api, session]);
   useEffect(() => {
     setTrackedIds((current) => {
       const pending = applications.filter((item) => item.status === 'PROCESSING' && !current.has(item.id));
@@ -67,6 +68,14 @@ export function ClientPage() {
       {applications.length > 0 && <ApplicationsTable applications={applications} onSelect={(application) => setSelectedId(application.id)} />}
       {!loading && !error && applications.length === 0 && <EmptyState title="Заявок пока нет">Отправьте первую заявку — она появится здесь вместе со статусом.</EmptyState>}
     </section>
-    {selected && <ApplicationAgreement key={selected.id} application={selected} onUpdated={update} onRefresh={refresh} />}
+    {selected && <ApplicationAgreement key={selected.id} application={selected} onUpdated={update} onRefresh={refresh}
+      requiresReconciliation={uncertainIds.has(selected.id)} onReconciliationChange={(required) => {
+        setUncertainIds((current) => {
+          const next = new Set(current);
+          if (required) next.add(selected.id);
+          else next.delete(selected.id);
+          return next;
+        });
+      }} />}
   </>;
 }

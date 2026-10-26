@@ -110,6 +110,7 @@ describe('employee application dossier', () => {
     await act(async () => { pending.resolve(jsonResponse(approvedApplication)); });
     expect(await screen.findByText('Одобрено')).toBeVisible();
     expect(onUpdated).toHaveBeenCalledOnce();
+    expect(onUpdated).toHaveBeenCalledWith(approvedApplication);
     expect(reads).toBe(2);
     expect(screen.queryByText('В обработке')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Перезапустить проверку' })).not.toBeInTheDocument();
@@ -122,14 +123,109 @@ describe('employee application dossier', () => {
     vi.stubGlobal('fetch', fetch);
     const { onUpdated } = renderDossier();
     fireEvent.click(await screen.findByRole('button', { name: 'Перезапустить проверку' }));
-    expect(await screen.findByText('Повторный запуск завершился ошибкой')).toBeVisible();
+    expect(await screen.findByText(/Повторный запуск завершился ошибкой/)).toBeVisible();
     expect(onUpdated).not.toHaveBeenCalled();
     expect(fetch).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('button', { name: 'Перезапустить проверку' })).toBeDisabled();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Обновить досье' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'Обновить досье' }));
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3));
-    expect(await screen.findByRole('button', { name: 'Перезапустить проверку' })).toBeEnabled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Перезапустить проверку' })).toBeEnabled());
     expect(fetch.mock.calls.at(-1)![1]!.method).toBe('GET');
+    expect(fetch.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+  });
+
+  it.each(['network', 'server', 'invalid response'] as const)('blocks another POST after an ambiguous %s result until a dossier GET succeeds', async (failure) => {
+    let reads = 0;
+    const fetch = vi.fn<typeof globalThis.fetch>((_url, options) => {
+      if (options?.method === 'POST') {
+        if (failure === 'network') return Promise.reject(new TypeError('Network failure'));
+        return Promise.resolve(failure === 'server'
+          ? jsonResponse({ message: 'Проверка временно недоступна' }, 503)
+          : jsonResponse({ unexpected: true }));
+      }
+      reads += 1;
+      return Promise.resolve(reads === 2
+        ? jsonResponse({ message: 'Не удалось уточнить результат' }, 503)
+        : jsonResponse(technicalDetails));
+    });
+    vi.stubGlobal('fetch', fetch);
+    const { onUpdated } = renderDossier();
+    fireEvent.click(await screen.findByRole('button', { name: 'Перезапустить проверку' }));
+
+    expect(await screen.findByText(/Результат проверки неизвестен/)).toBeVisible();
+    const retry = screen.getByRole('button', { name: 'Перезапустить проверку' });
+    expect(retry).toBeDisabled();
+    fireEvent.click(retry);
+    expect(fetch.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Обновить досье' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить досье' }));
+
+    expect(await screen.findByText('Не удалось уточнить результат')).toBeVisible();
+    expect(screen.getByText('Не удалось обновить досье')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Перезапустить проверку' })).toBeDisabled();
+    expect(screen.getByText(/Результат проверки неизвестен/)).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Перезапустить проверку' }));
+    expect(fetch.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Обновить досье' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить досье' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Перезапустить проверку' })).toBeEnabled());
+    expect(screen.queryByText(/Результат проверки неизвестен/)).not.toBeInTheDocument();
+    expect(reads).toBe(3);
+    expect(onUpdated).not.toHaveBeenCalled();
+    expect(fetch.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+  });
+
+  it('keeps a successful retry result and reports a subsequent dossier read failure separately', async () => {
+    const refresh = deferred<Response>();
+    const result = { ...approvedApplication, approvedAmount: 345678, approvedRate: 22.75 };
+    let reads = 0;
+    const fetch = vi.fn<typeof globalThis.fetch>((_url, options) => {
+      if (options?.method === 'POST') return Promise.resolve(jsonResponse(result));
+      return reads++ === 0 ? Promise.resolve(jsonResponse(technicalDetails)) : refresh.promise;
+    });
+    vi.stubGlobal('fetch', fetch);
+    const { onUpdated } = renderDossier();
+    fireEvent.click(await screen.findByRole('button', { name: 'Перезапустить проверку' }));
+
+    await waitFor(() => expect(onUpdated).toHaveBeenCalledWith(result));
+    expect(screen.getByText('Одобрено')).toBeVisible();
+    expect(within(metric('Одобренная сумма')).getByText(/345\s*678\s*₽/)).toBeVisible();
+    expect(within(metric('Ставка')).getByText('22.75%')).toBeVisible();
+    expect(screen.getByText('Результат повторной проверки получен. Статус заявки обновлён.')).toBeVisible();
+    expect(screen.getByText('Обновляем досье…')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Перезапустить проверку' })).not.toBeInTheDocument();
+
+    await act(async () => { refresh.resolve(jsonResponse({ message: 'Досье временно недоступно' }, 503)); });
+
+    expect(await screen.findByText('Досье временно недоступно')).toBeVisible();
+    expect(screen.getByText('Не удалось обновить досье')).toBeVisible();
+    expect(screen.getByText('Одобрено')).toBeVisible();
+    expect(screen.getByText('Результат повторной проверки получен. Статус заявки обновлён.')).toBeVisible();
+    expect(screen.queryByText('Не удалось перезапустить проверку')).not.toBeInTheDocument();
+    expect(screen.queryByText('Технический сбой проверки')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Перезапустить проверку' })).not.toBeInTheDocument();
+    expect(onUpdated).toHaveBeenCalledOnce();
+    expect(fetch.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+  });
+
+  it('does not reuse old retry eligibility when the successful POST still returns manual review and the dossier GET fails', async () => {
+    const result = { ...approvedApplication, status: 'MANUAL_REVIEW', rejectionReason: 'Требуется ручное решение' };
+    let reads = 0;
+    const fetch = vi.fn<typeof globalThis.fetch>((_url, options) => Promise.resolve(options?.method === 'POST'
+      ? jsonResponse(result)
+      : reads++ === 0 ? jsonResponse(technicalDetails) : jsonResponse({ message: 'Досье не обновилось' }, 503)));
+    vi.stubGlobal('fetch', fetch);
+    const { onUpdated } = renderDossier();
+    fireEvent.click(await screen.findByRole('button', { name: 'Перезапустить проверку' }));
+
+    expect(await screen.findByText('Досье не обновилось')).toBeVisible();
+    expect(screen.getByText('На ручной проверке')).toBeVisible();
+    expect(screen.getByText('Требуется ручное решение')).toBeVisible();
+    expect(screen.queryByText('Технический сбой проверки')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Перезапустить проверку' })).not.toBeInTheDocument();
+    expect(onUpdated).toHaveBeenCalledWith(result);
     expect(fetch.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
   });
 

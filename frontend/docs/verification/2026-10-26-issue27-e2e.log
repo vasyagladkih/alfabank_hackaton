@@ -1,0 +1,43 @@
+
+> alfa-credit-workspace@1.0.0 test:e2e
+> playwright test --workers=2
+
+[WebServer] (node:3292037) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 28 tests using 2 workers
+
+(node:3292136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3292135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/agreements-dossiers.spec.ts:21:1 › restored approved history opens server terms and signs once only after consent and four SMS digits (1.1s)
+  ✓   2 [chromium] › e2e/agreements-dossiers.spec.ts:98:3 › an ambiguous signing 503 blocks another POST until an authoritative GET succeeds (1.8s)
+  ✓   3 [chromium] › e2e/agreements-dossiers.spec.ts:98:3 › an ambiguous signing network blocks another POST until an authoritative GET succeeds (1.3s)
+  ✓   5 [chromium] › e2e/agreements-dossiers.spec.ts:165:1 › a technical dossier shows server data and retry refreshes the registry and an already final decision (576ms)
+  ✓   4 [chromium] › e2e/agreements-dossiers.spec.ts:139:1 › a rejected signing code stays editable and a corrected four-digit code can be submitted (1.3s)
+  ✓   6 [chromium] › e2e/agreements-dossiers.spec.ts:236:3 › an ineligible BORDERLINE_SCORE dossier exposes no retry action and tolerates Java null snapshots (1.4s)
+  ✓   7 [chromium] › e2e/agreements-dossiers.spec.ts:236:3 › an ineligible TECH_FAILURE dossier exposes no retry action and tolerates Java null snapshots (1.4s)
+  ✓   8 [chromium] › e2e/agreements-dossiers.spec.ts:266:1 › dossier and retry errors recover with explicit GET requests without automatically repeating the POST (1.1s)
+  ✓  10 [chromium] › e2e/agreements-dossiers.spec.ts:336:1 › dossier drawer keeps keyboard focus inside, closes with Escape and restores its opener (550ms)
+  ✓  11 [chromium] › e2e/workspaces.spec.ts:33:3 › demo login client_good: server profile, route, and Bearer requests (307ms)
+  ✓  12 [chromium] › e2e/workspaces.spec.ts:33:3 › demo login client_bad: server profile, route, and Bearer requests (300ms)
+  ✓  13 [chromium] › e2e/workspaces.spec.ts:33:3 › demo login bank_employee: server profile, route, and Bearer requests (271ms)
+  ✓  14 [chromium] › e2e/workspaces.spec.ts:56:1 › guests cannot open either workspace and the root opens login (392ms)
+  ✓  15 [chromium] › e2e/workspaces.spec.ts:67:1 › refresh restores the server profile and logout clears both storage keys (446ms)
+  ✓  16 [chromium] › e2e/workspaces.spec.ts:86:3 › CLIENT cross-role 403 preserves session, returns home, and switches user (438ms)
+  ✓   9 [chromium] › e2e/agreements-dossiers.spec.ts:299:1 › selected agreement and dossier remain responsive and have no serious or critical axe violations (3.9s)
+  ✓  18 [chromium] › e2e/workspaces.spec.ts:111:3 › HTTP 401 from the API expires the session (332ms)
+  ✓  17 [chromium] › e2e/workspaces.spec.ts:86:3 › EMPLOYEE cross-role 403 preserves session, returns home, and switches user (492ms)
+  ✓  19 [chromium] › e2e/workspaces.spec.ts:111:3 › HTTP 403 from the API retains the session (286ms)
+  ✓  20 [chromium] › e2e/workspaces.spec.ts:128:3 › create once, poll, and show APPROVED (480ms)
+  ✓  21 [chromium] › e2e/workspaces.spec.ts:128:3 › create once, poll, and show REJECTED with its reason (475ms)
+  ✓  22 [chromium] › e2e/workspaces.spec.ts:179:1 › refresh resumes a processing application and logout stops future polling (564ms)
+  ✓  23 [chromium] › e2e/workspaces.spec.ts:198:1 › employee ALL uses one paginated request, preserves server order, filters, and refreshes (1.1s)
+  ✓  24 [chromium] › e2e/workspaces.spec.ts:234:1 › employee pagination uses server totals, refreshes the current page, and resets on a filter change (1.0s)
+  ✓  25 [chromium] › e2e/workspaces.spec.ts:305:1 › an empty employee page shows zero totals and disables both pagination buttons (283ms)
+  ✓  26 [chromium] › e2e/workspaces.spec.ts:317:1 › an ALL request failure shows an error without a partial registry and refresh recovers (1.2s)
+  ✓  28 [chromium] › e2e/workspaces.spec.ts:393:1 › form reports invalid bounds, focuses the field, and accepts inclusive minimums (462ms)
+  ✓  27 [chromium] › e2e/workspaces.spec.ts:342:1 › all four Core screens are responsive and have no serious or critical axe violations (6.7s)
+
+  28 passed (18.8s)

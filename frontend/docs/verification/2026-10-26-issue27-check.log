@@ -1,0 +1,48 @@
+
+> alfa-credit-workspace@1.0.0 check
+> npm run check:api && npm run lint && npm test && npm run build
+
+
+> alfa-credit-workspace@1.0.0 check:api
+> node scripts/check-api.mjs
+
+API types match docs/openapi.yaml.
+
+> alfa-credit-workspace@1.0.0 lint
+> eslint .
+
+
+> alfa-credit-workspace@1.0.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /home/be0h/projects/alfabank_hackaton/feat-27-signing-dossier-retry/frontend
+
+
+ Test Files  15 passed (15)
+      Tests  332 passed (332)
+   Start at  17:17:47
+   Duration  7.06s (tests 55%, environment 30%, setup 9%, import 5%, transform 1%)
+
+Environment  jsdom was created 15 times · 9.60s total, 30% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+> alfa-credit-workspace@1.0.0 build
+> npm run typecheck && vite build
+
+
+> alfa-credit-workspace@1.0.0 typecheck
+> tsc --noEmit
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 742 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.74 kB │ gzip:   0.45 kB
+dist/assets/index-CcvvvMhN.css  280.73 kB │ gzip:  35.52 kB
+dist/assets/index-CBVRaPRi.js   419.50 kB │ gzip: 127.30 kB
+
+✓ built in 154ms

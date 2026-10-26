@@ -92,7 +92,7 @@ describe('employee registry pages', () => {
     await act(async () => { pending.resolve(jsonResponse(applicationPage)); });
   });
 
-  it('opens one dossier below the registry and replaces it when another application is selected', async () => {
+  it('opens a modal dossier and returns focus to its trigger on close', async () => {
     const fetch = vi.fn<typeof globalThis.fetch>((url) => {
       const path = String(url);
       if (path.endsWith('/42')) return Promise.resolve(jsonResponse(applicationDetails));
@@ -101,15 +101,24 @@ describe('employee registry pages', () => {
     });
     vi.stubGlobal('fetch', fetch);
     renderRegistry();
-    fireEvent.click(await screen.findByRole('button', { name: 'Досье заявки №42' }));
+    const opener = await screen.findByRole('button', { name: 'Досье заявки №42' });
+    opener.focus();
+    fireEvent.click(opener);
     expect(await screen.findByText('ACTIVE')).toBeVisible();
-    const registry = screen.getByRole('region', { name: 'Мониторинг заявок' });
-    const dossier = screen.getByRole('region', { name: 'Досье заявки №42' });
-    expect(registry.compareDocumentPosition(dossier) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const dialog = screen.getByRole('dialog', { name: 'Досье заявки №42' });
+    expect(dialog).toHaveAttribute('open');
+    expect(within(dialog).getByRole('button', { name: 'Закрыть досье' })).toHaveFocus();
+    expect(document.body.style.overflow).toBe('hidden');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Закрыть досье' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(opener).toHaveFocus();
+    expect(document.body.style.overflow).toBe('');
     fireEvent.click(screen.getByRole('button', { name: 'Досье заявки №43' }));
     expect(await screen.findByText('Другой заёмщик')).toBeVisible();
-    expect(screen.getAllByRole('region', { name: /Досье заявки/ })).toHaveLength(1);
+    expect(screen.getAllByRole('dialog', { name: /Досье заявки/ })).toHaveLength(1);
     expect(screen.queryByRole('region', { name: 'Досье заявки №42' })).not.toBeInTheDocument();
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { bubbles: false, cancelable: true }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it.each(['filter', 'page'] as const)('clears the dossier and aborts its read when changing the %s', async (change) => {
@@ -144,6 +153,40 @@ describe('employee registry pages', () => {
     expect(signal.aborted).toBe(true);
     await act(async () => { pending.resolve(jsonResponse(applicationDetails)); });
     expect(screen.queryByRole('region', { name: /Досье заявки/ })).not.toBeInTheDocument();
+  });
+
+  it('clamps a page emptied by retry and keeps its dossier open outside the current filter', async () => {
+    let retried = false;
+    const listUrls: string[] = [];
+    vi.stubGlobal('fetch', vi.fn<typeof globalThis.fetch>((url, options) => {
+      const path = String(url);
+      if (options?.method === 'POST') {
+        retried = true;
+        return Promise.resolve(jsonResponse({ ...approvedApplication, id: 44 }));
+      }
+      if (path.endsWith('/44')) return Promise.resolve(jsonResponse({
+        ...applicationDetails, id: 44, status: retried ? 'APPROVED' : 'MANUAL_REVIEW',
+        reviewReasonCode: 'TECH_FAILURE', canRetry: !retried,
+      }));
+      listUrls.push(path);
+      const page = Number(new URL(path, 'http://localhost').searchParams.get('page'));
+      return Promise.resolve(jsonResponse({
+        ...applicationPage, page, totalPages: retried ? 1 : 2, totalElements: retried ? 10 : 11,
+        items: retried && page === 1 ? [] : [{ ...application, id: page === 0 ? 42 : 44, status: 'MANUAL_REVIEW' }],
+      }));
+    }));
+    renderRegistry();
+    await screen.findByText('Страница 1 из 2');
+    fireEvent.change(screen.getByRole('combobox', { name: 'Статус заявки' }), { target: { value: 'MANUAL_REVIEW' } });
+    await screen.findByText('Страница 1 из 2');
+    fireEvent.click(screen.getByRole('button', { name: 'Далее' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Досье заявки №44' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Перезапустить проверку' }));
+    await screen.findByText('Страница 1 из 1');
+    expect(within(screen.getByRole('dialog', { name: 'Досье заявки №44' })).getByText('Одобрено')).toBeVisible();
+    expect(listUrls.at(-1)).toBe('/api/v1/employee/applications?page=0&size=10&status=MANUAL_REVIEW');
+    fireEvent.click(screen.getByRole('button', { name: 'Закрыть досье' }));
+    expect(screen.getByRole('heading', { name: 'Мониторинг заявок' })).toHaveFocus();
   });
 
   it('refreshes the current registry page and selected dossier after a synchronous retry', async () => {

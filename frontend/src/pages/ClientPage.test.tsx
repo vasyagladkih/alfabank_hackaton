@@ -10,7 +10,7 @@ function renderClient() {
   return render(<MemoryRouter><AuthProvider><ClientPage /></AuthProvider></MemoryRouter>);
 }
 
-function enterSigningFields(code = 'abc-9') {
+function enterSigningFields(code = '0001') {
   fireEvent.click(screen.getByRole('checkbox', { name: 'Согласен с условиями договора' }));
   fireEvent.change(screen.getByRole('textbox', { name: 'Код из СМС' }), { target: { value: code } });
 }
@@ -55,12 +55,13 @@ describe('client application agreement in history', () => {
 
   it('refreshes an uncertain signing result without sending the POST again', async () => {
     let signed = false;
-    const fetch = vi.fn(async (_url: string, init: RequestInit) => {
+    const fetch = vi.fn(async (url: string, init: RequestInit) => {
       if (init.method === 'POST') {
         signed = true;
         return jsonResponse({ message: 'Ответ на подписание потерян' }, 503);
       }
-      return jsonResponse([{ ...approvedApplication, status: signed ? 'SIGNED' : 'APPROVED' }]);
+      const current = { ...approvedApplication, status: signed ? 'SIGNED' : 'APPROVED' };
+      return jsonResponse(url.endsWith('/42') ? current : [current]);
     });
     vi.stubGlobal('fetch', fetch);
     renderClient();
@@ -68,13 +69,39 @@ describe('client application agreement in history', () => {
     enterSigningFields();
     fireEvent.click(screen.getByRole('button', { name: 'Подписать договор' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('договор мог быть подписан сервером');
+    expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeDisabled();
     const form = screen.getByRole('form', { name: 'Подписание договора' });
     fireEvent.click(within(form).getByRole('button', { name: 'Обновить историю' }));
 
     await waitFor(() => expect(screen.queryByRole('form', { name: 'Подписание договора' })).not.toBeInTheDocument());
     expect(screen.getByRole('status')).toHaveTextContent('Договор подписан.');
     expect(fetch.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(1);
-    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(fetch.mock.calls.some(([url]) => url === '/api/v1/client/applications/42')).toBe(true);
+  });
+
+  it('keeps an uncertain signature blocked after selecting another application and returning', async () => {
+    const history = [approvedApplication, { ...approvedApplication, id: 43 }];
+    const fetch = vi.fn(async (url: string, init: RequestInit) => {
+      if (init.method === 'POST') return jsonResponse({ message: 'Результат подписания неизвестен' }, 503);
+      return jsonResponse(url.endsWith('/42') ? approvedApplication : history);
+    });
+    vi.stubGlobal('fetch', fetch);
+    renderClient();
+    fireEvent.click(await screen.findByRole('button', { name: 'Условия заявки №42' }));
+    enterSigningFields();
+    fireEvent.click(screen.getByRole('button', { name: 'Подписать договор' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('договор мог быть подписан сервером');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Условия заявки №43' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Условия заявки №42' }));
+    enterSigningFields();
+    expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeDisabled();
+    const form = screen.getByRole('form', { name: 'Подписание договора' });
+    fireEvent.click(within(form).getByRole('button', { name: 'Обновить историю' }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeEnabled());
+    expect(fetch.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(1);
+    expect(fetch.mock.calls.some(([url]) => url === '/api/v1/client/applications/42')).toBe(true);
   });
 
   it('resets consent and code on selection and ignores signing from the previous selection', async () => {
@@ -96,10 +123,42 @@ describe('client application agreement in history', () => {
     expect(screen.getByRole('textbox', { name: 'Код из СМС' })).toHaveValue('');
     await act(async () => { pending.resolve(jsonResponse({ ...approvedApplication, status: 'SIGNED' })); });
     fireEvent.click(screen.getByRole('button', { name: 'Условия заявки №42' }));
-    expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeDisabled();
     expect(screen.getByRole('checkbox', { name: 'Согласен с условиями договора' })).not.toBeChecked();
     expect(screen.getByRole('textbox', { name: 'Код из СМС' })).toHaveValue('');
     expect(within(screen.getByRole('table', { name: 'История заявок' })).queryByText('Договор подписан')).not.toBeInTheDocument();
+  });
+
+  it.each(['pending', 'uncertain'] as const)('hides prior-session agreements after a %s signature until fresh history succeeds', async (outcome) => {
+    const signature = deferred<Response>();
+    const replacementHistory = deferred<Response>();
+    let reads = 0;
+    const fetch = vi.fn<typeof globalThis.fetch>((_url, init) => {
+      if (init?.method === 'POST') return outcome === 'pending' ? signature.promise
+        : Promise.resolve(jsonResponse({ message: 'Ответ потерян' }, 503));
+      reads += 1;
+      return reads === 1 ? Promise.resolve(jsonResponse([approvedApplication])) : replacementHistory.promise;
+    });
+    vi.stubGlobal('fetch', fetch);
+    renderClient();
+    fireEvent.click(await screen.findByRole('button', { name: 'Условия заявки №42' }));
+    enterSigningFields();
+    fireEvent.click(screen.getByRole('button', { name: 'Подписать договор' }));
+    if (outcome === 'uncertain') await screen.findByRole('alert');
+    const signal = fetch.mock.calls.find(([, init]) => init?.method === 'POST')![1]!.signal as AbortSignal;
+
+    act(() => {
+      localStorage.setItem('auth_token', 'replacement-client-session');
+      window.dispatchEvent(new StorageEvent('storage', { key: 'auth_token' }));
+    });
+    if (outcome === 'pending') expect(signal.aborted).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Условия заявки №42' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: 'Подписание договора' })).not.toBeInTheDocument();
+    await act(async () => { replacementHistory.reject(new TypeError('offline')); });
+    expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось обновить историю');
+    await act(async () => { signature.resolve(jsonResponse({ ...approvedApplication, status: 'SIGNED' })); });
+    expect(screen.queryByRole('button', { name: 'Условия заявки №42' })).not.toBeInTheDocument();
+    expect(fetch.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(1);
   });
 
   it('clears the selected agreement when the API session changes', async () => {

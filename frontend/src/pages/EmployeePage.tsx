@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@alfalab/core-components-button';
 import { Typography } from '@alfalab/core-components-typography';
 import { useAuth } from '../auth/AuthProvider';
-import type { ApplicationPage, StatusFilter } from '../api/types';
+import type { Application, ApplicationPage, StatusFilter } from '../api/types';
 import { errorMessage, isAbortError } from '../api/client';
 import { IdentityBar } from '../components/Layout';
 import { EmptyState, ErrorNotice, Loading } from '../components/Feedback';
 import { NativeSelectField } from '../components/NativeSelectField';
 import { ApplicationDossier } from '../features/applications/ApplicationDossier';
+import { DossierDrawer } from '../features/applications/DossierDrawer';
 import { ApplicationsTable } from '../features/applications/ApplicationsTable';
 import { APPLICATION_STATUSES, STATUS_LABELS } from '../features/applications/model';
 
@@ -21,14 +22,24 @@ export function EmployeePage() {
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState<{ data: ApplicationPage | null; loading: boolean; error: string | null }>({ data: null, loading: true, error: null });
   const refresh = () => setRevision((value) => value + 1);
+  const closeDossier = useCallback(() => setSelectedId(null), []);
+  const applicationUpdated = (application: Application) => {
+    setState((current) => current.data ? { ...current, data: {
+      ...current.data, items: current.data.items.map((item) => item.id === application.id ? application : item),
+    } } : current);
+    refresh();
+  };
 
-  useEffect(() => { setSelectedId(null); }, [api, filter, page]);
+  useEffect(() => { setSelectedId(null); }, [api]);
 
   useEffect(() => {
     const controller = new AbortController();
     setState({ data: null, loading: true, error: null });
     void api.getEmployeeApplications(filter, page, 10, controller.signal).then((data) => {
-      if (!controller.signal.aborted) setState({ data, loading: false, error: null });
+      if (controller.signal.aborted) return;
+      const lastPage = Math.max(0, data.totalPages - 1);
+      if (page > lastPage) { setPage(lastPage); return; }
+      setState({ data, loading: false, error: null });
     }).catch((cause: unknown) => {
       if (!controller.signal.aborted && !isAbortError(cause)) setState({ data: null, loading: false, error: errorMessage(cause) });
     });
@@ -45,12 +56,12 @@ export function EmployeePage() {
     <section className="panel registry-panel" aria-labelledby="registry-title">
       <div className="section-toolbar registry-toolbar">
         <div className="section-heading">
-          <Typography.Title tag="h2" id="registry-title" view="small" font="system" defaultMargins={false}>Мониторинг заявок</Typography.Title>
+          <Typography.Title tag="h2" id="registry-title" tabIndex={-1} view="small" font="system" defaultMargins={false}>Мониторинг заявок</Typography.Title>
           <Typography.Text view="primary-small" color="secondary">{state.loading ? 'Загружаем реестр…' : state.error ? 'Не удалось получить реестр' : `Найдено заявок: ${state.data?.totalElements}`}</Typography.Text>
         </div>
         <div className="registry-controls">
           <NativeSelectField id="status-filter" label="Статус заявки" value={filter} options={options}
-            onChange={(value) => { setFilter(value as StatusFilter); setPage(0); }} />
+            onChange={(value) => { closeDossier(); setFilter(value as StatusFilter); setPage(0); }} />
           <Button view="secondary" size={48} loading={state.loading} disabled={state.loading} aria-label="Обновить" onClick={refresh}>Обновить</Button>
         </div>
       </div>
@@ -62,12 +73,14 @@ export function EmployeePage() {
         <nav className="section-toolbar" aria-label="Страницы реестра">
           <Typography.Text view="primary-small" color="secondary">Страница {state.data.totalPages === 0 ? 0 : state.data.page + 1} из {state.data.totalPages}</Typography.Text>
           <div className="pagination-controls">
-            <Button view="secondary" size={40} disabled={state.loading || page === 0} onClick={() => setPage((value) => value - 1)}>Назад</Button>
-            <Button view="secondary" size={40} disabled={state.loading || page + 1 >= state.data.totalPages} onClick={() => setPage((value) => value + 1)}>Далее</Button>
+            <Button view="secondary" size={40} disabled={state.loading || page === 0} onClick={() => { closeDossier(); setPage((value) => value - 1); }}>Назад</Button>
+            <Button view="secondary" size={40} disabled={state.loading || page + 1 >= state.data.totalPages} onClick={() => { closeDossier(); setPage((value) => value + 1); }}>Далее</Button>
           </div>
         </nav>
       </>}
     </section>
-    {selectedId !== null && <ApplicationDossier key={selectedId} applicationId={selectedId} onUpdated={refresh} />}
+    {selectedId !== null && <DossierDrawer key={selectedId} applicationId={selectedId} onClose={closeDossier}>
+      <ApplicationDossier applicationId={selectedId} onUpdated={applicationUpdated} />
+    </DossierDrawer>}
   </>;
 }

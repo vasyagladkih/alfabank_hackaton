@@ -18,7 +18,7 @@ function value(panel: Locator, label: string) {
   return panel.getByText(label, { exact: true }).locator('..').locator('dd');
 }
 
-test('restored approved history opens server terms and signs once only after consent and a nonblank SMS code', async ({ page, api }) => {
+test('restored approved history opens server terms and signs once only after consent and four SMS digits', async ({ page, api }) => {
   api.history = [approvedAgreement];
   const signed: Application = { ...approvedAgreement, status: 'SIGNED', updatedAt: '2026-10-22T14:35:00Z' };
   const releaseSign = deferred();
@@ -36,7 +36,9 @@ test('restored approved history opens server terms and signs once only after con
   await expect(panel).toHaveCount(1);
   await expect(panel.getByRole('heading', { name: 'Условия заявки №42', level: 2 })).toBeVisible();
   // The approved amount differs from the requested amount in the history row.
-  await expect(value(panel, 'Сумма кредита')).toHaveText(/^100\s000\s₽$/);
+  await expect(panel.getByRole('heading', { name: 'Банк предложил другие условия' })).toBeVisible();
+  await expect(value(panel, 'Запрошенная сумма')).toHaveText(/^1\s500\s000\s₽$/);
+  await expect(value(panel, 'Предложенная сумма')).toHaveText(/^100\s000\s₽$/);
   await expect(value(panel, 'Ставка')).toHaveText('18.5 % годовых');
   await expect(value(panel, 'Срок')).toHaveText('1 мес.');
   await expect(value(panel, 'Ежемесячный платёж')).toHaveText(/^101\s542\s₽$/);
@@ -55,22 +57,20 @@ test('restored approved history opens server terms and signs once only after con
   const consent = panel.getByRole('checkbox', { name: 'Согласен с условиями договора', exact: true });
   const sms = panel.getByRole('textbox', { name: 'Код из СМС', exact: true });
   const submit = panel.getByRole('button', { name: 'Подписать договор', exact: true });
-  const smsCode = '839205';
-  await submit.click();
-  await expect(consent).toHaveAttribute('aria-invalid', 'true');
-  await expect(sms).toHaveAttribute('aria-invalid', 'true');
+  const smsCode = '0001';
+  await expect(submit).toBeDisabled();
   expect(api.calls.sign).toEqual([]);
   await sms.fill(smsCode);
-  await submit.click();
-  await expect(consent).toHaveAttribute('aria-invalid', 'true');
-  expect(api.calls.sign).toEqual([]);
+  await expect(submit).toBeDisabled();
   await consent.check();
-  await sms.fill('   ');
-  await submit.click();
-  await expect(sms).toHaveAttribute('aria-invalid', 'true');
-  expect(api.calls.sign).toEqual([]);
+  for (const invalid of ['', '   ', 'abc', '123']) {
+    await sms.fill(invalid);
+    await expect(submit).toBeDisabled();
+    expect(api.calls.sign).toEqual([]);
+  }
 
   await sms.fill(smsCode);
+  await expect(submit).toBeEnabled();
   const signedResponse = page.waitForResponse((response) => response.request().method() === 'POST'
     && new URL(response.url()).pathname === '/api/v1/client/applications/42/sign');
   try {
@@ -94,26 +94,72 @@ test('restored approved history opens server terms and signs once only after con
   expect(api.calls.login).toEqual([]);
 });
 
-test('an ambiguous signing error uses history refresh without automatically resubmitting', async ({ page, api }) => {
+for (const failure of ['503', 'network'] as const) {
+  test(`an ambiguous signing ${failure} blocks another POST until an authoritative GET succeeds`, async ({ page, api }) => {
+    api.history = [approvedAgreement];
+    api.signReply = () => apiError(503, 'Сервис подписания временно недоступен.');
+    let refreshFails = true;
+    const signed: Application = { ...approvedAgreement, status: 'SIGNED', updatedAt: '2026-10-22T14:35:00Z' };
+    api.pollReply = () => refreshFails ? apiError(503, 'Не удалось проверить результат.') : { body: signed };
+    await openAs(page, api, sessions.client_good, '/client');
+    if (failure === 'network') {
+      await page.route('**/api/v1/client/applications/42/sign', async (route) => {
+        api.calls.sign.push({ id: 42, input: route.request().postDataJSON() });
+        await route.abort('connectionfailed');
+      });
+    }
+    await page.getByRole('button', { name: 'Условия заявки №42', exact: true }).click();
+    const panel = page.getByRole('region', { name: 'Условия заявки №42', exact: true });
+    await panel.getByRole('checkbox', { name: 'Согласен с условиями договора', exact: true }).check();
+    await panel.getByRole('textbox', { name: 'Код из СМС', exact: true }).fill('6842');
+    const submit = panel.getByRole('button', { name: 'Подписать договор', exact: true });
+    await submit.click();
+    await expect(panel.getByRole('alert')).toContainText('договор мог быть подписан сервером');
+    await expect(submit).toBeDisabled();
+    expect(api.calls.sign).toEqual([{ id: 42, input: { confirmTerms: true, smsCode: '6842' } }]);
+    const refresh = panel.getByRole('button', { name: 'Обновить историю', exact: true });
+    await refresh.click();
+    await expect.poll(() => api.calls.polls.length).toBe(1);
+    await expect(panel.getByRole('alert').filter({ hasText: 'Не удалось проверить результат.' })).toBeVisible();
+    await expect(submit).toBeDisabled();
+    expect(api.calls.sign).toHaveLength(1);
+
+    refreshFails = false;
+    api.history = [signed];
+    await expect(refresh).toBeEnabled();
+    await refresh.click();
+    await expect(panel.getByRole('status')).toContainText('Договор подписан');
+    await expect(panel.getByRole('button', { name: 'Подписать договор', exact: true })).toHaveCount(0);
+    expect(api.calls.polls).toEqual([42, 42]);
+    expect(api.calls.sign).toHaveLength(1);
+    await expectSession(page, sessions.client_good);
+  });
+}
+
+test('a rejected signing code stays editable and a corrected four-digit code can be submitted', async ({ page, api }) => {
   api.history = [approvedAgreement];
-  api.signReply = () => apiError(503, 'Сервис подписания временно недоступен.');
+  api.signReply = () => apiError(400, 'Неверный код подтверждения.');
   await openAs(page, api, sessions.client_good, '/client');
   await page.getByRole('button', { name: 'Условия заявки №42', exact: true }).click();
   const panel = page.getByRole('region', { name: 'Условия заявки №42', exact: true });
+  const sms = panel.getByRole('textbox', { name: 'Код из СМС', exact: true });
+  const submit = panel.getByRole('button', { name: 'Подписать договор', exact: true });
   await panel.getByRole('checkbox', { name: 'Согласен с условиями договора', exact: true }).check();
-  await panel.getByRole('textbox', { name: 'Код из СМС', exact: true }).fill('684209');
-  await panel.getByRole('button', { name: 'Подписать договор', exact: true }).click();
-  await expect(panel.getByRole('alert')).toContainText('Сервис подписания временно недоступен.');
-  await expect(panel.getByRole('alert')).toContainText('договор мог быть подписан сервером');
-  expect(api.calls.sign).toEqual([{ id: 42, input: { confirmTerms: true, smsCode: '684209' } }]);
-  const historyBefore = api.calls.history;
-  api.history = [{ ...approvedAgreement, status: 'SIGNED', updatedAt: '2026-10-22T14:35:00Z' }];
-  await panel.getByRole('button', { name: 'Обновить историю', exact: true }).click();
-  await expect.poll(() => api.calls.history).toBeGreaterThan(historyBefore);
-  await expect(panel.getByRole('status')).toContainText('Договор подписан');
-  await expect(panel.getByRole('button', { name: 'Подписать договор', exact: true })).toHaveCount(0);
+  await sms.fill('1234');
+  await submit.click();
+  await expect(panel.getByRole('alert')).toContainText('Неверный код подтверждения.');
+  await expect(sms).toBeEnabled();
+  await expect(submit).toBeEnabled();
   expect(api.calls.sign).toHaveLength(1);
-  await expectSession(page, sessions.client_good);
+  expect(api.calls.polls).toEqual([]);
+  api.signReply = () => ({ body: { ...approvedAgreement, status: 'SIGNED', updatedAt: '2026-10-22T14:35:00Z' } });
+  await sms.fill('0001');
+  await submit.click();
+  await expect(panel.getByRole('status')).toContainText('Договор подписан');
+  expect(api.calls.sign).toEqual([
+    { id: 42, input: { confirmTerms: true, smsCode: '1234' } },
+    { id: 42, input: { confirmTerms: true, smsCode: '0001' } },
+  ]);
 });
 
 test('a technical dossier shows server data and retry refreshes the registry and an already final decision', async ({ page, api }) => {
@@ -139,7 +185,7 @@ test('a technical dossier shows server data and retry refreshes the registry and
   };
   await openAs(page, api, sessions.bank_employee, '/employee');
   await page.getByRole('button', { name: 'Досье заявки №44', exact: true }).click();
-  const panel = page.getByRole('region', { name: 'Досье заявки №44', exact: true });
+  const panel = page.getByRole('dialog', { name: 'Досье заявки №44', exact: true });
   await expect(panel.getByRole('heading', { name: 'Досье заявки №44', level: 2 })).toBeVisible();
   for (const name of ['Данные заявки', 'ФНС', 'БКИ', 'Скоринг']) {
     await expect(panel.getByRole('heading', { name, exact: true })).toBeVisible();
@@ -172,9 +218,6 @@ test('a technical dossier shows server data and retry refreshes the registry and
   await (await retried).finished();
   await expect.poll(() => api.calls.employee.length).toBeGreaterThan(registryBefore);
   await expect.poll(() => api.calls.details.length).toBeGreaterThan(detailsBefore);
-  const row = page.getByRole('table', { name: 'Реестр кредитных заявок', exact: true })
-    .getByRole('row').filter({ has: page.getByRole('button', { name: 'Досье заявки №44', exact: true }) });
-  await expect(row).toContainText('Одобрено');
   await expect(panel).toContainText('Одобрено');
   await expect(panel.getByRole('table', { name: 'График платежей', exact: true })).toBeVisible();
   await expect(panel.getByText('Технический сбой проверки', { exact: true })).toHaveCount(0);
@@ -182,6 +225,10 @@ test('a technical dossier shows server data and retry refreshes the registry and
   expect(api.calls.retry).toEqual([44]);
   expect(api.calls.employee.slice(registryBefore)).toEqual([{ status: null, page: 0, size: 10 }]);
   expect(api.calls.details.slice(detailsBefore)).toEqual([44]);
+  await panel.getByRole('button', { name: 'Закрыть досье', exact: true }).click();
+  const row = page.getByRole('table', { name: 'Реестр кредитных заявок', exact: true })
+    .getByRole('row').filter({ has: page.getByRole('button', { name: 'Досье заявки №44', exact: true }) });
+  await expect(row).toContainText('Одобрено');
   await expectSession(page, sessions.bank_employee);
 });
 
@@ -200,7 +247,7 @@ for (const reason of ['BORDERLINE_SCORE', 'TECH_FAILURE'] as const) {
     } });
     await openAs(page, api, sessions.bank_employee, '/employee');
     await page.getByRole('button', { name: 'Досье заявки №44', exact: true }).click();
-    const panel = page.getByRole('region', { name: 'Досье заявки №44', exact: true });
+    const panel = page.getByRole('dialog', { name: 'Досье заявки №44', exact: true });
     await expect(panel.getByRole('heading', { name: 'БКИ', exact: true })).toBeVisible();
     await expect(value(panel, 'Балл БКИ')).toHaveText('—');
     await expect(value(panel, 'Текущие платежи в месяц')).toHaveText(/^0\s₽$/);
@@ -222,7 +269,7 @@ test('dossier and retry errors recover with explicit GET requests without automa
   api.retryReply = () => apiError(503, 'Повторная проверка временно недоступна.');
   await openAs(page, api, sessions.bank_employee, '/employee');
   await page.getByRole('button', { name: 'Досье заявки №44', exact: true }).click();
-  const panel = page.getByRole('region', { name: 'Досье заявки №44', exact: true });
+  const panel = page.getByRole('dialog', { name: 'Досье заявки №44', exact: true });
   await expect(panel.getByRole('alert')).toContainText('Досье временно недоступно.');
   expect(api.calls.details).toEqual([44]);
   expect(api.calls.retry).toEqual([]);
@@ -234,8 +281,16 @@ test('dossier and retry errors recover with explicit GET requests without automa
   await expect(panel.getByRole('alert').filter({ hasText: 'Повторная проверка временно недоступна.' }))
     .toContainText('Повторная проверка временно недоступна.');
   expect(api.calls.retry).toEqual([44]);
+  await expect(panel.getByRole('button', { name: 'Перезапустить проверку', exact: true })).toBeDisabled();
+  detailsFail = true;
   await panel.getByRole('button', { name: 'Обновить досье', exact: true }).click();
   await expect.poll(() => api.calls.details.length).toBe(3);
+  await expect(panel.getByRole('alert').filter({ hasText: 'Досье временно недоступно.' })).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Перезапустить проверку', exact: true })).toBeDisabled();
+  expect(api.calls.retry).toEqual([44]);
+  detailsFail = false;
+  await panel.getByRole('button', { name: 'Обновить досье', exact: true }).click();
+  await expect.poll(() => api.calls.details.length).toBe(4);
   await expect(panel.getByRole('button', { name: 'Перезапустить проверку', exact: true })).toBeEnabled();
   expect(api.calls.retry).toEqual([44]);
   await expectSession(page, sessions.bank_employee);
@@ -258,19 +313,50 @@ test('selected agreement and dossier remain responsive and have no serious or cr
     await openAs(page, api, workspace === 'client' ? sessions.client_good : sessions.bank_employee, `/${workspace}`);
     const name = workspace === 'client' ? 'Условия заявки №42' : 'Досье заявки №44';
     await page.getByRole('button', { name, exact: true }).click();
-    const panel = page.getByRole('region', { name, exact: true });
+    const panel = page.getByRole(workspace === 'employee' ? 'dialog' : 'region', { name, exact: true });
     await expect(panel.getByRole('table', { name: 'График платежей', exact: true })).toBeVisible();
-    for (const width of [390, 1440]) {
+    for (const width of [320, 390, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
       const dimensions = await page.evaluate(() => ({ viewport: window.innerWidth, content: document.documentElement.scrollWidth }));
       expect(dimensions.content, `${workspace} selected panel at ${width}px must not overflow`).toBeLessThanOrEqual(dimensions.viewport + 1);
+      const panelWidth = await panel.evaluate((element) => element.getBoundingClientRect().width);
+      expect(panelWidth, `${workspace} panel at ${width}px must fit the viewport`).toBeLessThanOrEqual(width + 1);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
       const serious = result.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical');
       expect(serious, `${workspace} selected panel at ${width}px: ${serious.map((violation) => `${violation.id}: ${violation.help}`).join('; ')}`).toEqual([]);
     }
+    if (workspace === 'employee') await panel.getByRole('button', { name: 'Закрыть досье', exact: true }).click();
     await page.getByRole('button', { name: 'Выйти', exact: true }).click();
     await expect(page).toHaveURL(/\/login$/);
     await expectSession(page, null);
   }
+});
+
+test('dossier drawer keeps keyboard focus inside, closes with Escape and restores its opener', async ({ page, api }) => {
+  await openAs(page, api, sessions.bank_employee, '/employee');
+  const opener = page.getByRole('button', { name: 'Досье заявки №44', exact: true });
+  await opener.focus();
+  await page.keyboard.press('Enter');
+  const drawer = page.getByRole('dialog', { name: 'Досье заявки №44', exact: true });
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByRole('heading', { name: 'БКИ', exact: true })).toBeVisible();
+  const focusInside = () => drawer.evaluate((dialog) => dialog.contains(document.activeElement));
+  expect(await focusInside()).toBe(true);
+  const close = drawer.getByRole('button', { name: 'Закрыть досье', exact: true });
+  await close.focus();
+  await page.keyboard.press('Shift+Tab');
+  expect(await focusInside()).toBe(true);
+  await page.keyboard.press('Tab');
+  expect(await focusInside()).toBe(true);
+  const readsBefore = api.calls.details.length;
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(drawer).toBeVisible();
+  await expect.poll(() => api.calls.details.length).toBe(readsBefore + 1);
+  await drawer.getByRole('button', { name: 'Закрыть досье', exact: true }).click();
+  await expect(drawer).toHaveCount(0);
+  await expect(opener).toBeFocused();
 });
