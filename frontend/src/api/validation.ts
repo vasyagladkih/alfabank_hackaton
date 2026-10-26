@@ -120,13 +120,13 @@ function isScoringMetrics(value: unknown): boolean {
 
 export function isApplicationDetails(value: unknown): value is ApplicationDetails {
   return isRecord(value)
-    && isApplication(value)
     && (value.reviewReasonCode === undefined || value.reviewReasonCode === 'TECH_FAILURE' || value.reviewReasonCode === 'BORDERLINE_SCORE')
     && (value.canRetry === undefined || typeof value.canRetry === 'boolean')
     && (value.user === undefined || isUserProfile(value.user))
     && (value.fns === undefined || isFnsSnapshot(value.fns))
     && (value.bki === undefined || isBkiSnapshot(value.bki))
-    && (value.scoring === undefined || isScoringMetrics(value.scoring));
+    && (value.scoring === undefined || isScoringMetrics(value.scoring))
+    && isApplication(value);
 }
 
 export function isApplicationList(value: unknown): value is Application[] {
