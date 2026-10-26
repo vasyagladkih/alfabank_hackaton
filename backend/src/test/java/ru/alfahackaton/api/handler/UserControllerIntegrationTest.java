@@ -146,6 +146,48 @@ class UserControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("POST /api/v1/client/applications: срок вне диапазона 1–60 месяцев отклоняется до сервиса")
+    void testCreateApplicationRejectsInvalidTerm() throws Exception {
+        String clientToken = stubTokenService.generateToken(101L, "client_user", "CLIENT", "7701234567");
+
+        for (int termMonths : List.of(0, -1, 61)) {
+            CreateApplicationRequest request = new CreateApplicationRequest();
+            request.setAmount(1_500_000L);
+            request.setTermMonths(termMonths);
+            request.setPurpose(LoanPurpose.WORKING_CAPITAL);
+
+            mockMvc.perform(post("/api/v1/client/applications")
+                            .header("Authorization", "Bearer " + clientToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        Mockito.verifyNoInteractions(applicationService);
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/client/applications: сумма вне диапазона 100 000–50 000 000 рублей отклоняется до сервиса")
+    void testCreateApplicationRejectsInvalidAmount() throws Exception {
+        String clientToken = stubTokenService.generateToken(101L, "client_user", "CLIENT", "7701234567");
+
+        for (long amount : List.of(99_999L, 50_000_001L)) {
+            CreateApplicationRequest request = new CreateApplicationRequest();
+            request.setAmount(amount);
+            request.setTermMonths(12);
+            request.setPurpose(LoanPurpose.WORKING_CAPITAL);
+
+            mockMvc.perform(post("/api/v1/client/applications")
+                            .header("Authorization", "Bearer " + clientToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        Mockito.verifyNoInteractions(applicationService);
+    }
+
+    @Test
     @DisplayName("POST /api/v1/client/applications: запрос без JWT токена отклоняется со статусом 401")
     void testCreateApplicationWithoutTokenUnauthorized() throws Exception {
         CreateApplicationRequest request = new CreateApplicationRequest();
